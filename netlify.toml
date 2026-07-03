@@ -1,0 +1,8 @@
+[build]
+  publish = "app"
+  command = "true"
+
+[[redirects]]
+  from = "/"
+  to = "/disc_pps_pradeva.html"
+  status = 200
