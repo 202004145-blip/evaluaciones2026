@@ -1,0 +1,259 @@
+{
+  "test": "Sistema de Perfil Personal (DISC)",
+  "formato": "seleccion_forzada",
+  "instrucciones": "Para cada grupo de 4 palabras, elegir la que MÁS le describe y la que MENOS le describe.",
+  "items": [
+    {
+      "id": 1,
+      "palabras": {
+        "D": "rápido/a",
+        "I": "entusiasta",
+        "S": "apacible",
+        "C": "lógico/a"
+      }
+    },
+    {
+      "id": 2,
+      "palabras": {
+        "D": "decidido/a",
+        "I": "receptivo/a",
+        "S": "bondadoso/a",
+        "C": "cauteloso/a"
+      }
+    },
+    {
+      "id": 3,
+      "palabras": {
+        "D": "franco/a",
+        "I": "amigable",
+        "S": "tranquilo/a",
+        "C": "preciso/a"
+      }
+    },
+    {
+      "id": 4,
+      "palabras": {
+        "D": "decisivo/a",
+        "I": "elocuente",
+        "S": "tolerante",
+        "C": "controlado/a"
+      }
+    },
+    {
+      "id": 5,
+      "palabras": {
+        "D": "atrevido/a",
+        "I": "comunicativo/a",
+        "S": "moderado/a",
+        "C": "concienzudo/a"
+      }
+    },
+    {
+      "id": 6,
+      "palabras": {
+        "D": "acepta riesgos",
+        "I": "ameno/a",
+        "S": "investigador/a",
+        "C": "ingenioso/a"
+      }
+    },
+    {
+      "id": 7,
+      "palabras": {
+        "D": "dominante",
+        "I": "expresivo/a",
+        "S": "sensible",
+        "C": "cuidadoso/a"
+      }
+    },
+    {
+      "id": 8,
+      "palabras": {
+        "D": "impaciente",
+        "I": "extrovertido/a",
+        "S": "constante",
+        "C": "precavido/a"
+      }
+    },
+    {
+      "id": 9,
+      "palabras": {
+        "D": "insistente",
+        "I": "encantador/a",
+        "S": "complaciente",
+        "C": "discreto/a"
+      }
+    },
+    {
+      "id": 10,
+      "palabras": {
+        "D": "valeroso/a",
+        "I": "anima a los demás",
+        "S": "pacífico",
+        "C": "perfeccionista"
+      }
+    },
+    {
+      "id": 11,
+      "palabras": {
+        "D": "osado/a",
+        "I": "alegre",
+        "S": "atento/a",
+        "C": "reservado/a"
+      }
+    },
+    {
+      "id": 12,
+      "palabras": {
+        "D": "independiente",
+        "I": "estimulante",
+        "S": "gentil",
+        "C": "perceptivo/a"
+      }
+    },
+    {
+      "id": 13,
+      "palabras": {
+        "D": "competitivo/a",
+        "I": "alegre",
+        "S": "considerado/a",
+        "C": "sagaz"
+      }
+    },
+    {
+      "id": 14,
+      "palabras": {
+        "D": "ideas firmes",
+        "I": "alentador/a",
+        "S": "obediente",
+        "C": "meticuloso/a"
+      }
+    },
+    {
+      "id": 15,
+      "palabras": {
+        "D": "tenaz",
+        "I": "popular",
+        "S": "calmado/a",
+        "C": "reflexivo/a"
+      }
+    },
+    {
+      "id": 16,
+      "palabras": {
+        "D": "audaz",
+        "I": "promotor/a",
+        "S": "leal",
+        "C": "analítico/a"
+      }
+    },
+    {
+      "id": 17,
+      "palabras": {
+        "D": "auto suficiente",
+        "I": "sociable",
+        "S": "paciente",
+        "C": "certero/a"
+      }
+    },
+    {
+      "id": 18,
+      "palabras": {
+        "D": "resuelto/a",
+        "I": "vivaz",
+        "S": "adaptable",
+        "C": "prevenido/a"
+      }
+    },
+    {
+      "id": 19,
+      "palabras": {
+        "D": "agresivo/a",
+        "I": "amistoso/a",
+        "S": "impetuoso/a",
+        "C": "discerniente"
+      }
+    },
+    {
+      "id": 20,
+      "palabras": {
+        "D": "habla directo",
+        "I": "de trato fácil",
+        "S": "comprensivo/a",
+        "C": "cauto/a"
+      }
+    },
+    {
+      "id": 21,
+      "palabras": {
+        "D": "persistente",
+        "I": "animado/a",
+        "S": "generoso/a",
+        "C": "evaluador/a"
+      }
+    },
+    {
+      "id": 22,
+      "palabras": {
+        "D": "enérgico/a",
+        "I": "impulsivo/a",
+        "S": "tranquilo/a",
+        "C": "cuida los detalles"
+      }
+    },
+    {
+      "id": 23,
+      "palabras": {
+        "D": "vigoroso/a",
+        "I": "sociable",
+        "S": "tolerante",
+        "C": "sistemático/a"
+      }
+    },
+    {
+      "id": 24,
+      "palabras": {
+        "D": "exigente",
+        "I": "cautivador/a",
+        "S": "contento/a",
+        "C": "apegado/a a las normas"
+      }
+    },
+    {
+      "id": 25,
+      "palabras": {
+        "D": "le agrada discutir",
+        "I": "desenvuelto/a",
+        "S": "comedido/a",
+        "C": "metódico/a"
+      }
+    },
+    {
+      "id": 26,
+      "palabras": {
+        "D": "directo/a",
+        "I": "jovial",
+        "S": "ecuánime",
+        "C": "preciso/a"
+      }
+    },
+    {
+      "id": 27,
+      "palabras": {
+        "D": "inquieto/a",
+        "I": "elocuente",
+        "S": "amable",
+        "C": "cuidadoso/a"
+      }
+    },
+    {
+      "id": 28,
+      "palabras": {
+        "D": "pionero",
+        "I": "espontáneo/a",
+        "S": "colaborador",
+        "C": "prudente"
+      }
+    }
+  ]
+}
