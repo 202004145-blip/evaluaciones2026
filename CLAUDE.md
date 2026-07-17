@@ -6,12 +6,18 @@ Aplicación web para administrar y calificar el test psicométrico DISC (Persona
 
 ## Estado actual
 
-`app/disc_pps_pradeva.html` es la app funcional completa (un solo archivo HTML+CSS+JS). Ya implementa:
+La migración a aplicación real (Node/Express + SQLite) ya está en marcha en `server/` y `public/`. `app/disc_pps_pradeva.html` se conserva solo como referencia visual/funcional original (un solo archivo HTML+CSS+JS con `window.storage`, que no existe fuera de Claude.ai) — no se usa en producción.
 
-- Flujo del evaluado: intro → datos personales → 28 grupos de palabras (elige una MÁS y una MENOS por grupo, sin repetir) → mensaje "Gracias por tu respuesta" (cierre ciego: el evaluado NUNCA ve sus resultados).
-- Calificación oficial completa (ver "Lógica de calificación" abajo).
-- Panel del evaluador protegido con clave (`4SIS.g2026`, constante `ACCESS_KEY` en el JS) con: lista de evaluados, detalle en 3 secciones (1. resultados en bruto pregunta+respuesta, 2. corrección con conteos/niveles/códigos, 3. interpretación con patrón clásico y estilo predominante), borrado con confirmación de dos pasos, y exportación a Word (.doc vía HTML), Excel (.xls vía SpreadsheetML), HTML autocontenido y JSON.
-- Persistencia con `window.storage` (API exclusiva de artefactos de Claude.ai — NO existe en un navegador normal; ver "Trabajo pendiente").
+Implementado en la app migrada:
+
+- Backend Express + SQLite (`server/db.js`): tablas `sesiones`, `respuestas` (una fila por ítem, permite guardado incremental y reanudación), `resultados`, `evaluadores`.
+- Motor de calificación puro (`server/scoring/scoring.js`) con tests (`node --test`, ver `server/scoring/scoring.test.js`) que verifican los invariantes de este documento.
+- API REST (`server/routes/`): crear sesión de evaluado, guardar respuesta por ítem (autosave), reanudar sesión vía token propio, finalizar (califica y guarda), listar/leer/borrar resultados (protegido), exportar docx/xlsx/html/json (protegido).
+- Login real del evaluador del lado del servidor: contraseña con hash bcrypt en SQLite, sesión de servidor (`express-session`, cookie httpOnly). La contraseña se fija con `npm run set-admin-password` (interactivo, oculto) — nunca se escribe en el código.
+- Frontend separado: `public/evaluado/` (28 ítems, guardado automático por respuesta, reanudación si se recarga, cierre ciego con folio) y `public/evaluador/` (login, lista de evaluados, detalle en 3 secciones, borrado con confirmación de dos pasos, botones de exportación).
+- Exportaciones nativas: `.docx` real con la librería `docx`, `.xlsx` real con SheetJS (`xlsx`), además de HTML autocontenido y JSON — generadas en `server/export/` a partir de `server/export/reportView.js` (vista normalizada reutilizada por las 4 exportaciones y el detalle de la API).
+
+Pendiente de la lista original: deploy a un hosting accesible por URL (ver "Trabajo pendiente").
 
 ## Lógica de calificación (validada, NO cambiar sin razón)
 
@@ -31,15 +37,12 @@ Fuente: documentos oficiales del instrumento provistos por la propietaria del pr
 
 ## Trabajo pendiente (objetivo de la migración)
 
-1. **Reemplazar `window.storage` por un backend real** (la razón principal de migrar):
-   - API pequeña (Node/Express o Python/FastAPI) + base de datos (SQLite basta para empezar).
-   - Endpoints: crear sesión, guardar respuestas, listar/leer/borrar resultados.
-   - El evaluado solo puede escribir su propia sesión; leer resultados requiere autenticación.
-2. **Autenticación real del evaluador**: la clave actual está embebida en el cliente y es visible en el código fuente — es protección contra el curioso casual, no seguridad real. Mover a login del lado del servidor (hash de contraseña, sesión/JWT).
-3. **Exportaciones nativas**: reemplazar el .doc (HTML disfrazado) por .docx real con la librería `docx` de npm, y el .xls (SpreadsheetML) por .xlsx real con SheetJS. Mantener el HTML autocontenido y el JSON tal como están.
-4. **Separar el archivo único en módulos**: datos del test / motor de calificación / interfaz evaluado / panel evaluador. El motor de calificación debe quedar como módulo puro con tests unitarios (los invariantes ya validados: suma de conteos MÁS = 28, suma MENOS = 28, cobertura completa de las tablas de conversión, códigos conocidos como 1115→Objetivo, 1511→Promotor, 5555→Superactivo).
-5. **Guardado automático por respuesta y reanudación de sesión** (hoy si el evaluado recarga la página pierde su avance).
-6. Deploy: la app del evaluado debe ser accesible por URL para los postulantes (Vercel/Netlify para el frontend + hosting del backend, o un solo servidor).
+1. ~~Reemplazar `window.storage` por un backend real~~ — hecho (`server/`, SQLite).
+2. ~~Autenticación real del evaluador~~ — hecho (bcrypt + `express-session`). Nota: `express-session` usa `MemoryStore` por defecto, así que las sesiones de evaluador se pierden si el proceso se reinicia; aceptable para un solo evaluador, pero si esto molesta en producción, se puede cambiar a un store persistente (ej. SQLite).
+3. ~~Exportaciones nativas~~ — hecho (`server/export/toDocx.js`, `toXlsx.js`, `toHtml.js`).
+4. ~~Separar el archivo único en módulos~~ — hecho (`server/scoring/scoring.js` puro + tests).
+5. ~~Guardado automático por respuesta y reanudación de sesión~~ — hecho (`PUT /api/sesiones/:folio/respuestas/:itemId` + `GET /api/sesiones/:folio`).
+6. **Deploy pendiente**: la app del evaluado debe ser accesible por URL para los postulantes. Al ser un solo proceso Express sirviendo API + estáticos, se puede desplegar en Render/Railway/Fly.io (Dockerfile simple) o cualquier VPS, con `data.sqlite` en un volumen persistente y `SESSION_SECRET` como variable de entorno secreta.
 
 ## Reglas del proyecto
 

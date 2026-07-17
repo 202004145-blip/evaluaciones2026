@@ -1,0 +1,172 @@
+{
+  "D": {
+    "nombre": "D · Dominante",
+    "descripcion": "El énfasis se centra en amoldar el ambiente superando obstáculos para lograr resultados.",
+    "tendencias": [
+      "Obtener resultados inmediatos",
+      "Provocar la acción",
+      "Aceptar los retos",
+      "Tomar decisiones rápidas",
+      "Cuestionar el orden establecido",
+      "Asumir la autoridad",
+      "Dominar las dificultades",
+      "Resolver problemas"
+    ],
+    "ambiente_deseado": [
+      "Poder y autoridad",
+      "Prestigio y retos",
+      "Oportunidad para logros personales",
+      "Amplia esfera de acción",
+      "Respuestas directas",
+      "Oportunidades para progresar",
+      "Estar exento de controles y supervisión",
+      "Muchas actividades nuevas y variadas"
+    ],
+    "necesita_de_otros": [
+      "Consideren los pros y contras",
+      "Calculen los riesgos",
+      "Sean precavidos",
+      "Estructuren un ambiente más predecible",
+      "Investiguen los hechos",
+      "Mediten antes de decidir",
+      "Reconozcan las necesidades de los demás"
+    ],
+    "para_ser_mas_eficaz": [
+      "Tareas difíciles",
+      "Comprender que necesita de otras personas",
+      "Técnicas basadas en la experiencia práctica",
+      "Un sobresalto de vez en cuando",
+      "Identificarse con un grupo",
+      "Expresar en palabras las razones de sus conclusiones",
+      "Estar consciente de sanciones existentes",
+      "Controlar su ritmo de trabajo y relajarse más"
+    ]
+  },
+  "I": {
+    "nombre": "I · Influyente",
+    "descripcion": "El énfasis se centra en amoldar el ambiente y conseguir que los demás se alíen para lograr resultados.",
+    "tendencias": [
+      "Ponerse en contacto con la gente",
+      "Causar una impresión favorable",
+      "Expresarse con claridad",
+      "Crear un ambiente motivador",
+      "Generar entusiasmo",
+      "Entretener a la gente",
+      "Aceptar a las personas y situaciones con optimismo",
+      "Participar en un grupo"
+    ],
+    "ambiente_deseado": [
+      "Popularidad, reconocimiento social",
+      "Reconocimiento público de su capacidad",
+      "Libertad de expresión",
+      "Actividades en grupo fuera del trabajo",
+      "Relaciones democráticas",
+      "Trabajo que no requiera atención a los detalles",
+      "Oportunidad de expresar sus propuestas en voz alta",
+      "Oportunidades para capacitar y asesorar",
+      "Condiciones favorables en el trabajo"
+    ],
+    "necesita_de_otros": [
+      "Se concentren en la tarea",
+      "Recopilen datos y hechos",
+      "Hablen directamente",
+      "Respeten la sinceridad",
+      "Desarrollen métodos sistemáticos",
+      "Prefieran ocuparse de las cosas y tratar menos con la gente",
+      "Hagan planteamientos analíticos",
+      "Realicen su propio seguimiento individual",
+      "Realicen su trabajo hasta el final por iniciativa propia"
+    ],
+    "para_ser_mas_eficaz": [
+      "Control de tiempo",
+      "Objetividad al tomar decisiones",
+      "Un estilo de dirección participativo",
+      "Una apreciación más realista de los demás",
+      "Prioridades y fechas límite",
+      "Ser más firme con los demás"
+    ]
+  },
+  "S": {
+    "nombre": "S · Estable",
+    "descripcion": "El énfasis se centra en cooperar con los demás para llevar a cabo la tarea.",
+    "tendencias": [
+      "Un desempeño uniforme y predecible",
+      "Demostrar paciencia",
+      "El desarrollo de técnicas especializadas",
+      "El deseo de ayudar a los demás",
+      "Mostrar lealtad",
+      "Escuchar a los demás",
+      "Calmar a personas que se exaltan",
+      "Crear un ambiente de trabajo estable y armónico"
+    ],
+    "ambiente_deseado": [
+      "Conservar el orden establecido",
+      "Rutinas predecibles",
+      "Reconocimiento del trabajo realizado",
+      "Mínima intromisión del trabajo en la vida familiar",
+      "Aprecio sincero",
+      "Identificación con un grupo",
+      "Procedimientos estables",
+      "Un mínimo de conflictos"
+    ],
+    "necesita_de_otros": [
+      "Reaccionen con rapidez ante cambios inesperados",
+      "Se esfuercen al máximo ante los retos",
+      "Se involucren en más de una cosa a la vez",
+      "Tengan iniciativa propia",
+      "Presionen a los demás",
+      "No se contraríen en un ambiente impredecible",
+      "Ayuden a establecer prioridades",
+      "Sean flexibles respecto a los procedimientos de trabajo"
+    ],
+    "para_ser_mas_eficaz": [
+      "Prepararse para el cambio",
+      "Ratificación de su valía personal",
+      "Información de cómo el esfuerzo personal contribuye al esfuerzo global",
+      "Compañeros de trabajo con niveles similares de capacidad y sinceridad",
+      "Directrices para ejecutar la tarea",
+      "Estímulos a su creatividad"
+    ]
+  },
+  "C": {
+    "nombre": "C · Concienzudo",
+    "descripcion": "El énfasis se centra en trabajar dentro de las circunstancias existentes para asegurar calidad y precisión.",
+    "tendencias": [
+      "Atención esmerada a instrucciones y normas clave",
+      "Concentrarse en los detalles más importantes",
+      "Pensamiento analítico y evaluación de pros y contras",
+      "Crear un ambiente motivador",
+      "Ser diplomático con la gente",
+      "Respuestas sutiles o indirectas en caso de conflicto",
+      "Verificar la precisión",
+      "Tener una mente crítica",
+      "Enfocar de manera metódica las situaciones o actividades"
+    ],
+    "ambiente_deseado": [
+      "Expectativas de desempeño claramente definidas",
+      "Valoración de la calidad y precisión",
+      "Un ambiente reservado y eficiente",
+      "Oportunidades de mostrar su pericia",
+      "Control sobre los factores que afectan su rendimiento",
+      "Posibilidades de preguntar '¿por qué?'",
+      "Reconocimiento específico a su capacidad y sus logros"
+    ],
+    "necesita_de_otros": [
+      "Deleguen las tareas importantes",
+      "Tomen decisiones rápidas",
+      "Usen las normas sólo como guía",
+      "Lleguen a acuerdos con la oposición",
+      "Expresen opiniones impopulares",
+      "Inicien y faciliten la discusión",
+      "Fomenten el trabajo en equipo"
+    ],
+    "para_ser_mas_eficaz": [
+      "Oportunidades de planificar con esmero",
+      "Descripciones exactas del trabajo y los objetivos",
+      "Evaluaciones programadas de su desempeño",
+      "Retroalimentación específica sobre el desempeño",
+      "Respetar el valor personal de los demás tanto como sus logros",
+      "Aprender a lidiar con situaciones de conflicto"
+    ]
+  }
+}

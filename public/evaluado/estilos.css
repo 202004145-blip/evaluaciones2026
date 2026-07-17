@@ -1,0 +1,32 @@
+@import url('/shared/estilos.css');
+
+.form-progress{position:sticky; top:0; background:var(--paper); padding:10px 0; z-index:5; border-bottom:1px solid var(--hairline); margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;}
+.form-progress .count{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft);}
+.form-progress .bar{flex:1; height:4px; background:var(--hairline); margin:0 14px; position:relative; overflow:hidden;}
+.form-progress .bar span{position:absolute; inset:0; background:var(--ink); width:0%; transition:width .25s ease;}
+
+.block{background:var(--card); border:1px solid var(--hairline); padding:18px 20px; margin-bottom:12px;}
+.block-num{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); margin-bottom:10px; letter-spacing:.06em;}
+.col-headers{display:grid; grid-template-columns:1fr auto auto; gap:10px; margin-bottom:4px;}
+.col-caption{font-family:'IBM Plex Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); text-align:center;}
+.opt-row{display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f0efe9;}
+.opt-row:last-child{border-bottom:none;}
+.opt-text{font-size:14.5px; text-transform:capitalize;}
+.pick-btn{width:32px; height:32px; border:1.5px solid var(--hairline); background:#fff; border-radius:50%; font-family:'IBM Plex Mono',monospace; font-size:11px; cursor:pointer; color:var(--ink-soft); transition:all .15s ease;}
+.pick-btn:hover{border-color:var(--ink);}
+.pick-btn.mas-on{background:var(--s); border-color:var(--s); color:#fff;}
+.pick-btn.menos-on{background:var(--d); border-color:var(--d); color:#fff;}
+
+.autosave-tag{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-soft); min-height:14px;}
+.autosave-tag.ok{color:var(--s);}
+.autosave-tag.err{color:var(--d);}
+
+.thanks-card{background:var(--card); border:1px solid var(--hairline); padding:60px 32px; text-align:center;}
+.thanks-card .check{width:48px; height:48px; border-radius:50%; background:var(--s); color:#fff; display:flex; align-items:center; justify-content:center; margin:0 auto 22px; font-size:22px;}
+.thanks-card h2{font-family:'Source Serif 4',serif; font-size:24px; margin:0 0 10px;}
+.thanks-card p{color:var(--ink-soft); font-size:14px;}
+.thanks-card .folio{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); margin-top:24px;}
+
+@media (max-width:540px){
+  .col-headers{display:none;}
+}

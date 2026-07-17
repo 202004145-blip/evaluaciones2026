@@ -1,28 +1,52 @@
-# Cómo abrir este proyecto en Claude Code
+# Sistema de Perfil Personal (DISC) — PRADEVA
 
-## Pasos
+Aplicación web para administrar y calificar el test psicométrico DISC (28 ítems de selección forzada MÁS/MENOS) en procesos de selección de personal.
 
-1. Descomprime este ZIP en una carpeta de tu computadora, por ejemplo `Documentos/disc-pradeva/`.
+Ver `CLAUDE.md` para el contexto completo del proyecto (calificación oficial, reglas, trabajo pendiente).
 
-2. Instala Claude Code si aún no lo tienes:
-   - Opción fácil: la app **Claude Desktop** (pestaña "Code") — https://claude.com/download
-   - Opción terminal: `npm install -g @anthropic-ai/claude-code` y luego el comando `claude` dentro de la carpeta.
+## Estructura
 
-3. Abre la carpeta `disc-pradeva` con Claude Code. Leerá automáticamente el archivo `CLAUDE.md`, que contiene todo el contexto del proyecto: qué hace la app, cómo funciona la calificación oficial, y la lista de trabajo pendiente.
+```
+datos/            Datos oficiales del instrumento (ítems, tablas de conversión, patrones, estilos)
+server/           Backend Express + SQLite
+  scoring/         Motor de calificación puro (con tests: node --test)
+  export/          Generadores de exportación (docx, xlsx, html)
+  routes/          Endpoints de la API
+  scripts/         Utilidades de línea de comandos (crear contraseña de evaluador)
+public/
+  evaluado/        Vista del postulante (28 ítems, jamás ve resultados)
+  evaluador/        Panel del evaluador (login, lista, detalle, exportación)
+  shared/          Estilos base compartidos
+app/               App original de un solo archivo (referencia visual/funcional, ya no se usa en producción)
+```
 
-4. Un buen primer mensaje para empezar:
-   > "Lee el CLAUDE.md y proponme un plan para la migración, empezando por el backend con base de datos."
+## Puesta en marcha (desarrollo local)
 
-## Contenido del paquete
+```bash
+npm install
 
-- `CLAUDE.md` — instrucciones e historia técnica del proyecto (Claude Code lo lee solo).
-- `app/disc_pps_pradeva.html` — la aplicación actual completa y funcional.
-- `datos/items_disc.json` — los 28 ítems del test.
-- `datos/conversion_tables.json` — tablas oficiales de conversión conteo→nivel (Gráficas I, II, III).
-- `datos/pattern_lookup.json` — matriz completa código→patrón clásico (2,401 combinaciones).
-- `datos/patrones_estructurados.json` — ficha interpretativa de los 17 patrones.
+cp .env.example .env
+# Edita .env y define SESSION_SECRET, por ejemplo con:
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
-## Importante
+npm run set-admin-password   # crea el primer usuario evaluador (pide la contraseña por teclado, oculta)
 
-- La app actual usa `window.storage`, que solo funciona dentro de Claude.ai. Al abrir el HTML directamente en tu navegador, el guardado y el panel del evaluador no funcionarán — eso es justamente lo primero que la migración va a reemplazar por un backend real.
-- La clave del evaluador actual es `4SIS.g2026`; en la versión migrada será reemplazada por un login real del lado del servidor.
+npm start                    # http://localhost:3000
+```
+
+- Vista del evaluado: `http://localhost:3000/evaluado/`
+- Panel del evaluador: `http://localhost:3000/evaluador/`
+
+## Tests
+
+```bash
+npm test
+```
+
+Corre el motor de calificación (`server/scoring/scoring.test.js`) contra los invariantes validados: suma de conteos MÁS = 28, suma MENOS = 28, cobertura completa de las tablas de conversión, los 13 códigos faltantes de la matriz de patrones, y los códigos de verificación 1115→Objetivo, 1511→Promotor, 5555→Superactivo.
+
+## Notas de seguridad
+
+- La base de datos (`data.sqlite`) y el archivo `.env` nunca se suben al repositorio (ver `.gitignore`).
+- Ningún endpoint de resultados o exportación responde sin sesión de evaluador autenticada.
+- El evaluado solo puede leer/escribir su propia sesión mediante el token que recibe al crearla.

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Perfil Personal (DISC) · PRADEVA</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<div class="shell">
+
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">Selección de Personal · Sistema de Perfil Personal</div>
+      <h1>Test DISC</h1>
+    </div>
+    <div class="masthead-right">
+      <a class="admin-btn" href="/evaluador/" style="text-decoration:none;">Panel del evaluador</a>
+    </div>
+  </header>
+
+  <div class="stepper" id="stepper"></div>
+  <div class="step-labels"><span>Introducción</span><span>Datos</span><span>Responder (28)</span><span>Listo</span></div>
+
+  <!-- PANEL 0: INTRO -->
+  <div class="panel active" id="panel-0">
+    <div class="card">
+      <h2>Sistema de Perfil Personal (DISC)</h2>
+      <p class="lead">Este instrumento identifica tendencias de comportamiento a partir de 28 grupos de palabras. En cada grupo eliges la palabra que MÁS te describe y la que MENOS te describe.</p>
+      <p class="lead" style="font-style:italic; border-left:2px solid var(--ink); padding-left:14px;">"Responde con espontaneidad, pensando en cómo actúas normalmente, no en cómo crees que deberías actuar."</p>
+      <div class="meta-line">28 grupos de palabras · idioma: español</div>
+    </div>
+    <div class="btn-row">
+      <span></span>
+      <button class="btn" id="btnComenzar">Comenzar →</button>
+    </div>
+  </div>
+
+  <!-- PANEL 1: DATOS -->
+  <div class="panel" id="panel-1">
+    <div class="card">
+      <h2>Datos del postulante</h2>
+      <label class="field-label" for="candName">Nombre completo</label>
+      <input type="text" id="candName" placeholder="Nombre completo">
+      <label class="field-label" for="candPos">Cargo al que postula (opcional)</label>
+      <input type="text" id="candPos" placeholder="Ej. Ejecutivo Comercial">
+      <label class="field-label" for="candDate">Fecha de aplicación</label>
+      <input type="date" id="candDate">
+    </div>
+    <div class="warn-msg" id="datosWarn"></div>
+    <div class="btn-row">
+      <button class="btn ghost" id="btnAtrasDatos">← Atrás</button>
+      <button class="btn" id="btnComenzarTest">Comenzar test →</button>
+    </div>
+  </div>
+
+  <!-- PANEL 2: FORMULARIO 28 ÍTEMS -->
+  <div class="panel" id="panel-2">
+    <div class="form-progress">
+      <span class="count" id="progCount">0/28 respondidos</span>
+      <div class="bar"><span id="progBar"></span></div>
+      <span class="autosave-tag" id="autosaveTag"></span>
+    </div>
+    <div id="itemsWrap"></div>
+    <div class="warn-msg" id="formWarn"></div>
+    <div class="btn-row">
+      <button class="btn" id="btnFinalizar">Finalizar →</button>
+    </div>
+  </div>
+
+  <!-- PANEL 3: GRACIAS (el evaluado nunca ve sus resultados) -->
+  <div class="panel" id="panel-3">
+    <div class="thanks-card">
+      <div class="check">✓</div>
+      <h2>Gracias por tu respuesta</h2>
+      <p>Hemos registrado correctamente tus respuestas. El equipo de selección revisará los resultados como parte del proceso.</p>
+      <div class="folio" id="thanksFolio"></div>
+    </div>
+  </div>
+
+</div>
+<script src="evaluado.js"></script>
+</body>
+</html>

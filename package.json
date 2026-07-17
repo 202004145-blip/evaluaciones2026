@@ -1,0 +1,23 @@
+{
+  "name": "disc-pradeva",
+  "version": "1.0.0",
+  "description": "Sistema de Perfil Personal (DISC) para procesos de selección de personal — PRADEVA",
+  "main": "server/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/index.js",
+    "dev": "node --watch --env-file-if-exists=.env server/index.js",
+    "test": "node --test server/**/*.test.js",
+    "set-admin-password": "node --env-file-if-exists=.env server/scripts/set-admin-password.js"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "bcryptjs": "^2.4.3",
+    "docx": "^9.1.1",
+    "xlsx": "^0.18.5"
+  }
+}
