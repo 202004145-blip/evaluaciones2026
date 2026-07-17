@@ -72,7 +72,7 @@ app.use('/evaluador', express.static(path.join(__dirname, '..', 'public', 'evalu
 app.use('/ipv/evaluado', express.static(path.join(__dirname, '..', 'public', 'ipv', 'evaluado')));
 app.use('/ipv/evaluador', express.static(path.join(__dirname, '..', 'public', 'ipv', 'evaluador')));
 app.use('/ipv', express.static(path.join(__dirname, '../public', 'ipv')));
-
+app.use('/ipv', express.static(path.join(__dirname, '../public', 'ipv')));
 app.get('/', (req, res) => res.redirect('/evaluado/'));
 
 app.use((req, res) => res.status(404).json({ error: 'No encontrado.' }));
