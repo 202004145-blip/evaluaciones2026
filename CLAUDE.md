@@ -19,6 +19,10 @@ Implementado en la app migrada:
 
 Pendiente de la lista original: deploy a un hosting accesible por URL (ver "Trabajo pendiente").
 
+### Segundo instrumento: IPV (Inventario de Personalidad para Vendedores)
+
+El mismo servidor aloja un segundo test independiente, el IPV (87 preguntas de elección única A/B/C, corrección contra clave, decatipos y niveles Bajo/Medio/Alto). Comparte el login de evaluador (misma tabla `evaluadores` y cookie de sesión) pero usa tablas propias (`ipv_sesiones`, `ipv_respuestas`, `ipv_resultados`), datos propios en `datos/ipv/` (`preguntas_ipv.json` con la clave, `baremos_ipv.json` con el mapeo pregunta→escala y las tablas de decatipos), motor puro en `server/ipv/scoring.js` (con tests), API bajo `/api/ipv/...` y frontends en `public/ipv/evaluado|evaluador`. La lógica de calificación del IPV está documentada en el README. Igual que en DISC, el evaluado jamás recibe la clave ni resultado alguno, y todo lo interpretativo vive en `datos/ipv/`, no en el código.
+
 ## Lógica de calificación (validada, NO cambiar sin razón)
 
 Fuente: documentos oficiales del instrumento provistos por la propietaria del proyecto.

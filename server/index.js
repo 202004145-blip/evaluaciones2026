@@ -10,6 +10,9 @@ const authRoutes = require('./routes/auth');
 const sesionesRoutes = require('./routes/sesiones');
 const resultadosRoutes = require('./routes/resultados');
 const exportarRoutes = require('./routes/exportar');
+const ipvSesionesRoutes = require('./routes/ipv-sesiones');
+const ipvResultadosRoutes = require('./routes/ipv-resultados');
+const ipvExportarRoutes = require('./routes/ipv-exportar');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -51,6 +54,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/sesiones', sesionesRoutes);
 app.use('/api/resultados', resultadosRoutes);
 app.use('/api/exportar', exportarRoutes);
+app.use('/api/ipv/sesiones', ipvSesionesRoutes);
+app.use('/api/ipv/resultados', ipvResultadosRoutes);
+app.use('/api/ipv/exportar', ipvExportarRoutes);
 
 app.get('/api/estado', (req, res) => {
   res.json({ ok: true, evaluadorConfigurado: hayEvaluadoresRegistrados() });
@@ -59,6 +65,8 @@ app.get('/api/estado', (req, res) => {
 app.use('/shared', express.static(path.join(__dirname, '..', 'public', 'shared')));
 app.use('/evaluado', express.static(path.join(__dirname, '..', 'public', 'evaluado')));
 app.use('/evaluador', express.static(path.join(__dirname, '..', 'public', 'evaluador')));
+app.use('/ipv/evaluado', express.static(path.join(__dirname, '..', 'public', 'ipv', 'evaluado')));
+app.use('/ipv/evaluador', express.static(path.join(__dirname, '..', 'public', 'ipv', 'evaluador')));
 
 app.get('/', (req, res) => res.redirect('/evaluado/'));
 

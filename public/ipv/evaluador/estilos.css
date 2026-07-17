@@ -1,0 +1,74 @@
+@import url('/shared/estilos.css');
+
+.login-wrap{max-width:380px; margin:80px auto 0;}
+.login-wrap .kicker{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft);}
+.login-wrap h2{font-family:'Source Serif 4',serif; font-size:21px; margin:4px 0 18px;}
+.login-error{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--d); margin-top:10px; min-height:14px;}
+
+.admin-head{display:flex; justify-content:space-between; align-items:center; padding:24px 0 16px; border-bottom:2px solid var(--ink); margin-bottom:20px; flex-wrap:wrap; gap:10px;}
+.admin-head h2{font-family:'Source Serif 4',serif; font-size:21px; margin:0;}
+.admin-row{background:var(--card); border:1px solid var(--hairline); padding:16px 18px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; gap:12px;}
+.admin-row:hover{border-color:var(--ink);}
+.admin-row .name{font-weight:600; font-size:14.5px;}
+.admin-row .meta{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); margin-top:3px;}
+.admin-empty{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--ink-soft); padding:20px 0;}
+.badge{font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.05em; padding:3px 8px; border:1px solid var(--hairline); color:var(--ink-soft);}
+.badge.en-progreso{color:var(--i); border-color:var(--i);}
+.badge.completada{color:var(--s); border-color:var(--s);}
+
+#loginView, #listView, #detailView{display:none;}
+#loginView.active, #listView.active, #detailView.active{display:block;}
+
+.section-kicker{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); margin:30px 0 4px;}
+.section-title{font-family:'Source Serif 4',serif; font-size:21px; margin:0 0 14px;}
+
+.cand-head{margin-bottom:18px;}
+.cand-head b{font-size:16px; font-family:'Source Serif 4',serif;}
+.cand-head span{display:block; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); margin-top:4px;}
+
+/* Tabla de preguntas/respuestas en bruto */
+table.detail-table{width:100%; border-collapse:collapse; margin-top:6px; font-size:12.5px;}
+table.detail-table th, table.detail-table td{text-align:left; padding:7px 8px; border-bottom:1px solid var(--hairline); vertical-align:top;}
+table.detail-table th{font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); font-weight:500; text-transform:uppercase; font-size:9.5px; letter-spacing:.05em;}
+table.detail-table td.n{font-family:'IBM Plex Mono',monospace; color:var(--ink-soft);}
+.ans-pill{font-family:'IBM Plex Mono',monospace; font-size:10.5px; padding:2px 8px; display:inline-block; border:1px solid var(--hairline);}
+.ans-pill.hit{background:#E3EDDC; border-color:var(--s); color:#2E4A22;}
+.ans-pill.miss{color:var(--ink-soft);}
+.ans-pill.none{background:#FDEAE1; border-color:var(--d); color:var(--d);}
+.key-tag{background:#FEF3C7; border:1px solid #E4B84A; color:#78350F; font-family:'IBM Plex Mono',monospace; font-size:10.5px; padding:2px 6px;}
+
+/* Tabla de puntuaciones y decatipos */
+table.score-table{width:100%; border-collapse:collapse; margin-top:8px; font-size:13px;}
+table.score-table th, table.score-table td{padding:9px 10px; border-bottom:1px solid var(--hairline); text-align:left;}
+table.score-table th{font-family:'IBM Plex Mono',monospace; color:var(--ink-soft); font-weight:500; text-transform:uppercase; font-size:9.5px; letter-spacing:.05em;}
+table.score-table td.num{text-align:center; font-variant-numeric:tabular-nums;}
+table.score-table .scale-name{font-weight:600;}
+table.score-table tr.global{background:#EAF0F2;}
+table.score-table tr.global td{font-weight:600;}
+.deca{font-family:'Source Serif 4',serif; font-size:18px; font-weight:600;}
+.lvl{font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.04em; padding:3px 8px; display:inline-block;}
+.lvl.bajo{background:#FDEAE1; color:var(--d);}
+.lvl.medio{background:#FEF3C7; color:#78350F;}
+.lvl.alto{background:#E3EDDC; color:#2E4A22;}
+
+/* Medidor de decatipo (10 segmentos) */
+.deca-meter{display:flex; gap:2px; width:120px;}
+.deca-seg{flex:1; height:10px; background:#F0EFE9;}
+.deca-seg.on.bajo{background:var(--d);}
+.deca-seg.on.medio{background:var(--i);}
+.deca-seg.on.alto{background:var(--s);}
+
+/* Tarjetas de interpretación */
+.interp-card{background:var(--card); border:1px solid var(--hairline); border-left:4px solid var(--c); padding:18px 22px; margin-bottom:14px;}
+.interp-card.global{border-left-width:5px;}
+.interp-card .head{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; margin-bottom:8px;}
+.interp-card .scale-label{font-family:'Source Serif 4',serif; font-size:17px;}
+.interp-card .metrics{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft);}
+.interp-card .desc{font-size:14px; line-height:1.6; color:var(--ink-soft); margin:0;}
+
+.notice-note{background:#FEF3C7; border-left:3px solid #78350F; color:#78350F; padding:14px 18px; margin-top:18px; font-size:12.5px; line-height:1.6;}
+
+@media print{
+  .no-print{display:none !important;}
+  body{background:#fff;}
+}
