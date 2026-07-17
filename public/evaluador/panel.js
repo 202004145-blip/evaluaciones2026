@@ -294,3 +294,29 @@ function volverALista() {
 }
 
 document.getElementById('btnVolverLista').addEventListener('click', volverALista);
+// Descargar en Word
+function descargarWord() {
+    const id = obtenerIdSeleccionado();
+    if (!id) return alert('Selecciona un evaluado primero.');
+    window.open(`/api/ipv/exportar/${id}?formato=word`);
+}
+
+// Descargar en Excel
+function descargarExcel() {
+    const id = obtenerIdSeleccionado();
+    if (!id) return alert('Selecciona un evaluado primero.');
+    window.open(`/api/ipv/exportar/${id}?formato=excel`);
+}
+
+// Descargar en HTML
+function descargarHTML() {
+    const id = obtenerIdSeleccionado();
+    if (!id) return alert('Selecciona un evaluado primero.');
+    window.open(`/api/ipv/exportar/${id}?formato=html`);
+}
+
+// Obtener el ID del evaluado seleccionado
+function obtenerIdSeleccionado() {
+    const fila = document.querySelector('.fila-seleccionada');
+    return fila ? fila.dataset.id : null;
+}
