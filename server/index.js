@@ -9,6 +9,7 @@ const { hayEvaluadoresRegistrados } = require('./auth');
 const authRoutes = require('./routes/auth');
 const sesionesRoutes = require('./routes/sesiones');
 const resultadosRoutes = require('./routes/resultados');
+const respuestasRoutes = require('./routes/respuestas');
 const exportarRoutes = require('./routes/exportar');
 
 const app = express();
@@ -51,7 +52,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/sesiones', sesionesRoutes);
 app.use('/api/resultados', resultadosRoutes);
 app.use('/api/exportar', exportarRoutes);
-
+app.use('/api/respuestas', respuestasRoutes);
 app.get('/api/estado', (req, res) => {
   res.json({ ok: true, evaluadorConfigurado: hayEvaluadoresRegistrados() });
 });

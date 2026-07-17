@@ -1,9 +1,39 @@
 'use strict';
 
 const express = require('express');
-const { verificarCredenciales } = require('../auth');
+const bcrypt = require('bcryptjs');
+const { verificarCredenciales, hayEvaluadoresRegistrados } = require('../auth');
+const db = require('../db');
 
 const router = express.Router();
+
+// Endpoint para crear el admin inicial (sin autenticación, solo funciona si no hay evaluadores)
+router.post('/admin/setup', (req, res) => {
+  if (hayEvaluadoresRegistrados()) {
+    return res.status(400).json({ error: 'Ya existe un evaluador registrado. El setup ya fue completado.' });
+  }
+
+  const { usuario, password, passwordConfirm } = req.body || {};
+  
+  if (!usuario || !password) {
+    return res.status(400).json({ error: 'Usuario y contraseña son obligatorios.' });
+  }
+
+  if (password !== passwordConfirm) {
+    return res.status(400).json({ error: 'Las contraseñas no coinciden.' });
+  }
+
+  if (password.length < 8) {
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres.' });
+  }
+
+  const hash = bcrypt.hashSync(password, 12);
+  db.prepare(
+    `INSERT INTO evaluadores (usuario, password_hash) VALUES (?, ?)`
+  ).run(usuario, hash);
+
+  res.json({ ok: true, mensaje: `Admin "${usuario}" creado exitosamente.` });
+});
 
 router.post('/login', (req, res) => {
   const { usuario, password } = req.body || {};
