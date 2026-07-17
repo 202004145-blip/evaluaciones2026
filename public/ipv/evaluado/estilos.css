@@ -1,0 +1,24 @@
+@import url('/shared/estilos.css');
+
+/* Barra de progreso pegajosa y estado de autoguardado (igual que el DISC). */
+.form-progress{position:sticky; top:0; background:var(--paper); padding:10px 0; z-index:5; border-bottom:1px solid var(--hairline); margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;}
+.form-progress .count{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+.form-progress .bar{flex:1; height:4px; background:var(--hairline); margin:0 14px; position:relative; overflow:hidden;}
+.form-progress .bar span{position:absolute; inset:0; background:var(--ink); width:0%; transition:width .25s ease;}
+.autosave-tag{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-soft); min-height:14px; white-space:nowrap;}
+.autosave-tag.ok{color:var(--s);}
+.autosave-tag.err{color:var(--d);}
+
+/* Bloque de pregunta con opciones de elección única. */
+.q-block{background:var(--card); border:1px solid var(--hairline); padding:20px 22px; margin-bottom:12px; scroll-margin-top:80px;}
+.q-block.pendiente{border-color:var(--d); box-shadow:0 0 0 3px rgba(178,58,46,.10);}
+.q-num{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); letter-spacing:.06em; margin-bottom:8px;}
+.q-text{font-size:15.5px; line-height:1.55; margin-bottom:14px;}
+
+.q-options{display:flex; flex-direction:column; gap:8px;}
+.q-option{display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border:1px solid var(--hairline); background:#fff; cursor:pointer; transition:border-color .12s ease, background .12s ease;}
+.q-option:hover{border-color:var(--c);}
+.q-option.selected{border-color:var(--c); background:#EAF0F2;}
+.q-option input{margin-top:3px; accent-color:var(--c); flex-shrink:0;}
+.q-option .letter{font-family:'IBM Plex Mono',monospace; font-weight:600; color:var(--c); min-width:16px;}
+.q-option .opt-text{font-size:14.5px; line-height:1.5;}
