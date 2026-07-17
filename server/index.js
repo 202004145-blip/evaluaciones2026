@@ -5,7 +5,7 @@ const crypto = require('node:crypto');
 const express = require('express');
 const session = require('express-session');
 
-const { hayEvaluadoresRegistrados } = require('./auth');
+const { hayEvaluadoresRegistrados, bootstrapAdminFromEnv } = require('./auth');
 const authRoutes = require('./routes/auth');
 const sesionesRoutes = require('./routes/sesiones');
 const resultadosRoutes = require('./routes/resultados');
@@ -30,6 +30,10 @@ if (!sessionSecret) {
       'Las sesiones de evaluador se invalidarán al reiniciar el servidor.'
   );
 }
+
+// Bootstrap del evaluador desde variables de entorno (útil en hosting sin
+// terminal interactiva, p. ej. Railway). No hace nada si no están definidas.
+bootstrapAdminFromEnv();
 
 app.disable('x-powered-by');
 if (isProd) app.set('trust proxy', 1);

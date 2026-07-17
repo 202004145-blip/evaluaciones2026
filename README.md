@@ -64,6 +64,51 @@ npm test
 4. **Decatipos**: cada PD se convierte a un valor tipificado 1–10 según la tabla de baremos mexicanos (n = 300) de cada escala.
 5. **Nivel**: Bajo (decatipo 1–3), Medio (4–7), Alto (8–10). Las descripciones por nivel salen de `datos/ipv/baremos_ipv.json`; el código no inventa interpretación.
 
+## Despliegue en Railway
+
+La app es un solo proceso Express que sirve la API y los estáticos, con SQLite
+en disco. En Railway hay que darle un **volumen persistente** (si no, la base se
+borra en cada redeploy) y configurar el evaluador por variables de entorno
+(Railway no tiene terminal interactiva para `npm run set-admin-password`).
+
+El repo ya trae `Dockerfile`, `.dockerignore` y `railway.json`; Railway
+construye con el Dockerfile automáticamente.
+
+**Pasos:**
+
+1. **Crear el proyecto**: en [railway.app](https://railway.app) → _New Project_
+   → _Deploy from GitHub repo_ → elige este repositorio. Railway detecta el
+   `Dockerfile` y hace el primer build.
+2. **Agregar el volumen** (persistencia de la base): en el servicio →
+   _Settings_ → _Volumes_ → _New Volume_, con **Mount path** `/data`.
+3. **Variables de entorno** (servicio → _Variables_):
+   - `NODE_ENV` = `production`
+   - `SESSION_SECRET` = una cadena aleatoria larga
+     (`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
+   - `DB_PATH` = `/data/data.sqlite`  ← dentro del volumen
+   - `ADMIN_USER` = usuario del evaluador (p. ej. `admin`)
+   - `ADMIN_PASSWORD` = contraseña del evaluador (mín. 8 caracteres)
+   - `PORT` **no** hace falta: Railway lo inyecta y el server lo respeta.
+4. **Generar el dominio**: _Settings_ → _Networking_ → _Generate Domain_.
+   Railway sirve HTTPS en el borde; el server ya activa `trust proxy` y cookies
+   `secure` cuando `NODE_ENV=production`.
+5. **Redeploy** y probar:
+   - Salud: `https://TU-DOMINIO/api/estado` → `{"ok":true,"evaluadorConfigurado":true}`
+   - Postulantes DISC: `/evaluado/` · IPV: `/ipv/evaluado/`
+   - Evaluador: `/evaluador/` o `/ipv/evaluador/` (login con `ADMIN_USER`/`ADMIN_PASSWORD`)
+
+Notas:
+
+- `ADMIN_PASSWORD` es la fuente de verdad en cada arranque: para rotar la
+  contraseña, cambia la variable y redeploy. Si prefieres no dejarla en el
+  entorno, quítala tras el primer arranque (el usuario ya quedó en la base del
+  volumen) o usa la terminal del servicio para correr `npm run set-admin-password`.
+- Las sesiones de evaluador usan `MemoryStore`, así que un redeploy/reinicio
+  obliga a volver a iniciar sesión; los datos de los postulantes viven en el
+  volumen y no se pierden.
+- Los mismos pasos sirven para Render/Fly.io u otro host con Docker: monta un
+  volumen, apunta `DB_PATH` a él y define las mismas variables.
+
 ## Notas de seguridad
 
 - La base de datos (`data.sqlite`) y el archivo `.env` nunca se suben al repositorio (ver `.gitignore`).

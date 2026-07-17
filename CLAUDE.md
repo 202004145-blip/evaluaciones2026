@@ -46,7 +46,7 @@ Fuente: documentos oficiales del instrumento provistos por la propietaria del pr
 3. ~~Exportaciones nativas~~ — hecho (`server/export/toDocx.js`, `toXlsx.js`, `toHtml.js`).
 4. ~~Separar el archivo único en módulos~~ — hecho (`server/scoring/scoring.js` puro + tests).
 5. ~~Guardado automático por respuesta y reanudación de sesión~~ — hecho (`PUT /api/sesiones/:folio/respuestas/:itemId` + `GET /api/sesiones/:folio`).
-6. **Deploy pendiente**: la app del evaluado debe ser accesible por URL para los postulantes. Al ser un solo proceso Express sirviendo API + estáticos, se puede desplegar en Render/Railway/Fly.io (Dockerfile simple) o cualquier VPS, con `data.sqlite` en un volumen persistente y `SESSION_SECRET` como variable de entorno secreta.
+6. **Deploy**: scaffolding listo (`Dockerfile`, `.dockerignore`, `railway.json`) y guía paso a paso en el README. La app es un solo proceso Express sirviendo API + estáticos; se despliega en Railway/Render/Fly.io con `data.sqlite` en un volumen persistente (`DB_PATH`), `SESSION_SECRET` secreto, y el evaluador inicial vía `ADMIN_USER`/`ADMIN_PASSWORD` (bootstrap en el arranque, `server/auth.js` → `bootstrapAdminFromEnv`, porque no hay terminal interactiva para `set-admin-password`). Falta solo ejecutar el deploy en la cuenta de la propietaria.
 
 ## Reglas del proyecto
 
