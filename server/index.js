@@ -71,6 +71,7 @@ app.use('/evaluado', express.static(path.join(__dirname, '..', 'public', 'evalua
 app.use('/evaluador', express.static(path.join(__dirname, '..', 'public', 'evaluador')));
 app.use('/ipv/evaluado', express.static(path.join(__dirname, '..', 'public', 'ipv', 'evaluado')));
 app.use('/ipv/evaluador', express.static(path.join(__dirname, '..', 'public', 'ipv', 'evaluador')));
+app.use('/ipv', express.static(path.join(__dirname, '../public', 'ipv')));
 
 app.get('/', (req, res) => res.redirect('/evaluado/'));
 
