@@ -1,0 +1,24 @@
+# Sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Descargas y respaldos generados por la app
+IPV_*.html
+IPV_*.doc
+IPV_*.docx
+IPV_*.xlsx
+IPV_sesiones_*.json
+
+# Node (por si se agrega tooling en el futuro)
+node_modules/
+package-lock.json
+.npm
