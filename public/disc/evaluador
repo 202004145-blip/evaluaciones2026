@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DISC · Panel del Evaluador</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 16px; padding: 32px; }
+        .btn { background: #0f172a; color: white; padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; }
+        .btn:hover { background: #1e293b; }
+        .btn.secundario { background: #e2e8f0; color: #0f172a; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f1f5f9; text-align: left; padding: 10px; }
+        td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+        .sesion { border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+        .puntuaciones { display: flex; gap: 16px; margin: 12px 0; }
+        .puntuaciones span { background: #f1f5f9; padding: 4px 16px; border-radius: 4px; }
+        .oculto { display: none; }
+        .login { max-width: 400px; margin: 40px auto; }
+        .login input { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin: 6px 0; }
+        .error { color: #dc2626; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 DISC · Panel del Evaluador</h1>
+        <hr>
+        <div id="login">
+            <div class="login">
+                <h2>Iniciar sesión</h2>
+                <input type="text" id="loginUser" placeholder="Usuario">
+                <input type="password" id="loginPass" placeholder="Contraseña">
+                <button class="btn" id="btnLogin">Entrar</button>
+                <div class="error" id="loginError"></div>
+            </div>
+        </div>
+        <div id="panel" class="oculto">
+            <button class="btn secundario" id="btnLogout">Cerrar sesión</button>
+            <div id="resultados"></div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('btnLogin').addEventListener('click', async () => {
+            const usuario = document.getElementById('loginUser').value.trim();
+            const password = document.getElementById('loginPass').value.trim();
+            const errorEl = document.getElementById('loginError');
+            errorEl.textContent = '';
+            if (!usuario || !password) { errorEl.textContent = 'Completa usuario y contraseña.'; return; }
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, password })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error de login');
+                document.getElementById('login').classList.add('oculto');
+                document.getElementById('panel').classList.remove('oculto');
+                cargarResultados();
+            } catch (err) {
+                errorEl.textContent = err.message;
+            }
+        });
+
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            document.getElementById('login').classList.remove('oculto');
+            document.getElementById('panel').classList.add('oculto');
+        });
+
+        async function cargarResultados() {
+            try {
+                const res = await fetch('/api/disc/sesiones');
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Error al cargar');
+                mostrarResultados(data);
+            } catch (err) {
+                document.getElementById('resultados').innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+            }
+        }
+
+        function mostrarResultados(sesiones) {
+            const div = document.getElementById('resultados');
+            if (!sesiones || sesiones.length === 0) {
+                div.innerHTML = '<p>No hay sesiones registradas aún.</p>';
+                return;
+            }
+            let html = '';
+            sesiones.forEach((sesion, idx) => {
+                const punt = sesion.puntuaciones || {};
+                html += `
+                    <div class="sesion">
+                        <h3>${idx+1}. ${sesion.nombre || 'Anónimo'}</h3>
+                        <p><strong>Cargo:</strong> ${sesion.cargo || 'No especificado'}</p>
+                        <p><strong>Fecha:</strong> ${sesion.fecha || '—'}</p>
+                        <div class="puntuaciones">
+                            ${Object.entries(punt).map(([k,v]) =>
+                                `<span><strong>${k}:</strong> ${v}</span>`
+                            ).join('')}
+                        </div>
+                        <details>
+                            <summary style="cursor:pointer;font-weight:600;">📋 Ver respuestas</summary>
+                            <table>
+                                <tr><th>#</th><th>MÁS</th><th>MENOS</th></tr>
+                                ${Object.keys(sesion.respuestas || {}).sort((a,b)=>a-b).map(key => {
+                                    const r = sesion.respuestas[key];
+                                    return `<tr><td>${parseInt(key)+1}</td><td style="color:#16a34a;">${r.mas || '-'}</td><td style="color:#dc2626;">${r.menos || '-'}</td></tr>`;
+                                }).join('')}
+                            </table>
+                        </details>
+                    </div>
+                `;
+            });
+            div.innerHTML = html;
+        }
+
+        // Verificar sesión activa
+        fetch('/api/auth/me').then(res => res.json()).then(data => {
+            if (data.evaluador) {
+                document.getElementById('login').classList.add('oculto');
+                document.getElementById('panel').classList.remove('oculto');
+                cargarResultados();
+            }
+        }).catch(() => {});
+    </script>
+</body>
+</html>
