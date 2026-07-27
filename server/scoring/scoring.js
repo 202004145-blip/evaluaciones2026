@@ -85,6 +85,7 @@ function scoreAnswers(answers) {
     tallyMenos[e.menos]++;
     return {
       id: item.id,
+      orden: Array.isArray(item.orden) && item.orden.length === 4 ? item.orden : ESCALAS.slice(),
       palabras: item.palabras,
       mas: e.mas,
       menos: e.menos,

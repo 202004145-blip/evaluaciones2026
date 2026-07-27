@@ -65,17 +65,29 @@ async function generarDocx(datos) {
     })
   );
 
-  // 1. Resultados en bruto
-  children.push(heading('1. Resultados en bruto'));
+  // 1. Respuestas en bruto — formato de la hoja DISC: las 4 palabras de cada
+  // grupo en su orden original, marcando MÁS (+) y MENOS (−).
+  children.push(heading('1. Respuestas en bruto'));
+  children.push(
+    parrafo(
+      'Cada grupo conserva el orden original de sus 4 palabras. (+) = elegida como MÁS, (−) = elegida como MENOS.'
+    )
+  );
+  const marcaPalabra = (p) => `${p.palabra}${p.esMas ? ' (+)' : p.esMenos ? ' (−)' : ''}`;
   children.push(
     tabla(
-      ['#', 'Palabras del grupo', 'Elegido MÁS', 'Elegido MENOS'],
-      vista.bruto.detalle.map((d) => [
-        d.id,
-        Object.values(d.palabras).join(' · '),
-        `${d.mas} — ${d.palabra_mas}`,
-        `${d.menos} — ${d.palabra_menos}`,
-      ])
+      ['#', '1ª palabra', '2ª palabra', '3ª palabra', '4ª palabra'],
+      vista.bruto.filas.map((f) => [f.id, ...f.palabras.map(marcaPalabra)])
+    )
+  );
+  children.push(heading('Suma por escala (+1 por cada selección)', HeadingLevel.HEADING_3));
+  children.push(
+    tabla(
+      ['Selección', 'D', 'I', 'S', 'C', 'Total'],
+      [
+        ['MÁS (+)', ...['D', 'I', 'S', 'C'].map((l) => vista.bruto.sumas.mas[l]), 28],
+        ['MENOS (−)', ...['D', 'I', 'S', 'C'].map((l) => vista.bruto.sumas.menos[l]), 28],
+      ]
     )
   );
 

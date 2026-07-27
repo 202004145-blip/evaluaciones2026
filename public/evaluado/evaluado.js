@@ -47,8 +47,10 @@ async function api(path, options = {}) {
 
 function renderForm() {
   const wrap = document.getElementById('itemsWrap');
-  const order = ['D', 'I', 'S', 'C'];
   wrap.innerHTML = ITEMS.map((item, idx) => {
+    // Respetar el orden visual de la hoja original del instrumento.
+    const order =
+      Array.isArray(item.orden) && item.orden.length === 4 ? item.orden : ['D', 'I', 'S', 'C'];
     const rows = order
       .map((letter) => {
         const word = item.palabras[letter];
