@@ -136,22 +136,50 @@ function fichaHtml(ficha) {
 function construirDetalleHtml(folio, datos) {
   const { candidato, bruto, correccion, interpretacion, referenciaPatrones } = datos;
 
-  const rawRows = bruto.detalle
-    .map(
-      (d) => `<tr>
-        <td>${d.id}</td>
-        <td>${escapeHtml(Object.values(d.palabras).join(' · '))}</td>
-        <td><span class="pill" style="background:${STYLE_COLOR[d.mas]}">${d.mas}</span> ${escapeHtml(d.palabra_mas)}</td>
-        <td><span class="pill" style="background:${STYLE_COLOR[d.menos]}">${d.menos}</span> ${escapeHtml(d.palabra_menos)}</td>
-      </tr>`
-    )
+  const filas = bruto.filas || [];
+  const rawBlocks = filas
+    .map((f) => {
+      const rows = f.palabras
+        .map(
+          (p) => `<tr>
+            <td class="rb-word" style="border-left:3px solid ${STYLE_COLOR[p.escala]}">${escapeHtml(p.palabra)}</td>
+            <td class="rb-mark${p.esMas ? ' mas-on' : ''}">${p.esMas ? '+' : ''}</td>
+            <td class="rb-mark${p.esMenos ? ' menos-on' : ''}">${p.esMenos ? '−' : ''}</td>
+          </tr>`
+        )
+        .join('');
+      return `<div class="rb-block">
+        <table class="rb-table">
+          <thead><tr><th class="rb-num">${f.id}</th><th>+</th><th>−</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    })
     .join('');
+
+  const sumas = bruto.sumas || { mas: {}, menos: {} };
+  const total = (obj) => ['D', 'I', 'S', 'C'].reduce((a, l) => a + (obj[l] || 0), 0);
+  const sumRow = (label, obj, cls) => `<tr>
+      <td class="rb-sum-label">${label}</td>
+      ${['D', 'I', 'S', 'C']
+        .map((l) => `<td class="${cls}" style="color:${STYLE_COLOR[l]}">${obj[l] || 0}</td>`)
+        .join('')}
+      <td class="rb-sum-total">${total(obj)}</td>
+    </tr>`;
+
   const rawSection = `
-    <div class="section-kicker">1. Resultados en bruto</div>
-    <div class="section-title">Pregunta y respuesta (28 ítems)</div>
-    <table class="detail-table">
-      <thead><tr><th>#</th><th>Palabras del grupo</th><th>Elegido MÁS</th><th>Elegido MENOS</th></tr></thead>
-      <tbody>${rawRows}</tbody>
+    <div class="section-kicker">1. Respuestas en bruto</div>
+    <div class="section-title">Formato de la hoja DISC (28 grupos de 4 palabras)</div>
+    <p class="rb-hint">Cada grupo conserva el orden de las palabras de la hoja original. Se marca una palabra como MÁS (+) y una como MENOS (−). Las puntuaciones solo se muestran aquí, en el panel del evaluador.</p>
+    <div class="rb-grid">${rawBlocks}</div>
+    <div class="section-title" style="margin-top:24px;">Suma por escala (+1 por cada selección)</div>
+    <p class="rb-hint">Total de veces que cada escala fue elegida como MÁS y como MENOS. Estos conteos alimentan la Gráfica I (MÁS) y la Gráfica II (MENOS).</p>
+    <table class="detail-table rb-sum-table">
+      <thead><tr><th></th><th>D</th><th>I</th><th>S</th><th>C</th><th>Total</th></tr></thead>
+      <tbody>
+        ${sumRow('MÁS (+)', sumas.mas, 'rb-sum-mas')}
+        ${sumRow('MENOS (−)', sumas.menos, 'rb-sum-menos')}
+      </tbody>
     </table>`;
 
   const correctionSection = `

@@ -21,19 +21,24 @@ function generarXlsx(datos) {
   ];
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(resumen), 'Resumen');
 
+  // Respuestas en bruto en el orden visual de la hoja DISC: las 4 palabras de
+  // cada grupo tal como aparecen, indicando cuál se eligió MÁS y cuál MENOS.
+  const marca = (p) => (p.esMas ? '(+) ' : p.esMenos ? '(−) ' : '') + p.palabra;
   const bruto = [
-    ['#', 'Palabra D', 'Palabra I', 'Palabra S', 'Palabra C', 'Elegido MÁS', 'Elegido MENOS'],
-    ...vista.bruto.detalle.map((d) => [
-      d.id,
-      d.palabras.D,
-      d.palabras.I,
-      d.palabras.S,
-      d.palabras.C,
-      `${d.mas} - ${d.palabra_mas}`,
-      `${d.menos} - ${d.palabra_menos}`,
+    ['#', '1ª palabra', '2ª palabra', '3ª palabra', '4ª palabra', 'Elegido MÁS', 'Elegido MENOS'],
+    ...vista.bruto.filas.map((f) => [
+      f.id,
+      ...f.palabras.map(marca),
+      `${f.mas} - ${f.palabras.find((p) => p.esMas).palabra}`,
+      `${f.menos} - ${f.palabras.find((p) => p.esMenos).palabra}`,
     ]),
+    [],
+    ['Suma por escala (+1 por cada selección)'],
+    ['Selección', 'D', 'I', 'S', 'C', 'Total'],
+    ['MÁS (+)', ...['D', 'I', 'S', 'C'].map((l) => vista.bruto.sumas.mas[l]), 28],
+    ['MENOS (−)', ...['D', 'I', 'S', 'C'].map((l) => vista.bruto.sumas.menos[l]), 28],
   ];
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(bruto), '1. Resultados en bruto');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(bruto), '1. Respuestas en bruto');
 
   const nombreEstilo = { D: 'D · Dominante', I: 'I · Influyente', S: 'S · Estable', C: 'C · Concienzudo' };
   const correccion = [

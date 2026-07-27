@@ -31,12 +31,31 @@ function generarHtml(datos) {
     .filter(Boolean)
     .join(' · ');
 
-  const rawRows = v.bruto.detalle.map((d) => [
-    d.id,
-    Object.values(d.palabras).join(' · '),
-    `${d.mas} — ${d.palabra_mas}`,
-    `${d.menos} — ${d.palabra_menos}`,
-  ]);
+  const rawBlocks = v.bruto.filas
+    .map((f) => {
+      const rows = f.palabras
+        .map(
+          (p) => `<tr>
+            <td class="rb-word" style="border-left:3px solid ${COLOR_ESCALA[p.escala]}">${esc(p.palabra)}</td>
+            <td class="rb-mark${p.esMas ? ' mas' : ''}">${p.esMas ? '+' : ''}</td>
+            <td class="rb-mark${p.esMenos ? ' menos' : ''}">${p.esMenos ? '−' : ''}</td>
+          </tr>`
+        )
+        .join('');
+      return `<div class="rb-block"><table class="rb-table">
+        <thead><tr><th class="rb-num">${f.id}</th><th>+</th><th>−</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>`;
+    })
+    .join('');
+  const totalSuma = (obj) => ['D', 'I', 'S', 'C'].reduce((a, l) => a + (obj[l] || 0), 0);
+  const sumRow = (label, obj) =>
+    `<tr><td>${label}</td>${['D', 'I', 'S', 'C']
+      .map((l) => `<td>${obj[l] || 0}</td>`)
+      .join('')}<td>${totalSuma(obj)}</td></tr>`;
+  const sumasTabla = `<table class="rb-sum">
+    <thead><tr><th></th><th>D</th><th>I</th><th>S</th><th>C</th><th>Total</th></tr></thead>
+    <tbody>${sumRow('MÁS (+)', v.bruto.sumas.mas)}${sumRow('MENOS (−)', v.bruto.sumas.menos)}</tbody>
+  </table>`;
 
   const graphTable = (tallies, levels) =>
     tablaHtml(
@@ -102,15 +121,32 @@ function generarHtml(datos) {
   .pattern-detail{ border:1px solid var(--line); border-radius:8px; padding:12px 16px; margin:8px 0; }
   .style-detail{ border:1px solid var(--line); border-radius:8px; padding:14px 18px; margin:10px 0; }
   details{ margin-top:20px; }
-  @media print { body{ background:#fff; } }
+  .rb-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:10px 0 8px; }
+  .rb-block{ border:1px solid var(--line); }
+  table.rb-table{ width:100%; margin:0; font-size:13px; }
+  table.rb-table td, table.rb-table th{ border:none; border-bottom:1px solid var(--line); padding:5px 7px; }
+  table.rb-table thead th{ background:#ECEEEA; text-align:center; font-size:12px; }
+  table.rb-table th.rb-num{ text-align:left; }
+  .rb-word{ text-align:left; }
+  .rb-mark{ width:22px; text-align:center; font-weight:bold; color:#B9B7AC; }
+  .rb-mark.mas{ background:#3E7A5B; color:#fff; }
+  .rb-mark.menos{ background:#C1443C; color:#fff; }
+  table.rb-sum{ max-width:440px; }
+  table.rb-sum td{ text-align:center; font-weight:bold; }
+  table.rb-sum td:first-child{ text-align:left; font-weight:normal; }
+  @media print { body{ background:#fff; } .rb-grid{ grid-template-columns:repeat(4,1fr); } }
+  @media screen and (max-width:640px){ .rb-grid{ grid-template-columns:repeat(2,1fr); } }
 </style>
 </head>
 <body>
   <h1>Sistema de Perfil Personal (DISC)</h1>
   <p class="meta">${esc(candidateLine)}</p>
 
-  <h2>1. Resultados en bruto</h2>
-  ${tablaHtml(['#', 'Palabras del grupo', 'Elegido MÁS', 'Elegido MENOS'], rawRows)}
+  <h2>1. Respuestas en bruto</h2>
+  <p class="sub">Formato de la hoja DISC: cada grupo conserva el orden original de sus 4 palabras y marca una como MÁS (+) y una como MENOS (−).</p>
+  <div class="rb-grid">${rawBlocks}</div>
+  <h3>Suma por escala (+1 por cada selección)</h3>
+  ${sumasTabla}
 
   <h2>2. Corrección</h2>
   <h3>Gráfica I · MÁS</h3>

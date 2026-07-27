@@ -70,3 +70,25 @@ details.tech summary{cursor:pointer; font-family:'IBM Plex Mono',monospace; font
 details.tech .body{margin-top:14px;}
 
 .confirm-row{display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:11px;}
+
+/* Respuestas en bruto: formato de la hoja DISC (4 columnas de grupos) */
+.rb-hint{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); line-height:1.6; margin:0 0 14px;}
+.rb-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;}
+@media (max-width:900px){ .rb-grid{grid-template-columns:repeat(2, 1fr);} }
+@media (max-width:520px){ .rb-grid{grid-template-columns:1fr;} }
+.rb-block{background:var(--card); border:1px solid var(--hairline);}
+.rb-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+.rb-table th{font-family:'IBM Plex Mono',monospace; font-weight:500; color:var(--ink-soft); text-transform:uppercase; font-size:9.5px; letter-spacing:.05em; padding:6px 4px; border-bottom:1px solid var(--hairline); text-align:center;}
+.rb-table th.rb-num{text-align:left; padding-left:10px; color:var(--ink); font-size:12px;}
+.rb-table td{border-bottom:1px solid var(--hairline);}
+.rb-table tbody tr:last-child td{border-bottom:none;}
+.rb-word{padding:6px 8px 6px 9px; color:var(--ink); line-height:1.25;}
+.rb-mark{width:26px; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:600; color:var(--hairline);}
+.rb-mark.mas-on{background:var(--s); color:#fff;}
+.rb-mark.menos-on{background:var(--d); color:#fff;}
+
+.rb-sum-table{max-width:420px;}
+.rb-sum-table td{text-align:center; font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:600;}
+.rb-sum-table th{text-align:center;}
+.rb-sum-table td.rb-sum-label{text-align:left; font-size:11px; letter-spacing:.05em; color:var(--ink); font-weight:500;}
+.rb-sum-table td.rb-sum-total{color:var(--ink-soft);}

@@ -36,6 +36,25 @@ function buildReportView(datos) {
     return { campos, narrativa };
   };
 
+  // Vista de las respuestas en bruto respetando el formato de la hoja DISC:
+  // cada grupo muestra sus 4 palabras en el orden visual original, marcando
+  // cuál se eligió como MÁS (+) y cuál como MENOS (−). Al final, la suma por
+  // escala (+1 por cada selección) alimenta la Gráfica I (MÁS) y II (MENOS).
+  const filas = datos.detalle.map((d) => {
+    const orden = Array.isArray(d.orden) && d.orden.length === 4 ? d.orden : ESCALAS;
+    return {
+      id: d.id,
+      mas: d.mas,
+      menos: d.menos,
+      palabras: orden.map((escala) => ({
+        escala,
+        palabra: d.palabras[escala],
+        esMas: d.mas === escala,
+        esMenos: d.menos === escala,
+      })),
+    };
+  });
+
   return {
     candidato: {
       nombre: datos.nombre,
@@ -44,7 +63,11 @@ function buildReportView(datos) {
       folio: datos.folio,
       completado_en: datos.completado_en,
     },
-    bruto: { detalle: datos.detalle },
+    bruto: {
+      detalle: datos.detalle,
+      filas,
+      sumas: { mas: datos.tallyMas, menos: datos.tallyMenos },
+    },
     correccion: {
       tallyMas: datos.tallyMas,
       tallyMenos: datos.tallyMenos,

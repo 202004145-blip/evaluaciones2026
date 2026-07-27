@@ -2,9 +2,11 @@
   "test": "Sistema de Perfil Personal (DISC)",
   "formato": "seleccion_forzada",
   "instrucciones": "Para cada grupo de 4 palabras, elegir la que MÁS le describe y la que MENOS le describe.",
+  "nota_orden": "El campo 'orden' indica el orden visual (fila por fila) en que las 4 palabras aparecen en la hoja original del instrumento. La corrección no depende del orden; sirve para presentar las respuestas en bruto respetando el formato de la hoja.",
   "items": [
     {
       "id": 1,
+      "orden": ["I", "D", "C", "S"],
       "palabras": {
         "D": "rápido/a",
         "I": "entusiasta",
@@ -14,6 +16,7 @@
     },
     {
       "id": 2,
+      "orden": ["C", "D", "I", "S"],
       "palabras": {
         "D": "decidido/a",
         "I": "receptivo/a",
@@ -23,6 +26,7 @@
     },
     {
       "id": 3,
+      "orden": ["I", "C", "D", "S"],
       "palabras": {
         "D": "franco/a",
         "I": "amigable",
@@ -32,6 +36,7 @@
     },
     {
       "id": 4,
+      "orden": ["I", "C", "S", "D"],
       "palabras": {
         "D": "decisivo/a",
         "I": "elocuente",
@@ -41,6 +46,7 @@
     },
     {
       "id": 5,
+      "orden": ["D", "C", "I", "S"],
       "palabras": {
         "D": "atrevido/a",
         "I": "comunicativo/a",
@@ -50,6 +56,7 @@
     },
     {
       "id": 6,
+      "orden": ["I", "C", "S", "D"],
       "palabras": {
         "D": "acepta riesgos",
         "I": "ameno/a",
@@ -59,6 +66,7 @@
     },
     {
       "id": 7,
+      "orden": ["I", "C", "D", "S"],
       "palabras": {
         "D": "dominante",
         "I": "expresivo/a",
@@ -68,6 +76,7 @@
     },
     {
       "id": 8,
+      "orden": ["I", "C", "S", "D"],
       "palabras": {
         "D": "impaciente",
         "I": "extrovertido/a",
@@ -77,6 +86,7 @@
     },
     {
       "id": 9,
+      "orden": ["C", "S", "I", "D"],
       "palabras": {
         "D": "insistente",
         "I": "encantador/a",
@@ -86,6 +96,7 @@
     },
     {
       "id": 10,
+      "orden": ["D", "I", "S", "C"],
       "palabras": {
         "D": "valeroso/a",
         "I": "anima a los demás",
@@ -95,6 +106,7 @@
     },
     {
       "id": 11,
+      "orden": ["C", "S", "D", "I"],
       "palabras": {
         "D": "osado/a",
         "I": "alegre",
@@ -104,6 +116,7 @@
     },
     {
       "id": 12,
+      "orden": ["I", "S", "C", "D"],
       "palabras": {
         "D": "independiente",
         "I": "estimulante",
@@ -113,6 +126,7 @@
     },
     {
       "id": 13,
+      "orden": ["D", "S", "I", "C"],
       "palabras": {
         "D": "competitivo/a",
         "I": "alegre",
@@ -122,6 +136,7 @@
     },
     {
       "id": 14,
+      "orden": ["C", "S", "D", "I"],
       "palabras": {
         "D": "ideas firmes",
         "I": "alentador/a",
@@ -131,6 +146,7 @@
     },
     {
       "id": 15,
+      "orden": ["I", "C", "D", "S"],
       "palabras": {
         "D": "tenaz",
         "I": "popular",
@@ -140,6 +156,7 @@
     },
     {
       "id": 16,
+      "orden": ["C", "D", "S", "I"],
       "palabras": {
         "D": "audaz",
         "I": "promotor/a",
@@ -149,6 +166,7 @@
     },
     {
       "id": 17,
+      "orden": ["I", "S", "D", "C"],
       "palabras": {
         "D": "auto suficiente",
         "I": "sociable",
@@ -158,6 +176,7 @@
     },
     {
       "id": 18,
+      "orden": ["S", "D", "C", "I"],
       "palabras": {
         "D": "resuelto/a",
         "I": "vivaz",
@@ -167,6 +186,7 @@
     },
     {
       "id": 19,
+      "orden": ["D", "S", "I", "C"],
       "palabras": {
         "D": "agresivo/a",
         "I": "amistoso/a",
@@ -176,6 +196,7 @@
     },
     {
       "id": 20,
+      "orden": ["I", "S", "C", "D"],
       "palabras": {
         "D": "habla directo",
         "I": "de trato fácil",
@@ -185,6 +206,7 @@
     },
     {
       "id": 21,
+      "orden": ["C", "S", "I", "D"],
       "palabras": {
         "D": "persistente",
         "I": "animado/a",
@@ -194,6 +216,7 @@
     },
     {
       "id": 22,
+      "orden": ["I", "C", "D", "S"],
       "palabras": {
         "D": "enérgico/a",
         "I": "impulsivo/a",
@@ -203,6 +226,7 @@
     },
     {
       "id": 23,
+      "orden": ["I", "C", "D", "S"],
       "palabras": {
         "D": "vigoroso/a",
         "I": "sociable",
@@ -212,6 +236,7 @@
     },
     {
       "id": 24,
+      "orden": ["I", "S", "D", "C"],
       "palabras": {
         "D": "exigente",
         "I": "cautivador/a",
@@ -221,6 +246,7 @@
     },
     {
       "id": 25,
+      "orden": ["D", "C", "S", "I"],
       "palabras": {
         "D": "le agrada discutir",
         "I": "desenvuelto/a",
@@ -230,6 +256,7 @@
     },
     {
       "id": 26,
+      "orden": ["I", "C", "D", "S"],
       "palabras": {
         "D": "directo/a",
         "I": "jovial",
@@ -239,6 +266,7 @@
     },
     {
       "id": 27,
+      "orden": ["D", "S", "I", "C"],
       "palabras": {
         "D": "inquieto/a",
         "I": "elocuente",
@@ -248,6 +276,7 @@
     },
     {
       "id": 28,
+      "orden": ["C", "D", "I", "S"],
       "palabras": {
         "D": "pionero",
         "I": "espontáneo/a",
