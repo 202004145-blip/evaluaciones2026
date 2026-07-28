@@ -13,7 +13,7 @@ const exportarRoutes = require('./routes/exportar');
 const ipvSesionesRoutes = require('./routes/ipv-sesiones');
 const ipvResultadosRoutes = require('./routes/ipv-resultados');
 const ipvExportarRoutes = require('./routes/ipv-exportar');
-
+const discSesionesRoutes = require('./routes/disc-sesiones');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const isProd = process.env.NODE_ENV === 'production';
@@ -61,7 +61,7 @@ app.use('/api/exportar', exportarRoutes);
 app.use('/api/ipv/sesiones', ipvSesionesRoutes);
 app.use('/api/ipv/resultados', ipvResultadosRoutes);
 app.use('/api/ipv/exportar', ipvExportarRoutes);
-
+app.use('/api/disc/sesiones', discSesionesRoutes);
 app.get('/api/estado', (req, res) => {
   res.json({ ok: true, evaluadorConfigurado: hayEvaluadoresRegistrados() });
 });
