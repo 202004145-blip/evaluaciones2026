@@ -180,14 +180,13 @@ function GraficaPerfil({ M, L, T }) {
 }
 
 /* ============================================================
-   ENCABEZADO ESTILO ORIGINAL (Rama Farmacéutica / CLEAVER)
+   ENCABEZADO — solo el nombre del test
    ============================================================ */
 
-function EncabezadoHoja({ empresa = "Empresa" }) {
+function EncabezadoHoja() {
   return (
     <div className="mb-6 border-b-2 border-slate-800 pb-4">
-      <div className="text-right text-sm font-semibold text-slate-700 mb-1">{empresa}</div>
-      <h1 className="text-4xl font-bold tracking-widest text-slate-800">CLEAVER</h1>
+      <h1 className="text-4xl font-bold tracking-widest text-slate-800">TEST DE CLEAVER</h1>
     </div>
   );
 }
@@ -200,13 +199,8 @@ function VistaEvaluado({ onIrEvaluador }) {
   const [fase, setFase] = useState("inicio");
   const [datos, setDatos] = useState({
     nombre: "",
-    estadoCivil: "",
-    sexo: "",
-    fecha: new Date().toISOString().slice(0, 10),
-    escolaridad: "",
     puesto: "",
-    fechaNac: "",
-    empresa: "Rama Farmacéutica SA de CV",
+    fecha: new Date().toISOString().slice(0, 10),
   });
   const [sesion, setSesion] = useState(null);
   const [error, setError] = useState("");
@@ -284,16 +278,13 @@ function VistaEvaluado({ onIrEvaluador }) {
     }).length;
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <EncabezadoHoja empresa={sesion.datos.empresa} />
+        <EncabezadoHoja />
 
-        {/* Datos del postulante (como en la hoja original) */}
+        {/* Datos del postulante */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4 text-sm">
           <div><span className="font-semibold">Nombre:</span> {sesion.datos.nombre}</div>
-          <div><span className="font-semibold">Estado Civil:</span> {sesion.datos.estadoCivil || "—"}</div>
-          <div><span className="font-semibold">Sexo:</span> {sesion.datos.sexo || "—"}</div>
-          <div><span className="font-semibold">Fecha:</span> {formatearFecha(sesion.datos.fecha)}</div>
-          <div><span className="font-semibold">Escolaridad:</span> {sesion.datos.escolaridad || "—"}</div>
-          <div><span className="font-semibold">Puesto:</span> {sesion.datos.puesto || "—"}</div>
+          <div><span className="font-semibold">Cargo al que postula:</span> {sesion.datos.puesto || "—"}</div>
+          <div><span className="font-semibold">Fecha de administración:</span> {formatearFecha(sesion.datos.fecha)}</div>
         </div>
 
         {/* Instrucciones */}
@@ -326,7 +317,7 @@ function VistaEvaluado({ onIrEvaluador }) {
   // Pantalla de inicio
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      <EncabezadoHoja empresa={datos.empresa} />
+      <EncabezadoHoja />
       <Tarjeta className="p-6">
         <div className="font-bold text-slate-800 mb-3">Datos del postulante</div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -337,42 +328,13 @@ function VistaEvaluado({ onIrEvaluador }) {
               placeholder="Ej. María Pérez García" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Estado Civil</label>
-            <input value={datos.estadoCivil} onChange={(e) => setDatos({ ...datos, estadoCivil: e.target.value })}
-              className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Sexo</label>
-            <select value={datos.sexo} onChange={(e) => setDatos({ ...datos, sexo: e.target.value })}
-              className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500">
-              <option value="">— seleccionar —</option>
-              <option value="M">Masculino</option>
-              <option value="F">Femenino</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Escolaridad</label>
-            <input value={datos.escolaridad} onChange={(e) => setDatos({ ...datos, escolaridad: e.target.value })}
-              className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Puesto al que postula</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1">Cargo al que postula</label>
             <input value={datos.puesto} onChange={(e) => setDatos({ ...datos, puesto: e.target.value })}
               className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Fecha de aplicación</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1">Fecha de administración</label>
             <input type="date" value={datos.fecha} onChange={(e) => setDatos({ ...datos, fecha: e.target.value })}
-              className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500" />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Fecha de nacimiento</label>
-            <input type="date" value={datos.fechaNac} onChange={(e) => setDatos({ ...datos, fechaNac: e.target.value })}
-              className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500" />
-          </div>
-          <div className="md:col-span-2">
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Empresa</label>
-            <input value={datos.empresa} onChange={(e) => setDatos({ ...datos, empresa: e.target.value })}
               className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500" />
           </div>
         </div>
@@ -464,8 +426,8 @@ function PanelEvaluador({ onSalir }) {
               className="text-sm text-slate-500 hover:text-slate-800 mb-1">← Volver al listado</button>
             <h2 className="text-2xl font-semibold text-slate-800">{sesionSel.datos?.nombre}</h2>
             <p className="text-sm text-slate-600">
-              {sesionSel.datos?.puesto && <>Puesto: <strong>{sesionSel.datos.puesto}</strong> · </>}
-              Fecha de aplicación: <strong>{formatearFecha(sesionSel.datos?.fecha)}</strong>
+              {sesionSel.datos?.puesto && <>Cargo al que postula: <strong>{sesionSel.datos.puesto}</strong> · </>}
+              Fecha de administración: <strong>{formatearFecha(sesionSel.datos?.fecha)}</strong>
             </p>
             <p className="text-sm text-slate-500">
               Inició: {new Date(sesionSel.creado).toLocaleString()} · {sesionSel.completado ? `Finalizó: ${new Date(sesionSel.finalizado).toLocaleString()}` : "Cuestionario incompleto"}
@@ -508,14 +470,11 @@ function PanelEvaluador({ onSalir }) {
 
         {tab === "respuestas" && (
           <Tarjeta className="p-5">
-            <EncabezadoHoja empresa={sesionSel.datos?.empresa} />
+            <EncabezadoHoja />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4 text-sm">
               <div><span className="font-semibold">Nombre:</span> {sesionSel.datos?.nombre}</div>
-              <div><span className="font-semibold">Estado Civil:</span> {sesionSel.datos?.estadoCivil || "—"}</div>
-              <div><span className="font-semibold">Sexo:</span> {sesionSel.datos?.sexo || "—"}</div>
-              <div><span className="font-semibold">Fecha:</span> {formatearFecha(sesionSel.datos?.fecha)}</div>
-              <div><span className="font-semibold">Escolaridad:</span> {sesionSel.datos?.escolaridad || "—"}</div>
-              <div><span className="font-semibold">Puesto:</span> {sesionSel.datos?.puesto || "—"}</div>
+              <div><span className="font-semibold">Cargo al que postula:</span> {sesionSel.datos?.puesto || "—"}</div>
+              <div><span className="font-semibold">Fecha de administración:</span> {formatearFecha(sesionSel.datos?.fecha)}</div>
             </div>
             <HojaRespuestas sesion={sesionSel} soloLectura />
             {!sesionSel.completado && (
@@ -689,7 +648,7 @@ function PanelEvaluador({ onSalir }) {
           <div key={s.id} className="flex items-center justify-between px-5 py-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
             <button onClick={() => abrirSesion(s)} className="flex-1 text-left">
               <div className="font-medium text-slate-800">{s.datos?.nombre}</div>
-              <div className="text-xs text-slate-500">{s.datos?.puesto || "Sin puesto especificado"} · Aplicación: {formatearFecha(s.datos?.fecha)}</div>
+              <div className="text-xs text-slate-500">{s.datos?.puesto || "Sin cargo especificado"} · Administración: {formatearFecha(s.datos?.fecha)}</div>
               <div className="text-xs text-slate-400">Registro: {new Date(s.creado).toLocaleString()}</div>
             </button>
             <div className="flex items-center gap-3 ml-3">
@@ -738,11 +697,9 @@ function descargarXLSX(sesion, an) {
   const filas = [
     ["TEST DE CLEAVER — HOJA DE RESPUESTAS"],
     [],
-    ["Empresa:", sesion.datos?.empresa || ""],
     ["Nombre:", sesion.datos?.nombre || ""],
-    ["Puesto:", sesion.datos?.puesto || ""],
-    ["Fecha de aplicación:", formatearFecha(sesion.datos?.fecha)],
-    ["Estado Civil:", sesion.datos?.estadoCivil || "", "Sexo:", sesion.datos?.sexo || "", "Escolaridad:", sesion.datos?.escolaridad || ""],
+    ["Cargo al que postula:", sesion.datos?.puesto || ""],
+    ["Fecha de administración:", formatearFecha(sesion.datos?.fecha)],
     [],
     ["Grupo", "Palabra D", "Palabra I", "Palabra S", "Palabra C", "MÁS (palabra)", "Factor M", "MENOS (palabra)", "Factor L"],
   ];
@@ -822,11 +779,11 @@ function descargarDOC(sesion, an) {
       th { background: #e5e7eb; }
       .meta td { border: none; padding: 1pt 6pt 1pt 0; }
     </style></head><body>
-    <div style="text-align:right;font-weight:bold">${esc(sesion.datos?.empresa || "")}</div>
-    <h1>CLEAVER</h1>
+    <h1>TEST DE CLEAVER</h1>
     <table class="meta">
-      <tr><td><b>Nombre:</b></td><td>${esc(sesion.datos?.nombre || "")}</td><td><b>Estado Civil:</b></td><td>${esc(sesion.datos?.estadoCivil || "—")}</td><td><b>Sexo:</b></td><td>${esc(sesion.datos?.sexo || "—")}</td></tr>
-      <tr><td><b>Fecha:</b></td><td>${formatearFecha(sesion.datos?.fecha)}</td><td><b>Escolaridad:</b></td><td>${esc(sesion.datos?.escolaridad || "—")}</td><td><b>Puesto:</b></td><td>${esc(sesion.datos?.puesto || "—")}</td></tr>
+      <tr><td><b>Nombre:</b></td><td>${esc(sesion.datos?.nombre || "")}</td></tr>
+      <tr><td><b>Cargo al que postula:</b></td><td>${esc(sesion.datos?.puesto || "—")}</td></tr>
+      <tr><td><b>Fecha de administración:</b></td><td>${formatearFecha(sesion.datos?.fecha)}</td></tr>
     </table>
 
     <h2>1. Hoja de respuestas</h2>
@@ -895,12 +852,12 @@ function descargarHTML(sesion, an) {
     h2 { font-size:15px; font-weight:600; margin:26px 0 12px; padding-bottom:6px; border-bottom:1px solid #e2e8f0 }
     @media print { body { background:#fff } .contenedor { padding:0 } }
   </style></head><body><div class="contenedor">
-  <div style="text-align:right;font-weight:600;font-size:13px;color:#334155">${esc(sesion.datos?.empresa || "")}</div>
-  <h1>CLEAVER</h1>
+  <h1>TEST DE CLEAVER</h1>
 
   <table style="width:100%;font-size:13px;margin:16px 0"><tbody>
-    <tr><td><b>Nombre:</b> ${esc(sesion.datos?.nombre || "")}</td><td><b>Estado Civil:</b> ${esc(sesion.datos?.estadoCivil || "—")}</td><td><b>Sexo:</b> ${esc(sesion.datos?.sexo || "—")}</td></tr>
-    <tr><td><b>Fecha:</b> ${formatearFecha(sesion.datos?.fecha)}</td><td><b>Escolaridad:</b> ${esc(sesion.datos?.escolaridad || "—")}</td><td><b>Puesto:</b> ${esc(sesion.datos?.puesto || "—")}</td></tr>
+    <tr><td><b>Nombre:</b> ${esc(sesion.datos?.nombre || "")}</td></tr>
+    <tr><td><b>Cargo al que postula:</b> ${esc(sesion.datos?.puesto || "—")}</td></tr>
+    <tr><td><b>Fecha de administración:</b> ${formatearFecha(sesion.datos?.fecha)}</td></tr>
   </tbody></table>
 
   <h2>1 · Hoja de respuestas</h2>
