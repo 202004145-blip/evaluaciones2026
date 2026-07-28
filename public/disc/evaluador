@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DISC · Panel del Evaluador</title>
+    <script src="/shared/storage.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: #f8fafc; padding: 20px; }
+        body { font-family: system-ui, sans-serif; background: #f8fafc; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 16px; padding: 32px; }
         .btn { background: #0f172a; color: white; padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; }
         .btn:hover { background: #1e293b; }
@@ -71,51 +72,50 @@
 
         async function cargarResultados() {
             try {
-                const res = await fetch('/api/disc/sesiones');
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Error al cargar');
-                mostrarResultados(data);
+                const keys = await window.storage.list('disc_resultado:', true);
+                const items = keys && keys.keys ? keys.keys : [];
+                if (!items.length) {
+                    document.getElementById('resultados').innerHTML = '<p>No hay sesiones registradas aún.</p>';
+                    return;
+                }
+                let html = '';
+                for (const key of items) {
+                    try {
+                        const item = await window.storage.get(key, true);
+                        if (item && item.value) {
+                            const data = JSON.parse(item.value);
+                            const punt = data.puntuaciones || {};
+                            html += `
+                                <div class="sesion">
+                                    <h3>${data.nombre || 'Anónimo'}</h3>
+                                    <p><strong>Cargo:</strong> ${data.cargo || 'No especificado'}</p>
+                                    <p><strong>Fecha:</strong> ${data.fecha || '—'}</p>
+                                    <div class="puntuaciones">
+                                        ${Object.entries(punt).map(([k,v]) =>
+                                            `<span><strong>${k}:</strong> ${v}</span>`
+                                        ).join('')}
+                                    </div>
+                                    <details>
+                                        <summary style="cursor:pointer;font-weight:600;">📋 Ver respuestas</summary>
+                                        <table>
+                                            <tr><th>#</th><th>MÁS</th><th>MENOS</th></tr>
+                                            ${Object.keys(data.respuestas || {}).sort((a,b)=>parseInt(a)-parseInt(b)).map(key => {
+                                                const r = data.respuestas[key];
+                                                return `<tr><td>${parseInt(key)+1}</td><td style="color:#16a34a;">${r.mas || '-'}</td><td style="color:#dc2626;">${r.menos || '-'}</td></tr>`;
+                                            }).join('')}
+                                        </table>
+                                    </details>
+                                </div>
+                            `;
+                        }
+                    } catch (e) { /* omitir */ }
+                }
+                document.getElementById('resultados').innerHTML = html || '<p>No hay datos válidos.</p>';
             } catch (err) {
                 document.getElementById('resultados').innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
             }
         }
 
-        function mostrarResultados(sesiones) {
-            const div = document.getElementById('resultados');
-            if (!sesiones || sesiones.length === 0) {
-                div.innerHTML = '<p>No hay sesiones registradas aún.</p>';
-                return;
-            }
-            let html = '';
-            sesiones.forEach((sesion, idx) => {
-                const punt = sesion.puntuaciones || {};
-                html += `
-                    <div class="sesion">
-                        <h3>${idx+1}. ${sesion.nombre || 'Anónimo'}</h3>
-                        <p><strong>Cargo:</strong> ${sesion.cargo || 'No especificado'}</p>
-                        <p><strong>Fecha:</strong> ${sesion.fecha || '—'}</p>
-                        <div class="puntuaciones">
-                            ${Object.entries(punt).map(([k,v]) =>
-                                `<span><strong>${k}:</strong> ${v}</span>`
-                            ).join('')}
-                        </div>
-                        <details>
-                            <summary style="cursor:pointer;font-weight:600;">📋 Ver respuestas</summary>
-                            <table>
-                                <tr><th>#</th><th>MÁS</th><th>MENOS</th></tr>
-                                ${Object.keys(sesion.respuestas || {}).sort((a,b)=>a-b).map(key => {
-                                    const r = sesion.respuestas[key];
-                                    return `<tr><td>${parseInt(key)+1}</td><td style="color:#16a34a;">${r.mas || '-'}</td><td style="color:#dc2626;">${r.menos || '-'}</td></tr>`;
-                                }).join('')}
-                            </table>
-                        </details>
-                    </div>
-                `;
-            });
-            div.innerHTML = html;
-        }
-
-        // Verificar sesión activa
         fetch('/api/auth/me').then(res => res.json()).then(data => {
             if (data.evaluador) {
                 document.getElementById('login').classList.add('oculto');
