@@ -6,6 +6,7 @@ const { requireAuth } = require('../auth');
 const { generarDocx } = require('../export/toDocx');
 const { generarXlsx } = require('../export/toXlsx');
 const { generarHtml } = require('../export/toHtml');
+const { buildReportView } = require('../export/reportView');
 
 const router = express.Router();
 
@@ -45,9 +46,14 @@ router.get('/:folio/:formato', async (req, res) => {
         return res.send(html);
       }
       case 'json': {
+        // Misma vista normalizada que usan Word/Excel/HTML: incluye las
+        // preguntas y respuestas en bruto (formato de la hoja DISC), la
+        // corrección y la interpretación. Se conservan además los datos
+        // crudos calificados bajo `raw` para uso programático.
+        const vista = buildReportView(datos);
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}.json"`);
-        return res.send(JSON.stringify(datos, null, 2));
+        return res.send(JSON.stringify({ ...vista, raw: datos }, null, 2));
       }
       default:
         return res.status(400).json({ error: 'Formato de exportación no soportado.' });
