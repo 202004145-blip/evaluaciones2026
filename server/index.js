@@ -72,6 +72,11 @@ app.use('/evaluador', express.static(path.join(__dirname, '..', 'public', 'evalu
 app.use('/ipv/evaluado', express.static(path.join(__dirname, '..', 'public', 'ipv', 'evaluado')));
 app.use('/ipv/evaluador', express.static(path.join(__dirname, '..', 'public', 'ipv', 'evaluador')));
 app.use('/ipv', express.static(path.join(__dirname, '../public', 'ipv')));
+
+// Test de Cleaver: app React/Vite independiente (cleaver-app/) compilada a
+// estáticos. El build genera cleaver-app/dist con base '/cleaver/'.
+app.use('/cleaver', express.static(path.join(__dirname, '..', 'cleaver-app', 'dist')));
+
 app.get('/', (req, res) => res.redirect('/evaluado/'));
 
 app.use((req, res) => res.status(404).json({ error: 'No encontrado.' }));
