@@ -1,0 +1,52 @@
+/* Estilos para el panel del evaluador DISC */
+body { 
+    font-family: system-ui, sans-serif; 
+    background: #f8fafc; 
+    padding: 20px; 
+}
+.container { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    background: white; 
+    border-radius: 16px; 
+    padding: 32px; 
+}
+.btn { 
+    background: #0f172a; 
+    color: white; 
+    padding: 10px 24px; 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+}
+.btn:hover { background: #1e293b; }
+.btn.secundario { background: #e2e8f0; color: #0f172a; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #f1f5f9; text-align: left; padding: 10px; }
+td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+.sesion { 
+    border: 1px solid #e2e8f0; 
+    border-radius: 12px; 
+    padding: 20px; 
+    margin-bottom: 24px; 
+}
+.puntuaciones { 
+    display: flex; 
+    gap: 16px; 
+    margin: 12px 0; 
+}
+.puntuaciones span { 
+    background: #f1f5f9; 
+    padding: 4px 16px; 
+    border-radius: 4px; 
+}
+.oculto { display: none; }
+.login { max-width: 400px; margin: 40px auto; }
+.login input { 
+    width: 100%; 
+    padding: 10px; 
+    border: 1px solid #e2e8f0; 
+    border-radius: 8px; 
+    margin: 6px 0; 
+}
+.error { color: #dc2626; }

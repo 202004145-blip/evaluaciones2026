@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DISC · Panel del Evaluador</title>
+    <link rel="stylesheet" href="estilos.css">
+    <script src="../src/storage.js"></script>
+    <script src="login.js" defer></script>
+    <script src="panel.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 DISC · Panel del Evaluador</h1>
+        <hr>
+
+        <div id="login">
+            <div class="login">
+                <h2>Iniciar sesión</h2>
+                <input type="text" id="loginUser" placeholder="Usuario">
+                <input type="password" id="loginPass" placeholder="Contraseña">
+                <button class="btn" id="btnLogin">Entrar</button>
+                <div class="error" id="loginError"></div>
+            </div>
+        </div>
+
+        <div id="panel" class="oculto">
+            <button class="btn secundario" id="btnLogout">Cerrar sesión</button>
+            <div id="resultados"></div>
+        </div>
+    </div>
+</body>
+</html>
