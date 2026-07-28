@@ -73,9 +73,6 @@ app.use('/ipv/evaluado', express.static(path.join(__dirname, '..', 'public', 'ip
 app.use('/ipv/evaluador', express.static(path.join(__dirname, '..', 'public', 'ipv', 'evaluador')));
 app.use('/ipv', express.static(path.join(__dirname, '../public', 'ipv')));
 app.get('/', (req, res) => res.redirect('/evaluado/'));
-app.use('/disc', express.static(path.join(__dirname, '../public', 'disc')));
-app.use('/disc/evaluado', express.static(path.join(__dirname, '../public', 'disc', 'evaluado')));
-app.use('/disc/evaluador', express.static(path.join(__dirname, '../public', 'disc', 'evaluador')));
 app.use((req, res) => res.status(404).json({ error: 'No encontrado.' }));
 app.listen(PORT, () => {
   console.log(`DISC PRADEVA escuchando en http://localhost:${PORT}`);
