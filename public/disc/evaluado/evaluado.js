@@ -1,6 +1,6 @@
 // Lógica del test DISC para el evaluado
 document.addEventListener('DOMContentLoaded', () => {
-    // Obtener datos globales
+    // Esperar a que los datos estén cargados
     const PREGUNTAS = window.PREGUNTAS || [];
     const ESCALAS = window.ESCALAS || {};
     const MAPEO_ESCALAS = window.MAPEO_ESCALAS || {};
@@ -8,6 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let respuestas = {};
     let nombre = '';
     let cargo = '';
+    let fecha = '';
+
+    // Establecer fecha por defecto (hoy)
+    const fechaInput = document.getElementById('fecha');
+    if (fechaInput) {
+        const hoy = new Date().toISOString().split('T')[0];
+        fechaInput.value = hoy;
+    }
 
     function renderizarPreguntas() {
         const container = document.getElementById('preguntas');
@@ -32,9 +40,28 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             container.appendChild(div);
         });
+
+        // Agregar event listeners y validación
         document.querySelectorAll('input[type="radio"]').forEach(input => {
             input.addEventListener('change', guardarRespuesta);
         });
+
+        // Validar que no se seleccione la misma palabra como MÁS y MENOS
+        document.querySelectorAll('input[type="radio"]').forEach(input => {
+            input.addEventListener('click', function(e) {
+                const idx = parseInt(this.dataset.idx);
+                const tipo = this.dataset.tipo;
+                const valor = this.value;
+                const otroTipo = tipo === 'mas' ? 'menos' : 'mas';
+                const otroInput = document.querySelector(`input[name="${otroTipo}_${idx}"][value="${valor}"]`);
+                if (otroInput && otroInput.checked) {
+                    alert('No puedes seleccionar la misma palabra como MÁS y MENOS.');
+                    this.checked = false;
+                    return;
+                }
+            });
+        });
+
         actualizarProgreso();
     }
 
@@ -43,6 +70,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const idx = parseInt(input.dataset.idx);
         const tipo = input.dataset.tipo;
         const valor = input.value;
+
+        // Validar que no se seleccione la misma palabra en MÁS y MENOS
+        const otroTipo = tipo === 'mas' ? 'menos' : 'mas';
+        const otroInput = document.querySelector(`input[name="${otroTipo}_${idx}"][value="${valor}"]`);
+        if (otroInput && otroInput.checked) {
+            alert('No puedes seleccionar la misma palabra como MÁS y MENOS.');
+            input.checked = false;
+            return;
+        }
+
         if (!respuestas[idx]) respuestas[idx] = {};
         respuestas[idx][tipo] = valor;
         actualizarProgreso();
@@ -61,9 +98,23 @@ document.addEventListener('DOMContentLoaded', () => {
             nombre = document.getElementById('nombre').value.trim();
             if (!nombre) { alert('Ingresa tu nombre.'); return; }
             cargo = document.getElementById('cargo').value.trim();
+            fecha = document.getElementById('fecha').value;
             document.getElementById('inicio').classList.add('oculto');
             document.getElementById('test').classList.remove('oculto');
             renderizarPreguntas();
+        });
+    }
+
+    // Volver al inicio
+    const btnVolver = document.getElementById('btnVolver');
+    if (btnVolver) {
+        btnVolver.addEventListener('click', () => {
+            if (confirm('¿Seguro que quieres volver? Perderás el progreso no guardado.')) {
+                respuestas = {};
+                document.getElementById('test').classList.add('oculto');
+                document.getElementById('inicio').classList.remove('oculto');
+                actualizarProgreso();
+            }
         });
     }
 
@@ -92,17 +143,24 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             try {
+                // Verificar que storage está disponible
+                if (!window.storage) {
+                    alert('Error: El sistema de almacenamiento no está disponible. Contacta al administrador.');
+                    return;
+                }
+
                 const datos = {
-                    nombre, cargo,
-                    fecha: new Date().toISOString().split('T')[0],
+                    nombre, cargo, fecha,
                     respuestas, puntuaciones,
                     test: 'disc'
                 };
+
                 const result = await window.storage.set(
                     'disc_resultado:' + Date.now(),
                     JSON.stringify(datos),
                     true
                 );
+
                 if (result) {
                     document.getElementById('test').classList.add('oculto');
                     document.getElementById('gracias').classList.remove('oculto');
@@ -110,7 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Error al guardar. Intenta de nuevo.');
                 }
             } catch (err) {
-                alert('Error: ' + err.message);
+                console.error('Error guardando:', err);
+                alert('Error al guardar: ' + err.message);
             }
         });
     }
