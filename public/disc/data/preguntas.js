@@ -29,3 +29,6 @@ const PREGUNTAS = [
     ["inquieto/a", "amable", "elocuente", "cuidadoso/a"],
     ["prudente", "pionero", "espontáneo/a", "colaborador"]
 ];
+
+// Exponer al ámbito global para que otros scripts lo usen
+window.PREGUNTAS = PREGUNTAS;

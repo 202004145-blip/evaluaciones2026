@@ -1,7 +1,4 @@
 // Mapeo de palabras a escalas D/I/S/C
-// Este archivo relaciona cada palabra con su escala correspondiente
-// para la corrección automática del DISC
-
 const MAPEO_ESCALAS = {
     // Escala D (Dominante)
     "entusiasta": "D",
@@ -17,7 +14,6 @@ const MAPEO_ESCALAS = {
     "agresivo/a": "D",
     "enérgico/a": "D",
     "pionero": "D",
-
     // Escala I (Influyente)
     "elocuente": "I",
     "comunicativo/a": "I",
@@ -31,7 +27,6 @@ const MAPEO_ESCALAS = {
     "cautivador/a": "I",
     "desenvuelto/a": "I",
     "espontáneo/a": "I",
-
     // Escala S (Estable)
     "apacible": "S",
     "bondadoso/a": "S",
@@ -48,7 +43,6 @@ const MAPEO_ESCALAS = {
     "amistoso/a": "S",
     "comprensivo/a": "S",
     "generoso/a": "S",
-
     // Escala C (Concienzudo)
     "lógico/a": "C",
     "cauteloso/a": "C",
@@ -68,7 +62,5 @@ const MAPEO_ESCALAS = {
     "metódico/a": "C"
 };
 
-// Exportar para usar en otros archivos
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = MAPEO_ESCALAS;
-}
+// Exponer al ámbito global
+window.MAPEO_ESCALAS = MAPEO_ESCALAS;

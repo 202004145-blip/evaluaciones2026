@@ -13,3 +13,7 @@ Object.keys(ESCALAS).forEach(escala => {
         MAPEO_ESCALAS[palabra] = escala;
     });
 });
+
+// Exponer al ámbito global
+window.ESCALAS = ESCALAS;
+window.MAPEO_ESCALAS = MAPEO_ESCALAS;
