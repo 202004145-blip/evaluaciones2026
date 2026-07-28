@@ -6,10 +6,10 @@ MÁS / MENOS), pensada para uso local o desplegada en un servidor.
 
 ## Características
 
-- **Hoja de respuestas idéntica al formato Excel original**: encabezado con
-  CLEAVER, empresa, datos del postulante (nombre, estado civil, sexo, fecha,
-  escolaridad, puesto, fecha de nacimiento) y las 24 palabras organizadas en
-  6 tablas de 4 columnas con casillas MÁS y MENOS.
+- **Hoja de respuestas con el formato tradicional**: encabezado con el nombre
+  del test, datos del postulante (nombre, cargo al que postula y fecha de
+  administración) y las 24 palabras organizadas en 6 tablas de 4 columnas con
+  casillas MÁS y MENOS.
 - **Dos vistas**: evaluado (pública) y panel del evaluador (protegido por
   contraseña).
 - **Guardado automático** en `localStorage`: si se recarga la página, el
