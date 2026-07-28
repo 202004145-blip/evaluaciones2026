@@ -25,6 +25,8 @@ public/
   ipv/evaluado/    Vista del postulante IPV (87 preguntas, jamás ve resultados)
   ipv/evaluador/   Panel del evaluador IPV (login compartido, lista, detalle, exportación)
   shared/          Estilos base compartidos
+cleaver-app/       Test de Cleaver — app React/Vite independiente (frontend, localStorage).
+                   Su build (cleaver-app/dist) lo sirve el mismo Express en /cleaver
 app/               App original de un solo archivo (referencia visual/funcional, ya no se usa en producción)
 ```
 
@@ -46,6 +48,29 @@ npm start                    # http://localhost:3000
 - IPV — evaluado: `http://localhost:3000/ipv/evaluado/` · evaluador: `http://localhost:3000/ipv/evaluador/`
 
 El login del evaluador es el mismo para ambos instrumentos (misma tabla `evaluadores`, misma cookie de sesión).
+
+### Cleaver
+
+El Test de Cleaver vive en `cleaver-app/` como app React/Vite aparte (frontend
+puro con `localStorage`, sin backend). Express la sirve en `/cleaver` **solo si
+existe su build** (`cleaver-app/dist`), que no se versiona. Para desarrollo del
+Cleaver conviene su propio servidor de Vite con recarga en caliente:
+
+```bash
+cd cleaver-app
+npm install
+npm run dev        # http://localhost:5173/
+```
+
+Para verlo servido por Express en `http://localhost:3000/cleaver/` (como en
+producción), genera el build primero:
+
+```bash
+cd cleaver-app && npm install && npm run build   # crea cleaver-app/dist con base /cleaver/
+```
+
+En el deploy con Docker/Railway este build se genera automáticamente (ver más
+abajo), así que no hay que compilarlo a mano.
 
 ## Tests
 
@@ -72,7 +97,10 @@ borra en cada redeploy) y configurar el evaluador por variables de entorno
 (Railway no tiene terminal interactiva para `npm run set-admin-password`).
 
 El repo ya trae `Dockerfile`, `.dockerignore` y `railway.json`; Railway
-construye con el Dockerfile automáticamente.
+construye con el Dockerfile automáticamente. El `Dockerfile` es multi-etapa:
+una primera etapa compila el Test de Cleaver (`cleaver-app/`, React/Vite) a
+estáticos y la imagen final los sirve desde el mismo Express en `/cleaver` —
+no hace falta un segundo servicio ni configuración extra en Railway.
 
 **Pasos:**
 
@@ -96,6 +124,7 @@ construye con el Dockerfile automáticamente.
    - Salud: `https://TU-DOMINIO/api/estado` → `{"ok":true,"evaluadorConfigurado":true}`
    - Postulantes DISC: `/evaluado/` · IPV: `/ipv/evaluado/`
    - Evaluador: `/evaluador/` o `/ipv/evaluador/` (login con `ADMIN_USER`/`ADMIN_PASSWORD`)
+   - Cleaver: `/cleaver/` (frontend independiente, sin login de servidor)
 
 Notas:
 
