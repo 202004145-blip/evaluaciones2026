@@ -71,8 +71,37 @@ db.exec(`
     creado_en TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  -- ===== BFI-2-XS (Big Five Inventory-2 Extra-Short Form) =====
+  -- Instrumento independiente: 15 ítems Likert 1–5. Comparte el mismo login de
+  -- evaluador, pero con tablas propias.
+  CREATE TABLE IF NOT EXISTS bfi_sesiones (
+    folio TEXT PRIMARY KEY,
+    token_sesion TEXT NOT NULL UNIQUE,
+    nombre TEXT NOT NULL DEFAULT '',
+    cargo TEXT NOT NULL DEFAULT '',
+    fecha TEXT NOT NULL DEFAULT '',
+    ci TEXT NOT NULL DEFAULT '',
+    estado TEXT NOT NULL DEFAULT 'en_progreso',
+    creado_en TEXT NOT NULL DEFAULT (datetime('now')),
+    completado_en TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS bfi_respuestas (
+    folio TEXT NOT NULL REFERENCES bfi_sesiones(folio) ON DELETE CASCADE,
+    item_id INTEGER NOT NULL,
+    valor INTEGER,
+    actualizado_en TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (folio, item_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS bfi_resultados (
+    folio TEXT PRIMARY KEY REFERENCES bfi_sesiones(folio) ON DELETE CASCADE,
+    datos_json TEXT NOT NULL,
+    creado_en TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
   -- ===== Cleaver (Test de Cleaver) =====
-  -- Tercer instrumento independiente: 24 grupos de selección forzada MÁS/MENOS.
+  -- Instrumento independiente: 24 grupos de selección forzada MÁS/MENOS.
   -- Comparte el login de evaluador, con tablas propias. Cada respuesta guarda
   -- el factor elegido como MÁS y como MENOS del grupo (una fila por grupo).
   CREATE TABLE IF NOT EXISTS cleaver_sesiones (

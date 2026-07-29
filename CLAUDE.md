@@ -29,6 +29,14 @@ Un tercer test independiente: 24 grupos de selección forzada MÁS/MENOS (4 pala
 
 **Calificación del Cleaver** (validada, réplica de la lógica original): por cada uno de los 24 grupos el evaluado elige una palabra MÁS (M) y una MENOS (L); cada palabra pertenece a un factor D/I/S/C. Se cuentan M y L por factor; **T = M − L**; lectura ALTO (T>0), BAJO (T<0) o LÍNEA MEDIA (T=0). Se aplican "claves" según el orden de T: `X+` para el factor con T más alto positivo, `X/Y` (combinación básica) del más alto sobre el segundo, `X-` para el más bajo negativo, y `D=C+`/`D=C-` cuando T(D)=T(C). Cada clave trae su interpretación (corto + texto), y por cada factor fuera de la línea media se listan motivación (desea/necesita) y limitaciones, todo desde `datos/cleaver/`. Nota: el manual provisto no incluye baremo percentilar, así que se reporta el puntaje bruto T con línea media en 0 (no percentiles).
 
+### Cuarto instrumento: BFI-2-XS (Big Five Inventory-2 Extra-Short Form)
+
+Cuarto test independiente montado con la misma arquitectura que el IPV: 15 ítems de escala Likert 1–5 que miden los cinco dominios del modelo Big Five (E = Extraversión, A = Amabilidad, R = Responsabilidad, EN = Emocionalidad Negativa, AM = Apertura Mental). Se migró desde un artefacto de un solo HTML (`localStorage` + contraseña embebida) a la misma app real con backend.
+
+Comparte el login de evaluador (misma tabla `evaluadores` y cookie de sesión) pero usa tablas propias (`bfi_sesiones`, `bfi_respuestas`, `bfi_resultados`), datos propios en `datos/bfi/` (`preguntas_bfi.json` con los ítems, la dimensión y la marca de ítem inverso; `baremos_bfi.json` con el mapeo dimensión→ítems, los umbrales de nivel y las interpretaciones por nivel), motor puro en `server/bfi/scoring.js` (con tests en `server/bfi/scoring.test.js`), API bajo `/api/bfi/...` (autosave por ítem y reanudación como en DISC/IPV), exportaciones nativas en `server/bfi/export/` (docx/xlsx/html/json a partir de `server/bfi/reportView.js`) y frontends en `public/bfi/evaluado|evaluador`.
+
+Calificación (documentada en el README): los ítems inversos (2, 5, 8, 13) se recodifican con `6 − respuesta`; cada dimensión promedia los valores usados de sus 3 ítems (1.0–5.0) y ese promedio se convierte a nivel Muy bajo/Bajo/Medio/Alto/Muy alto según los umbrales de `datos/bfi/baremos_bfi.json`. Las categorías son rangos descriptivos, **no baremos normativos oficiales** del BFI-2-XS. Igual que en los otros instrumentos, el evaluado jamás ve puntajes ni interpretación (solo su folio), y todo lo interpretativo vive en `datos/bfi/`, no en el código.
+
 ## Lógica de calificación (validada, NO cambiar sin razón)
 
 Fuente: documentos oficiales del instrumento provistos por la propietaria del proyecto.

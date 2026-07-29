@@ -1,0 +1,55 @@
+{
+  "escala": { "min": 1, "max": 5 },
+  "orden": ["E", "A", "R", "EN", "AM"],
+  "dimensiones": {
+    "E": { "nombre": "Extraversión", "items": [5, 7, 10], "color": "#B23A2E" },
+    "A": { "nombre": "Amabilidad", "items": [1, 3, 14], "color": "#3E7C59" },
+    "R": { "nombre": "Responsabilidad", "items": [4, 9, 11], "color": "#2F4858" },
+    "EN": { "nombre": "Emocionalidad Negativa", "items": [2, 8, 12], "color": "#7C5AA6" },
+    "AM": { "nombre": "Apertura Mental", "items": [6, 13, 15], "color": "#D9A441" }
+  },
+  "niveles": [
+    { "cat": "muy-bajo", "label": "Muy bajo", "hasta": 1.8 },
+    { "cat": "bajo", "label": "Bajo", "hasta": 2.6 },
+    { "cat": "medio", "label": "Medio", "hasta": 3.4 },
+    { "cat": "alto", "label": "Alto", "hasta": 4.2 },
+    { "cat": "muy-alto", "label": "Muy alto", "hasta": null }
+  ],
+  "interpretaciones": {
+    "E": {
+      "Muy bajo": "La persona tiende a describirse como notablemente reservada, callada e introspectiva. Es probable que prefiera actividades en solitario o en grupos muy pequeños, evitando situaciones de gran exposición social. Puede mostrar bajos niveles de asertividad y liderazgo espontáneo.",
+      "Bajo": "Muestra una tendencia moderada hacia la introversión. Prefiere ambientes tranquilos y relaciones sociales acotadas. No suele buscar protagonismo y puede requerir tiempo para expresarse en grupos.",
+      "Medio": "Presenta un equilibrio entre orientación social y necesidad de espacios individuales. Puede adaptarse tanto a contextos grupales como a actividades más introspectivas según la situación lo requiera.",
+      "Alto": "Se describe como una persona sociable, enérgica y con facilidad para relacionarse. Tiende a disfrutar de la interacción, mostrar iniciativa y tomar roles de conducción cuando la situación lo permite.",
+      "Muy alto": "Presenta un perfil altamente extrovertido, dinámico y comunicativo. Tiende a buscar activamente el contacto social, destaca por su energía y suele asumir liderazgo. Puede resultar dominante en algunos contextos."
+    },
+    "A": {
+      "Muy bajo": "Tiende a describirse como una persona escéptica frente a las intenciones de los demás, poco cooperativa y con mayor orientación a la competencia. Puede mostrar frialdad emocional o pragmatismo marcado en las relaciones interpersonales.",
+      "Bajo": "Muestra cierta reserva en la confianza hacia los demás y prioriza sus propios intereses. Puede ser directo/a al punto de resultar poco diplomático/a en algunas interacciones.",
+      "Medio": "Presenta un balance entre orientación a los demás y defensa de los propios intereses. Puede cooperar cuando lo considera pertinente sin renunciar a su criterio.",
+      "Alto": "Tiende a ser una persona amable, empática y colaboradora. Suele mostrar interés genuino por el bienestar ajeno y facilidad para trabajar en equipo.",
+      "Muy alto": "Presenta un perfil marcadamente cordial, altruista y confiado. Prioriza la armonía interpersonal y la cooperación. Puede tener dificultades para poner límites o sostener posturas firmes en conflictos."
+    },
+    "R": {
+      "Muy bajo": "Puede mostrar dificultades para mantener orden, planificación y cumplimiento de plazos. Tiende a ser más espontáneo/a que estructurado/a, pudiendo requerir supervisión externa para tareas prolongadas.",
+      "Bajo": "Presenta una organización moderada. Puede ser flexible y adaptable, aunque en ocasiones descuida detalles o pospone tareas rutinarias.",
+      "Medio": "Muestra un nivel funcional de organización y cumplimiento. Puede combinar planificación con adaptación según las demandas del entorno.",
+      "Alto": "Tiende a ser una persona ordenada, responsable y con buena capacidad de autocontrol. Suele cumplir con sus compromisos y llevar sus tareas a término.",
+      "Muy alto": "Presenta un perfil altamente disciplinado, meticuloso y orientado al logro. Muestra fuerte compromiso con el cumplimiento y atención al detalle. En algunos casos puede tender a la rigidez o el perfeccionismo."
+    },
+    "EN": {
+      "Muy bajo": "Se describe como una persona notablemente estable, tranquila y resiliente frente al estrés. Suele mantener la calma en situaciones adversas y presenta baja reactividad emocional negativa.",
+      "Bajo": "Muestra buena estabilidad emocional. Puede experimentar variaciones anímicas normales, pero generalmente logra regularlas de forma adecuada.",
+      "Medio": "Presenta niveles habituales de reactividad emocional. Puede experimentar preocupación, tristeza o ansiedad en situaciones estresantes de manera esperable.",
+      "Alto": "Tiende a experimentar con mayor frecuencia emociones negativas como preocupación, tristeza o irritabilidad. Puede resultar más sensible al estrés que el promedio.",
+      "Muy alto": "Presenta una marcada tendencia a experimentar emociones negativas, con mayor vulnerabilidad al estrés, la ansiedad o el malestar emocional. Se recomienda considerar apoyo o estrategias específicas de regulación emocional."
+    },
+    "AM": {
+      "Muy bajo": "Muestra preferencia por lo conocido, lo práctico y lo convencional. Tiende a evitar ideas abstractas o experiencias novedosas, priorizando la eficacia y la tradición.",
+      "Bajo": "Presenta una orientación pragmática, con interés limitado por temáticas intelectuales o artísticas. Prefiere contextos estables y conocidos.",
+      "Medio": "Combina apertura hacia lo nuevo con valoración de lo establecido. Puede mostrar interés selectivo por temas culturales, artísticos o intelectuales.",
+      "Alto": "Se describe como una persona curiosa, creativa y con interés genuino por ideas nuevas, arte y experiencias diversas. Suele disfrutar del pensamiento abstracto.",
+      "Muy alto": "Presenta un perfil altamente creativo, imaginativo y con marcada apertura intelectual. Busca activamente experiencias novedosas, disfruta el arte y las ideas complejas. Puede tender a lo poco convencional."
+    }
+  }
+}

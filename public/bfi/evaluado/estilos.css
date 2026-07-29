@@ -1,0 +1,45 @@
+@import url('/shared/estilos.css');
+
+/* Barra de progreso pegajosa y estado de autoguardado (igual que DISC/IPV). */
+.form-progress{position:sticky; top:0; background:var(--paper); padding:10px 0; z-index:5; border-bottom:1px solid var(--hairline); margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;}
+.form-progress .count{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+.form-progress .bar{flex:1; height:4px; background:var(--hairline); margin:0 14px; position:relative; overflow:hidden;}
+.form-progress .bar span{position:absolute; inset:0; background:var(--ink); width:0%; transition:width .25s ease;}
+.autosave-tag{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-soft); min-height:14px; white-space:nowrap;}
+.autosave-tag.ok{color:var(--s);}
+.autosave-tag.err{color:var(--d);}
+
+/* Ayuda de escala fija arriba del formulario. */
+.scale-help{margin-bottom:16px;}
+.scale-legend{display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px 14px; font-size:12.5px; color:var(--ink-soft);}
+.scale-legend b{color:var(--ink);}
+.consigna{font-style:italic; color:var(--ink-soft); font-size:14.5px; margin:12px 0 0;}
+
+/* Bloque de afirmación con escala Likert de 5 puntos. */
+.q-block{background:var(--card); border:1px solid var(--hairline); padding:20px 22px; margin-bottom:12px; scroll-margin-top:120px;}
+.q-block.pendiente{border-color:var(--d); box-shadow:0 0 0 3px rgba(178,58,46,.10);}
+.q-head{display:flex; align-items:flex-start; gap:12px; margin-bottom:14px;}
+.q-index{font-family:'IBM Plex Mono',monospace; font-weight:600; background:var(--ink); color:#fff; width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:12.5px;}
+.q-text{font-size:15.5px; line-height:1.5; padding-top:3px;}
+
+.likert{display:grid; grid-template-columns:repeat(5,1fr); gap:8px;}
+.likert-opt{border:1px solid var(--hairline); background:#fff; cursor:pointer; padding:10px 6px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:4px; transition:border-color .12s ease, background .12s ease; min-height:72px; justify-content:center;}
+.likert-opt:hover{border-color:var(--c);}
+.likert-opt.selected{border-color:var(--c); background:var(--c); color:#fff;}
+.likert-opt input{position:absolute; opacity:0; width:0; height:0;}
+.likert-opt .num{font-family:'Source Serif 4',serif; font-size:19px; font-weight:700; color:var(--c);}
+.likert-opt.selected .num{color:#fff;}
+.likert-opt .lbl{font-size:10.5px; line-height:1.25;}
+
+/* Pantalla de agradecimiento. */
+.thanks-card{background:var(--card); border:1px solid var(--hairline); padding:48px 28px; text-align:center;}
+.thanks-card .check{width:64px; height:64px; border-radius:50%; background:var(--s); color:#fff; font-size:32px; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;}
+.thanks-card h2{font-family:'Source Serif 4',serif; font-size:22px; margin:0 0 10px;}
+.thanks-card p{color:var(--ink-soft); font-size:14.5px; max-width:440px; margin:0 auto;}
+.thanks-card .folio{font-family:'IBM Plex Mono',monospace; font-size:13px; margin-top:18px; color:var(--ink);}
+
+@media (max-width:560px){
+  .likert{grid-template-columns:repeat(5,1fr); gap:5px;}
+  .likert-opt{padding:8px 3px; min-height:64px;}
+  .likert-opt .lbl{display:none;}
+}

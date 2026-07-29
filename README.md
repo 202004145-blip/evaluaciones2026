@@ -1,9 +1,10 @@
-# Evaluaciones PRADEVA — DISC + IPV
+# Evaluaciones PRADEVA — DISC + IPV + BFI-2-XS
 
-Aplicación web para administrar y calificar tests psicométricos en procesos de selección de personal. Incluye dos instrumentos independientes que comparten el mismo servidor y el mismo login de evaluador:
+Aplicación web para administrar y calificar tests psicométricos en procesos de selección de personal. Incluye instrumentos independientes que comparten el mismo servidor y el mismo login de evaluador:
 
 - **DISC** — Sistema de Perfil Personal (28 ítems de selección forzada MÁS/MENOS).
 - **IPV** — Inventario de Personalidad para Vendedores (87 preguntas de elección única A/B/C, corrección contra clave, decatipos y niveles).
+- **BFI-2-XS** — Inventario Big Five 2, versión ultra breve (15 ítems de escala Likert 1–5, 5 dominios: Extraversión, Amabilidad, Responsabilidad, Emocionalidad Negativa y Apertura Mental).
 
 Ver `CLAUDE.md` para el contexto completo del proyecto (calificación oficial, reglas, trabajo pendiente).
 
@@ -13,17 +14,21 @@ Ver `CLAUDE.md` para el contexto completo del proyecto (calificación oficial, r
 datos/            Datos oficiales de los instrumentos
   <raíz>           DISC (ítems, tablas de conversión, patrones, estilos)
   ipv/             IPV (87 preguntas con su clave, baremos/decatipos, mapeo pregunta→escala)
+  bfi/             BFI-2-XS (15 ítems, mapeo ítem→dimensión e ítems inversos, umbrales de nivel, interpretaciones)
 server/           Backend Express + SQLite
   scoring/         Motor de calificación DISC (puro, con tests: node --test)
   export/          Generadores de exportación DISC (docx, xlsx, html)
   ipv/             Motor de calificación IPV (puro + tests) y sus exportadores (ipv/export/)
-  routes/          Endpoints de la API (DISC e IPV: ipv-sesiones, ipv-resultados, ipv-exportar)
+  bfi/             Motor de calificación BFI-2-XS (puro + tests) y sus exportadores (bfi/export/)
+  routes/          Endpoints de la API (DISC, IPV y BFI: bfi-sesiones, bfi-resultados, bfi-exportar)
   scripts/         Utilidades de línea de comandos (crear contraseña de evaluador)
 public/
   evaluado/        Vista del postulante DISC (28 ítems, jamás ve resultados)
   evaluador/        Panel del evaluador DISC (login, lista, detalle, exportación)
   ipv/evaluado/    Vista del postulante IPV (87 preguntas, jamás ve resultados)
   ipv/evaluador/   Panel del evaluador IPV (login compartido, lista, detalle, exportación)
+  bfi/evaluado/    Vista del postulante BFI-2-XS (15 ítems Likert, jamás ve resultados)
+  bfi/evaluador/   Panel del evaluador BFI-2-XS (login compartido, lista, detalle, exportación)
   shared/          Estilos base compartidos
 cleaver-app/       Test de Cleaver — app React/Vite independiente (frontend, localStorage).
                    Su build (cleaver-app/dist) lo sirve el mismo Express en /cleaver
@@ -47,8 +52,9 @@ npm start                    # http://localhost:3000
 - DISC — evaluado: `http://localhost:3000/evaluado/` · evaluador: `http://localhost:3000/evaluador/`
 - IPV — evaluado: `http://localhost:3000/ipv/evaluado/` · evaluador: `http://localhost:3000/ipv/evaluador/`
 - Cleaver — evaluado y evaluador en `http://localhost:3000/cleaver/` (el enlace "Acceso restringido", abajo de la pantalla del evaluado, lleva al login)
+- BFI-2-XS — evaluado: `http://localhost:3000/bfi/evaluado/` · evaluador: `http://localhost:3000/bfi/evaluador/`
 
-El login del evaluador es el **mismo para los tres instrumentos** (misma tabla `evaluadores`, misma cookie de sesión).
+El login del evaluador es el **mismo para todos los instrumentos** (misma tabla `evaluadores`, misma cookie de sesión).
 
 ### Cleaver (frontend React/Vite con backend real)
 
@@ -88,6 +94,7 @@ npm test
 - DISC (`server/scoring/scoring.test.js`): suma de conteos MÁS = 28, suma MENOS = 28, cobertura completa de las tablas de conversión, los 13 códigos faltantes de la matriz de patrones y los códigos de verificación 1115→Objetivo, 1511→Promotor, 5555→Superactivo.
 - IPV (`server/ipv/scoring.test.js`): 87 preguntas con clave válida, PD por escala = número de ítems con todo correcto, las escalas compuestas R y A como suma exacta de sus partes, los límites de la tabla de decatipos y el rechazo tipado de respuestas incompletas o inválidas.
 - Cleaver (`server/cleaver/scoring.test.js`): 24 grupos con los 4 factores D/I/S/C, suma de M = 24 y suma de L = 24, T = M − L con sus lecturas y claves (D+, I-, D=C+…), motivación/limitaciones solo para factores fuera de la línea media, y el rechazo tipado de respuestas incompletas, con MÁS = MENOS o con factores inválidos.
+- BFI-2-XS (`server/bfi/scoring.test.js`): 15 ítems mapeados 3 por dimensión sin solapamiento, los ítems inversos exactos (2, 5, 8, 13), la recodificación `6 − respuesta`, los umbrales de nivel (Muy bajo/Bajo/Medio/Alto/Muy alto) y el rechazo tipado de respuestas incompletas o inválidas.
 
 ## Lógica de calificación del IPV
 
@@ -104,6 +111,13 @@ npm test
 3. **Claves** (según el orden de T): `X+` para el factor con T más alto positivo; `X/Y` (combinación básica) del más alto sobre el segundo; `X-` para el más bajo negativo; y `D=C+`/`D=C-` cuando T(D)=T(C). Cada clave trae su interpretación (corto + texto) desde `datos/cleaver/interpretacion_cleaver.json`.
 4. **Motivación y limitaciones**: para cada factor fuera de la línea media se listan lo que "desea/necesita" y las posibles limitaciones bajo presión, también desde `datos/cleaver/`.
 5. **Sin baremo percentilar**: el manual provisto no incluye la conversión a percentiles, así que se reporta el puntaje bruto T con línea media en 0 (no percentiles). Si se captura la tabla, puede agregarse sin tocar la lógica.
+
+## Lógica de calificación del BFI-2-XS
+
+1. **Respuesta**: cada uno de los 15 ítems se responde en una escala Likert 1–5 (Muy en desacuerdo → Muy de acuerdo). Los ítems y el mapeo ítem→dimensión están en `datos/bfi/`.
+2. **Ítems inversos**: los ítems 2, 5, 8 y 13 se recodifican con `valor usado = 6 − respuesta` (definidos con `inv: true` en `datos/bfi/preguntas_bfi.json`).
+3. **Promedio por dimensión**: cada dominio (E, A, R, EN, AM) suma los valores usados de sus 3 ítems y divide entre 3 → promedio 1.0–5.0.
+4. **Nivel**: Muy bajo (≤ 1.80), Bajo (≤ 2.60), Medio (≤ 3.40), Alto (≤ 4.20), Muy alto (> 4.20). Los umbrales y las interpretaciones por nivel salen de `datos/bfi/baremos_bfi.json`; el código no inventa interpretación. Son rangos descriptivos, no baremos normativos oficiales.
 
 ## Despliegue en Railway
 
@@ -138,8 +152,8 @@ no hace falta un segundo servicio ni configuración extra en Railway.
    `secure` cuando `NODE_ENV=production`.
 5. **Redeploy** y probar:
    - Salud: `https://TU-DOMINIO/api/estado` → `{"ok":true,"evaluadorConfigurado":true}`
-   - Postulantes DISC: `/evaluado/` · IPV: `/ipv/evaluado/`
-   - Evaluador: `/evaluador/` o `/ipv/evaluador/` (login con `ADMIN_USER`/`ADMIN_PASSWORD`)
+   - Postulantes DISC: `/evaluado/` · IPV: `/ipv/evaluado/` · BFI-2-XS: `/bfi/evaluado/`
+   - Evaluador: `/evaluador/`, `/ipv/evaluador/` o `/bfi/evaluador/` (login con `ADMIN_USER`/`ADMIN_PASSWORD`)
    - Cleaver: `/cleaver/` (postulante); el evaluador entra por "Acceso restringido" con el mismo `ADMIN_USER`/`ADMIN_PASSWORD`
 
 Notas:
