@@ -13,6 +13,9 @@ const exportarRoutes = require('./routes/exportar');
 const ipvSesionesRoutes = require('./routes/ipv-sesiones');
 const ipvResultadosRoutes = require('./routes/ipv-resultados');
 const ipvExportarRoutes = require('./routes/ipv-exportar');
+const bfiSesionesRoutes = require('./routes/bfi-sesiones');
+const bfiResultadosRoutes = require('./routes/bfi-resultados');
+const bfiExportarRoutes = require('./routes/bfi-exportar');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -61,6 +64,9 @@ app.use('/api/exportar', exportarRoutes);
 app.use('/api/ipv/sesiones', ipvSesionesRoutes);
 app.use('/api/ipv/resultados', ipvResultadosRoutes);
 app.use('/api/ipv/exportar', ipvExportarRoutes);
+app.use('/api/bfi/sesiones', bfiSesionesRoutes);
+app.use('/api/bfi/resultados', bfiResultadosRoutes);
+app.use('/api/bfi/exportar', bfiExportarRoutes);
 
 app.get('/api/estado', (req, res) => {
   res.json({ ok: true, evaluadorConfigurado: hayEvaluadoresRegistrados() });
@@ -72,6 +78,8 @@ app.use('/evaluador', express.static(path.join(__dirname, '..', 'public', 'evalu
 app.use('/ipv/evaluado', express.static(path.join(__dirname, '..', 'public', 'ipv', 'evaluado')));
 app.use('/ipv/evaluador', express.static(path.join(__dirname, '..', 'public', 'ipv', 'evaluador')));
 app.use('/ipv', express.static(path.join(__dirname, '../public', 'ipv')));
+app.use('/bfi/evaluado', express.static(path.join(__dirname, '..', 'public', 'bfi', 'evaluado')));
+app.use('/bfi/evaluador', express.static(path.join(__dirname, '..', 'public', 'bfi', 'evaluador')));
 
 // Test de Cleaver: app React/Vite independiente (cleaver-app/) compilada a
 // estáticos. El build genera cleaver-app/dist con base '/cleaver/'.

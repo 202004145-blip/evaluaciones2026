@@ -1,0 +1,33 @@
+{
+  "instrumento": "BFI-2-XS",
+  "titulo": "Inventario Big Five 2 — Versión ultra breve (15 ítems)",
+  "consigna": "Yo me veo como alguien que...",
+  "escala": {
+    "min": 1,
+    "max": 5,
+    "etiquetas": [
+      "Muy en desacuerdo",
+      "Algo en desacuerdo",
+      "Neutral",
+      "Algo de acuerdo",
+      "Muy de acuerdo"
+    ]
+  },
+  "preguntas": [
+    { "id": 1, "texto": "Compasivo/a, con un gran corazón", "dim": "A", "inv": false },
+    { "id": 2, "texto": "Relajado/a, que gestiona bien el estrés", "dim": "EN", "inv": true },
+    { "id": 3, "texto": "Respetuoso/a, que trata a los demás con respeto", "dim": "A", "inv": false },
+    { "id": 4, "texto": "Formal, constante", "dim": "R", "inv": false },
+    { "id": 5, "texto": "Que tiende a estar callado/a", "dim": "E", "inv": true },
+    { "id": 6, "texto": "Fascinado/a por el arte, la música o la literatura", "dim": "AM", "inv": false },
+    { "id": 7, "texto": "Dominante, que actúa como líder", "dim": "E", "inv": false },
+    { "id": 8, "texto": "Emocionalmente estable, que no se altera con facilidad", "dim": "EN", "inv": true },
+    { "id": 9, "texto": "Que mantiene todo limpio y ordenado", "dim": "R", "inv": false },
+    { "id": 10, "texto": "Lleno/a de energía", "dim": "E", "inv": false },
+    { "id": 11, "texto": "Tenaz, que trabaja hasta terminar la tarea", "dim": "R", "inv": false },
+    { "id": 12, "texto": "Que tiende a sentirse deprimido/a, melancólico/a", "dim": "EN", "inv": false },
+    { "id": 13, "texto": "Con poco interés por ideas abstractas", "dim": "AM", "inv": true },
+    { "id": 14, "texto": "Que piensa bien de la gente", "dim": "A", "inv": false },
+    { "id": 15, "texto": "Original, que aporta ideas nuevas", "dim": "AM", "inv": false }
+  ]
+}
