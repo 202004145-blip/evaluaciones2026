@@ -85,56 +85,20 @@ function escapeHtml(s) {
     .replace(/>/g, '&gt;');
 }
 
-function levelMeterHtml(level) {
-  let segs = '';
-  for (let n = 1; n <= 7; n++) segs += `<div class="level-seg ${n <= level ? 'on' : ''}"></div>`;
-  return `<div class="level-meter">${segs}</div><div class="level-label">Nivel ${level} / 7</div>`;
-}
+const NOMBRE_ESCALA = { D: 'Dominante', I: 'Influyente', S: 'Sereno / Estable', C: 'Concienzudo' };
+const COLOR_ESCALA = { D: 'Rojo', I: 'Amarillo', S: 'Verde', C: 'Azul' };
 
-function graphRowsHtml(tallies, levels, maxAbs) {
-  return ['D', 'I', 'S', 'C']
-    .map((l) => {
-      const val = tallies[l];
-      const pct = Math.max(0, Math.min(100, (val / maxAbs) * 100));
-      return `<div class="graph-row">
-        <div class="graph-tag" style="color:${STYLE_COLOR[l]}">${l}<span class="full">${NOMBRE_ESCALA[l]}</span></div>
-        <div class="graph-track"><div class="graph-fill" style="width:${pct}%; background:${STYLE_COLOR[l]}"></div></div>
-        <div class="graph-val">${val}</div>
-        <div class="level-col">${levelMeterHtml(levels[l])}</div>
-      </div>`;
-    })
-    .join('');
-}
-
-function diffRowsHtml(diferencia, levels) {
-  return ['D', 'I', 'S', 'C']
-    .map((l) => {
-      const val = diferencia[l];
-      const pct = Math.min(100, (Math.abs(val) / 28) * 50);
-      const positivo = val >= 0;
-      return `<div class="graph-row">
-        <div class="graph-tag" style="color:${STYLE_COLOR[l]}">${l}<span class="full">${NOMBRE_ESCALA[l]}</span></div>
-        <div class="diff-track"><div class="diff-fill" style="background:${STYLE_COLOR[l]}; ${positivo ? `left:50%;width:${pct}%;` : `right:50%;width:${pct}%;`}"></div></div>
-        <div class="graph-val">${val > 0 ? '+' + val : val}</div>
-        <div class="level-col">${levelMeterHtml(levels[l])}</div>
-      </div>`;
-    })
-    .join('');
-}
-
-const NOMBRE_ESCALA = { D: 'Dominante', I: 'Influyente', S: 'Estable', C: 'Concienzudo' };
-
-function fichaHtml(ficha) {
-  if (!ficha) {
-    return `<div class="notice-box"><b>Patrón no disponible</b>Este código específico no está documentado en la tabla de interpretación original (es uno de los pocos códigos que faltaban en la fuente). Usa la sección de estilo predominante y las descripciones de los patrones clásicos para una interpretación manual.</div>`;
-  }
-  const dl = ficha.campos.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}.</dd>`).join('');
-  const narrativa = ficha.narrativa.map((t) => `<p>${escapeHtml(t)}</p>`).join('');
-  return `<div class="pattern-detail"><dl>${dl}</dl><div class="narrativa">${narrativa}</div></div>`;
+function fichaColorHtml(f) {
+  return `<div class="style-detail">
+      <h3 style="font-family:'Source Serif 4',serif; font-size:17px; margin:0; color:${STYLE_COLOR[f.dim]}">${escapeHtml(f.nombre)} (${escapeHtml(f.color)})</h3>
+      <p style="color:var(--ink-soft); font-size:13.5px; margin:8px 0 0;">${escapeHtml(f.descripcion)}</p>
+      ${f.para_comunicarte_con_ella ? `<h4>Para comunicarte con esta persona</h4><p style="font-size:13px; margin:2px 0 0;">${escapeHtml(f.para_comunicarte_con_ella)}</p>` : ''}
+      ${f.si_te_identificas ? `<h4>Si te identificas con este estilo</h4><p style="font-size:13px; margin:2px 0 0;">${escapeHtml(f.si_te_identificas)}</p>` : ''}
+    </div>`;
 }
 
 function construirDetalleHtml(folio, datos) {
-  const { candidato, bruto, correccion, interpretacion, referenciaPatrones } = datos;
+  const { candidato, bruto, resultado, interpretacion } = datos;
 
   const filas = bruto.filas || [];
   const rawBlocks = filas
@@ -157,108 +121,55 @@ function construirDetalleHtml(folio, datos) {
     })
     .join('');
 
-  const sumas = bruto.sumas || { mas: {}, menos: {} };
-  const total = (obj) => ['D', 'I', 'S', 'C'].reduce((a, l) => a + (obj[l] || 0), 0);
-  const sumRow = (label, obj, cls) => `<tr>
-      <td class="rb-sum-label">${label}</td>
-      ${['D', 'I', 'S', 'C']
-        .map((l) => `<td class="${cls}" style="color:${STYLE_COLOR[l]}">${obj[l] || 0}</td>`)
-        .join('')}
-      <td class="rb-sum-total">${total(obj)}</td>
-    </tr>`;
-
   const rawSection = `
     <div class="section-kicker">1. Respuestas en bruto</div>
     <div class="section-title">Formato de la hoja DISC (28 grupos de 4 palabras)</div>
     <p class="rb-hint">Cada grupo conserva el orden de las palabras de la hoja original. Se marca una palabra como MÁS (+) y una como MENOS (−). Las puntuaciones solo se muestran aquí, en el panel del evaluador.</p>
-    <div class="rb-grid">${rawBlocks}</div>
-    <div class="section-title" style="margin-top:24px;">Suma por escala (+1 por cada selección)</div>
-    <p class="rb-hint">Total de veces que cada escala fue elegida como MÁS y como MENOS. Estos conteos alimentan la Gráfica I (MÁS) y la Gráfica II (MENOS).</p>
-    <table class="detail-table rb-sum-table">
-      <thead><tr><th></th><th>D</th><th>I</th><th>S</th><th>C</th><th>Total</th></tr></thead>
-      <tbody>
-        ${sumRow('MÁS (+)', sumas.mas, 'rb-sum-mas')}
-        ${sumRow('MENOS (−)', sumas.menos, 'rb-sum-menos')}
-      </tbody>
-    </table>`;
+    <div class="rb-grid">${rawBlocks}</div>`;
 
+  const total = (obj) => ['D', 'I', 'S', 'C'].reduce((a, l) => a + (obj[l] || 0), 0);
+  const calcRow = (l) => {
+    const neto = resultado.neto[l];
+    return `<tr>
+      <td class="rb-sum-label" style="border-left:4px solid ${STYLE_COLOR[l]}; text-align:left;"><b>${l}</b> · ${NOMBRE_ESCALA[l]} <span style="color:var(--ink-soft)">(${COLOR_ESCALA[l]})</span></td>
+      <td class="rb-sum-mas" style="color:var(--s)">${resultado.positivos[l]}</td>
+      <td class="rb-sum-menos" style="color:var(--d)">${resultado.negativos[l]}</td>
+      <td class="rb-sum-total">${neto > 0 ? '+' + neto : neto}</td>
+    </tr>`;
+  };
   const correctionSection = `
-    <div class="section-kicker">2. Corrección</div>
-    <div class="section-title">Conteo y nivel por gráfica</div>
-    <div class="graph-card">
-      <h3>Gráfica I · MÁS</h3>
-      <div class="sub">Conteo (0–28) y nivel oficial de conversión (1–7), según la tabla del instrumento.</div>
-      ${graphRowsHtml(correccion.tallyMas, correccion.levels.I, 28)}
-      <div class="code-strip"><span class="code-chip">Código: ${correccion.codes.I}</span></div>
+    <div class="section-kicker">2. Calificación</div>
+    <div class="section-title">Suma de + y − por dimensión</div>
+    <p class="rb-hint">Por cada dimensión se cuentan los positivos (+) y los negativos (−). El <b>neto</b> = (# de +) − (# de −).</p>
+    <table class="detail-table rb-sum-table">
+      <thead><tr><th>Dimensión</th><th>Positivos (+)</th><th>Negativos (−)</th><th>Neto</th></tr></thead>
+      <tbody>
+        ${['D', 'I', 'S', 'C'].map(calcRow).join('')}
+        <tr>
+          <td class="rb-sum-label"><b>TOTAL</b></td>
+          <td class="rb-sum-total">${total(resultado.positivos)}</td>
+          <td class="rb-sum-total">${total(resultado.negativos)}</td>
+          <td class="rb-sum-total">${total(resultado.neto)}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pattern-card">
+      <div class="kicker">Personalidad predominante · máximo positivo</div>
+      <div class="num">${escapeHtml(resultado.maxPositivo.nombres.join(' / ')) || '—'}</div>
+      <div class="desc">Es la dimensión con más respuestas positivas (+): tu estilo de comportamiento predominante.</div>
     </div>
-    <div class="graph-card">
-      <h3>Gráfica II · MENOS</h3>
-      <div class="sub">Conteo (0–28) y nivel oficial de conversión (1–7).</div>
-      ${graphRowsHtml(correccion.tallyMenos, correccion.levels.II, 28)}
-      <div class="code-strip"><span class="code-chip">Código: ${correccion.codes.II}</span></div>
-    </div>
-    <div class="graph-card">
-      <h3>Gráfica III · Diferencia (MÁS − MENOS)</h3>
-      <div class="sub">Diferencia y nivel oficial de conversión (1–7). Esta gráfica es la base de la interpretación del patrón.</div>
-      ${diffRowsHtml(correccion.diferencia, correccion.levels.III)}
-      <div class="code-strip"><span class="code-chip">Código de perfil: ${correccion.codes.III}</span></div>
+    <div class="pattern-card">
+      <div class="kicker">Personalidad que evita / repele · máximo negativo</div>
+      <div class="num">${escapeHtml(resultado.maxNegativo.nombres.join(' / ')) || '—'}</div>
+      <div class="desc">Es la dimensión con más respuestas negativas (−): el estilo que la persona evita o rechaza.</div>
     </div>`;
-
-  let patternBlock;
-  if (interpretacion.esSuperactivo) {
-    patternBlock = `
-      <div class="pattern-card">
-        <div class="kicker">Patrón clásico (Gráfica III)</div>
-        <div class="num">Superactivo</div>
-        <div class="desc">Los cuatro estilos obtuvieron niveles igualmente altos en la Gráfica III, por lo que no concuerda con ningún Patrón Clásico. La fuente recomienda interpretar usando la Gráfica I o la Gráfica II en su lugar.</div>
-      </div>
-      ${fichaHtml(interpretacion.fichaPrincipal)}
-      <div class="section-kicker" style="margin-top:0;">Alternativas según Gráfica I y II</div>
-      <div class="pattern-detail">
-        <dl>
-          <dt>Patrón según Gráfica I (MÁS) — código ${interpretacion.codeI}</dt><dd>${escapeHtml(interpretacion.patternI || 'No disponible en la tabla')}</dd>
-          <dt>Patrón según Gráfica II (MENOS) — código ${interpretacion.codeII}</dt><dd>${escapeHtml(interpretacion.patternII || 'No disponible en la tabla')}</dd>
-        </dl>
-      </div>`;
-  } else {
-    patternBlock = `
-      <div class="pattern-card">
-        <div class="kicker">Patrón clásico (Gráfica III) · código ${interpretacion.codeIII}</div>
-        <div class="num">${escapeHtml(interpretacion.patternIII || 'No determinado')}</div>
-        <div class="desc">Clasificación obtenida cruzando el código de niveles D-I-S-C de la Gráfica III con la tabla oficial de interpretación.</div>
-      </div>
-      ${fichaHtml(interpretacion.fichaPrincipal)}`;
-  }
-
-  const styleBlocks = interpretacion.estilos
-    .map(
-      (s) => `<div class="style-detail">
-      <h3 style="font-family:'Source Serif 4',serif; font-size:17px; margin:0; color:${STYLE_COLOR[s.nombre[0]]}">${escapeHtml(s.nombre)}</h3>
-      <p style="color:var(--ink-soft); font-size:13.5px; margin:8px 0 0;">${escapeHtml(s.descripcion)}</p>
-      <h4>Tendencias</h4><ul>${s.tendencias.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>
-      <h4>Ambiente deseado</h4><ul>${s.ambiente_deseado.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>
-      <h4>Necesita que otros…</h4><ul>${s.necesita_de_otros.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>
-      <h4>Para ser más eficaz, necesita…</h4><ul>${s.para_ser_mas_eficaz.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>
-    </div>`
-    )
-    .join('');
-
-  const referencia = referenciaPatrones
-    .map(
-      (p) => `<div class="pattern-detail" style="padding:14px 16px;"><b style="font-family:'Source Serif 4',serif;">${escapeHtml(p.nombre)}</b><p style="font-size:12.5px; color:var(--ink-soft); margin:6px 0 0;">${escapeHtml(p.narrativa)}</p></div>`
-    )
-    .join('');
 
   const interpretationSection = `
     <div class="section-kicker">3. Interpretación</div>
-    <div class="section-title">Patrón clásico y estilo predominante</div>
-    ${patternBlock}
-    <div class="section-kicker">Estilo de comportamiento predominante (D/I/S/C): ${escapeHtml(interpretacion.predNombres.join(' / '))}</div>
-    ${styleBlocks}
-    <details class="tech">
-      <summary>Ver las descripciones de los 17 patrones / resultados posibles</summary>
-      <div class="body">${referencia}</div>
-    </details>`;
+    <div class="section-title">Personalidad predominante</div>
+    ${interpretacion.predominante.map(fichaColorHtml).join('')}
+    <div class="section-title" style="margin-top:20px;">Personalidad que evita / repele</div>
+    ${interpretacion.repelida.map(fichaColorHtml).join('')}`;
 
   const header = `
     <div style="margin-bottom:20px;">

@@ -3,7 +3,7 @@
 const express = require('express');
 const crypto = require('node:crypto');
 const db = require('../db');
-const { ITEMS, ESCALAS, scoreAnswers } = require('../scoring/scoring');
+const { ITEMS, ESCALAS, scoreAnswers } = require('../scoring/gamboa');
 
 const router = express.Router();
 

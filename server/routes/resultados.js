@@ -3,7 +3,7 @@
 const express = require('express');
 const db = require('../db');
 const { requireAuth } = require('../auth');
-const { buildReportView } = require('../export/reportView');
+const { buildReportView, COLOR_ESCALA, NOMBRE_ESCALA } = require('../export/reportView');
 
 const router = express.Router();
 
@@ -18,10 +18,17 @@ function listarResumen() {
     )
     .all();
   return filas.map((f) => {
-    let patronPredominante = null;
+    // "predominante" = dimensión(es) con más positivos (máximo positivo).
+    let predominante = null;
     if (f.datos_json) {
       const datos = JSON.parse(f.datos_json);
-      patronPredominante = datos.patterns?.III ?? null;
+      if (Array.isArray(datos.maxPositivo) && datos.maxPositivo.length) {
+        predominante = datos.maxPositivo
+          .map((d) => `${NOMBRE_ESCALA[d]} (${COLOR_ESCALA[d]})`)
+          .join(' / ');
+      } else if (datos.patterns?.III) {
+        predominante = datos.patterns.III; // compatibilidad con registros PPS antiguos
+      }
     }
     return {
       folio: f.folio,
@@ -31,7 +38,7 @@ function listarResumen() {
       estado: f.estado,
       creado_en: f.creado_en,
       completado_en: f.completado_en,
-      patron_predominante: patronPredominante,
+      patron_predominante: predominante,
     };
   });
 }

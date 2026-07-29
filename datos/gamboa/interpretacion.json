@@ -1,0 +1,38 @@
+{
+  "fuente": "Estudio de perfil DISC© — © 2019 Marian Gamboa (Formación Creativa para Trascender)",
+  "acronimo": "DISC© es el acrónimo de D: Decisivo (Rojo), I: Influyente (Amarillo), S: Sereno/Estable (Verde) y C: Concienzudo (Azul). Estos adjetivos reflejan 4 dimensiones del comportamiento humano que se encuentran en diferentes grados en cada persona. Generalmente, las personas tienen una o dos dimensiones que sobresalen sobre las demás: eso es el perfil DISC.",
+  "significado": {
+    "maximo_positivo": "Tu máximo positivo es tu personalidad predominante: la dimensión donde obtuviste más puntos positivos (+).",
+    "maximo_negativo": "Tu máximo negativo es la personalidad que repeles o evitas: la dimensión donde obtuviste más puntos negativos (−)."
+  },
+  "dimensiones": {
+    "D": {
+      "nombre": "Dominante",
+      "color": "Rojo",
+      "descripcion": "Las personas con fuertes estilos de Personalidad D, rojo, les gusta estar en posiciones de autoridad, o donde pueden hacer cosas en sus propios términos. Tienden a ser personas con iniciativa, orientadas a los objetivos e incluso competitivas. El énfasis de su energía se centra en moldear su ambiente para vencer la oposición y así lograr resultados. Sin embargo, en este cometido pueden ignorar otras opiniones, siendo fácilmente impacientes con los demás.",
+      "para_comunicarte_con_ella": "Si quieres comunicarte con una personalidad dominante, sé breve, directo, al grano, y sugiérele maneras de alcanzar los resultados que busca.",
+      "si_te_identificas": "Si te identificaste con este estilo, esfuérzate por ser un oyente \"activo\": toma en cuenta las ideas, opiniones y sentimientos de otros y busca un consenso de equipo."
+    },
+    "I": {
+      "nombre": "Influyente",
+      "color": "Amarillo",
+      "descripcion": "Las personas con fuertes estilos de personalidad I, amarillo, son muy entusiastas y optimistas. Se motivan con experiencias divertidas y con estar con otras personas. Tienden a no tener problemas para hablar con desconocidos y no temen ser el centro de atención. Son confiadas y optimistas, y tienden a ser algo emocionales y, a veces, muy espontáneas o impulsivas. Una de sus limitaciones más vinculadas es la falta de atención a los detalles.",
+      "para_comunicarte_con_ella": "Si quieres comunicarte de manera eficaz con una personalidad influyente, desarrolla una relación participativa. Cuida tu tono y tu lenguaje corporal, y ayúdale a transferir sus palabras en acciones.",
+      "si_te_identificas": "Si te identificaste con este estilo, evita ser tan impulsivo y espontáneo en situaciones donde te dejas llevar por la emoción; disfruta primero de la información: \"escucha más y habla menos\"."
+    },
+    "S": {
+      "nombre": "Sereno / Estable",
+      "color": "Verde",
+      "descripcion": "Las personas con fuertes estilos de Personalidad S, verde, se describen como tranquilas y estables. Buscan la rutina y la seguridad en su vida. Se esfuerzan por mantener buenas relaciones personales y ambientes sin conflicto. Son pacíficas, buenas oyentes y amigas verdaderamente leales. Sin embargo, también pueden ser posesivas con sus seres queridos y, a veces, pasivo-agresivas en sus esfuerzos por evitar el conflicto. Necesitan trabajar la evitación del conflicto a toda costa, ya que pueden suprimir sus sentimientos; tardan más en adaptarse a lo nuevo y pueden tener dificultad para establecer prioridades.",
+      "para_comunicarte_con_ella": "Si quieres comunicarte de manera eficaz con una personalidad serena, expresa un genuino interés en ella como persona, sé paciente en su desarrollo y muestra mucha amabilidad en el proceso.",
+      "si_te_identificas": "Si te identificaste con este estilo, sé más abierto al cambio, incluso espontáneo y más directo en tus interacciones. Di lo que quieres decir; no siempre guardarte las cosas es lo mejor. Y recuerda: \"presta atención a tus propias necesidades\"."
+    },
+    "C": {
+      "nombre": "Concienzudo",
+      "color": "Azul",
+      "descripcion": "Las personas con fuertes estilos de Personalidad C, azul, dan un gran valor a ser precisas, correctas e ir hasta el final. Piensan de manera muy lógica/analítica y tienden a ser excelentes en la resolución de problemas. Realistas y cuidadosas, tienden a ser tranquilas y a veces solitarias; muchas veces prefieren trabajar solas. Una de sus áreas de mejora es el manejo de detalles: tienen tanta precisión que a veces eso puede estancarlas.",
+      "para_comunicarte_con_ella": "Para comunicarte de manera eficaz con una personalidad concienzuda, prepara tu caso con antelación. Conoce los pros y los contras con datos precisos. Escucha sus datos y detalles, ya que se sienten frustradas cuando no pueden presentarlos.",
+      "si_te_identificas": "Si te identificaste con este estilo, sé menos crítico contigo y con los demás. En el ámbito laboral, trata de establecer relaciones con otros miembros del equipo. A veces es necesario centrarse menos en los hechos y más en la gente."
+    }
+  }
+}

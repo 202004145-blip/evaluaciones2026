@@ -1,8 +1,9 @@
 'use strict';
 
-const { buildReportView } = require('./reportView');
+const { buildReportView, NOMBRE_ESCALA, COLOR_ESCALA } = require('./reportView');
 
-const COLOR_ESCALA = { D: '#C1443C', I: '#D69A2D', S: '#3E7A5B', C: '#3A5A78' };
+const COLOR_HEX = { D: '#C1443C', I: '#D69A2D', S: '#3E7A5B', C: '#3A5A78' };
+const ESCALAS = ['D', 'I', 'S', 'C'];
 
 function esc(s) {
   return String(s ?? '')
@@ -11,22 +12,18 @@ function esc(s) {
     .replace(/>/g, '&gt;');
 }
 
-function tablaHtml(encabezados, filas) {
-  return `<table><thead><tr>${encabezados.map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead>
-    <tbody>${filas.map((f) => `<tr>${f.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-}
-
-function fichaHtml(ficha) {
-  if (!ficha) {
-    return `<p class="notice">Este código específico no está documentado en la tabla de interpretación original (es uno de los pocos códigos que faltaban en la fuente). Usa la sección de estilo predominante y las descripciones de los patrones clásicos para una interpretación manual.</p>`;
-  }
-  const dl = ficha.campos.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}.</dd>`).join('');
-  const narrativa = ficha.narrativa.map((t) => `<p>${esc(t)}</p>`).join('');
-  return `<dl>${dl}</dl>${narrativa}`;
+function fichaHtml(f) {
+  return `<div class="style-detail">
+    <h3 style="color:${COLOR_HEX[f.dim]}">${esc(f.nombre)} (${esc(f.color)})</h3>
+    <p class="sub">${esc(f.descripcion)}</p>
+    ${f.para_comunicarte_con_ella ? `<h4>Para comunicarte con esta persona</h4><p>${esc(f.para_comunicarte_con_ella)}</p>` : ''}
+    ${f.si_te_identificas ? `<h4>Si te identificas con este estilo</h4><p>${esc(f.si_te_identificas)}</p>` : ''}
+  </div>`;
 }
 
 function generarHtml(datos) {
   const v = buildReportView(datos);
+  const r = v.resultado;
   const candidateLine = [v.candidato.nombre, v.candidato.cargo, v.candidato.fecha, `Folio ${v.candidato.folio}`]
     .filter(Boolean)
     .join(' · ');
@@ -36,7 +33,7 @@ function generarHtml(datos) {
       const rows = f.palabras
         .map(
           (p) => `<tr>
-            <td class="rb-word" style="border-left:3px solid ${COLOR_ESCALA[p.escala]}">${esc(p.palabra)}</td>
+            <td class="rb-word" style="border-left:3px solid ${COLOR_HEX[p.escala]}">${esc(p.palabra)}</td>
             <td class="rb-mark${p.esMas ? ' mas' : ''}">${p.esMas ? '+' : ''}</td>
             <td class="rb-mark${p.esMenos ? ' menos' : ''}">${p.esMenos ? '−' : ''}</td>
           </tr>`
@@ -47,54 +44,17 @@ function generarHtml(datos) {
         <tbody>${rows}</tbody></table></div>`;
     })
     .join('');
-  const totalSuma = (obj) => ['D', 'I', 'S', 'C'].reduce((a, l) => a + (obj[l] || 0), 0);
-  const sumRow = (label, obj) =>
-    `<tr><td>${label}</td>${['D', 'I', 'S', 'C']
-      .map((l) => `<td>${obj[l] || 0}</td>`)
-      .join('')}<td>${totalSuma(obj)}</td></tr>`;
-  const sumasTabla = `<table class="rb-sum">
-    <thead><tr><th></th><th>D</th><th>I</th><th>S</th><th>C</th><th>Total</th></tr></thead>
-    <tbody>${sumRow('MÁS (+)', v.bruto.sumas.mas)}${sumRow('MENOS (−)', v.bruto.sumas.menos)}</tbody>
-  </table>`;
 
-  const graphTable = (tallies, levels) =>
-    tablaHtml(
-      ['Escala', 'Conteo', 'Nivel (1-7)'],
-      ['D', 'I', 'S', 'C'].map((l) => [l, tallies[l], levels[l]])
-    );
-  const diffTable = tablaHtml(
-    ['Escala', 'Diferencia', 'Nivel (1-7)'],
-    ['D', 'I', 'S', 'C'].map((l) => [l, v.correccion.diferencia[l], v.correccion.levels.III[l]])
-  );
-
-  let patternHtml;
-  if (v.interpretacion.esSuperactivo) {
-    patternHtml = `<p><b>Superactivo</b> — los cuatro estilos obtuvieron niveles igualmente altos en la Gráfica III; no concuerda con ningún Patrón Clásico. Se recomienda interpretar usando la Gráfica I o II.</p>
-      ${fichaHtml(v.interpretacion.fichaPrincipal)}
-      <p><b>Alternativa según Gráfica I</b> (código ${esc(v.interpretacion.codeI)}): ${esc(v.interpretacion.patternI || 'no disponible')}</p>
-      <p><b>Alternativa según Gráfica II</b> (código ${esc(v.interpretacion.codeII)}): ${esc(v.interpretacion.patternII || 'no disponible')}</p>`;
-  } else {
-    patternHtml = `<p><b>${esc(v.interpretacion.patternIII || 'No determinado')}</b> — código de perfil ${esc(v.interpretacion.codeIII)}</p>${fichaHtml(v.interpretacion.fichaPrincipal)}`;
-  }
-
-  const styleBlocks = v.interpretacion.estilos
-    .map(
-      (s) => `<div class="style-detail">
-      <h3 style="color:${COLOR_ESCALA[s.nombre[0]]}">${esc(s.nombre)}</h3>
-      <p class="sub">${esc(s.descripcion)}</p>
-      <h4>Tendencias</h4><ul>${s.tendencias.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
-      <h4>Ambiente deseado</h4><ul>${s.ambiente_deseado.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
-      <h4>Necesita que otros…</h4><ul>${s.necesita_de_otros.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
-      <h4>Para ser más eficaz, necesita…</h4><ul>${s.para_ser_mas_eficaz.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
-    </div>`
-    )
-    .join('');
-
-  const referencia = v.referenciaPatrones
-    .map(
-      (p) => `<div class="pattern-detail"><b>${esc(p.nombre)}</b><p class="sub">${esc(p.narrativa)}</p></div>`
-    )
-    .join('');
+  const total = (obj) => ESCALAS.reduce((a, l) => a + (obj[l] || 0), 0);
+  const calcRow = (l) => `<tr>
+      <td style="border-left:4px solid ${COLOR_HEX[l]}"><b>${l}</b> · ${esc(NOMBRE_ESCALA[l])} (${esc(COLOR_ESCALA[l])})</td>
+      <td>${r.positivos[l]}</td><td>${r.negativos[l]}</td><td><b>${r.neto[l] > 0 ? '+' + r.neto[l] : r.neto[l]}</b></td>
+    </tr>`;
+  const calcTabla = `<table class="calc">
+    <thead><tr><th>Dimensión</th><th>Positivos (+)</th><th>Negativos (−)</th><th>Neto</th></tr></thead>
+    <tbody>${ESCALAS.map(calcRow).join('')}
+      <tr class="tot"><td>TOTAL</td><td>${total(r.positivos)}</td><td>${total(r.negativos)}</td><td>${total(r.neto)}</td></tr>
+    </tbody></table>`;
 
   return `<!doctype html>
 <html lang="es">
@@ -103,24 +63,18 @@ function generarHtml(datos) {
 <title>Resultado DISC — ${esc(v.candidato.nombre)}</title>
 <style>
   :root{ --ink:#1C2321; --ink-soft:#5B6360; --line:#CBC9BE; --bg:#FBFAF7; }
-  body{ font-family: Georgia, 'Source Serif 4', serif; color:var(--ink); background:var(--bg); max-width:860px; margin:0 auto; padding:32px 20px 80px; line-height:1.5; }
+  body{ font-family: Georgia, serif; color:var(--ink); background:var(--bg); max-width:860px; margin:0 auto; padding:32px 20px 80px; line-height:1.5; }
   h1{ font-size:26px; border-bottom:2px solid var(--ink); padding-bottom:10px; }
   h2{ font-size:19px; margin-top:34px; }
   h3{ font-size:16px; margin:18px 0 4px; }
   h4{ font-size:12px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); margin:14px 0 4px; }
-  p{ margin:6px 0; }
-  p.sub{ color:var(--ink-soft); font-size:14px; }
-  ul{ margin:2px 0 10px; padding-left:20px; }
+  p{ margin:6px 0; } p.sub{ color:var(--ink-soft); font-size:14px; }
   table{ border-collapse:collapse; width:100%; margin:10px 0 16px; font-size:14px; }
   td,th{ border:1px solid var(--line); padding:6px 10px; text-align:left; }
   th{ background:#ECEEEA; }
-  dt{ font-weight:bold; margin-top:8px; }
-  dd{ margin:0 0 4px; }
   .meta{ color:var(--ink-soft); }
-  .notice{ background:#F4EFE3; border:1px solid #E2D9BF; padding:10px 14px; border-radius:6px; }
-  .pattern-detail{ border:1px solid var(--line); border-radius:8px; padding:12px 16px; margin:8px 0; }
+  .highlight{ background:#F4EFE3; border:1px solid #E2D9BF; padding:10px 14px; border-radius:6px; margin:10px 0; }
   .style-detail{ border:1px solid var(--line); border-radius:8px; padding:14px 18px; margin:10px 0; }
-  details{ margin-top:20px; }
   .rb-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:10px 0 8px; }
   .rb-block{ border:1px solid var(--line); }
   table.rb-table{ width:100%; margin:0; font-size:13px; }
@@ -131,44 +85,32 @@ function generarHtml(datos) {
   .rb-mark{ width:22px; text-align:center; font-weight:bold; color:#B9B7AC; }
   .rb-mark.mas{ background:#3E7A5B; color:#fff; }
   .rb-mark.menos{ background:#C1443C; color:#fff; }
-  table.rb-sum{ max-width:440px; }
-  table.rb-sum td{ text-align:center; font-weight:bold; }
-  table.rb-sum td:first-child{ text-align:left; font-weight:normal; }
-  @media print { body{ background:#fff; } .rb-grid{ grid-template-columns:repeat(4,1fr); } }
+  table.calc td:nth-child(n+2), table.calc th:nth-child(n+2){ text-align:center; }
+  table.calc tr.tot td{ background:#ECEEEA; font-weight:bold; }
   @media screen and (max-width:640px){ .rb-grid{ grid-template-columns:repeat(2,1fr); } }
 </style>
 </head>
 <body>
-  <h1>Sistema de Perfil Personal (DISC)</h1>
+  <h1>DISC© — Estudio de perfil</h1>
   <p class="meta">${esc(candidateLine)}</p>
 
   <h2>1. Respuestas en bruto</h2>
-  <p class="sub">Formato de la hoja DISC: cada grupo conserva el orden original de sus 4 palabras y marca una como MÁS (+) y una como MENOS (−).</p>
+  <p class="sub">Cada grupo conserva el orden original de sus 4 palabras y marca una como MÁS (+) y una como MENOS (−).</p>
   <div class="rb-grid">${rawBlocks}</div>
-  <h3>Suma por escala (+1 por cada selección)</h3>
-  ${sumasTabla}
 
-  <h2>2. Corrección</h2>
-  <h3>Gráfica I · MÁS</h3>
-  ${graphTable(v.correccion.tallyMas, v.correccion.levels.I)}
-  <p class="meta">Código: ${esc(v.correccion.codes.I)}</p>
-  <h3>Gráfica II · MENOS</h3>
-  ${graphTable(v.correccion.tallyMenos, v.correccion.levels.II)}
-  <p class="meta">Código: ${esc(v.correccion.codes.II)}</p>
-  <h3>Gráfica III · Diferencia (MÁS − MENOS)</h3>
-  ${diffTable}
-  <p class="meta">Código de perfil: ${esc(v.correccion.codes.III)}</p>
+  <h2>2. Calificación</h2>
+  <p class="sub">Por cada dimensión se cuentan los + y los −; el neto = (# de +) − (# de −).</p>
+  ${calcTabla}
+  <div class="highlight">
+    <p><b>Personalidad predominante</b> (máximo positivo): ${esc(r.maxPositivo.nombres.join(' / ')) || '—'}</p>
+    <p><b>Personalidad que evita/repele</b> (máximo negativo): ${esc(r.maxNegativo.nombres.join(' / ')) || '—'}</p>
+  </div>
 
   <h2>3. Interpretación</h2>
-  <h3>Patrón clásico</h3>
-  ${patternHtml}
-  <h3>Estilo de comportamiento predominante: ${esc(v.interpretacion.predNombres.join(' / '))}</h3>
-  ${styleBlocks}
-
-  <details>
-    <summary>Ver las descripciones de los 17 patrones / resultados posibles</summary>
-    ${referencia}
-  </details>
+  <h3>Personalidad predominante</h3>
+  ${v.interpretacion.predominante.map(fichaHtml).join('')}
+  <h3>Personalidad que evita/repele</h3>
+  ${v.interpretacion.repelida.map(fichaHtml).join('')}
 </body>
 </html>`;
 }

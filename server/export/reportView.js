@@ -1,46 +1,44 @@
 'use strict';
 
-const { ESTILOS_BASE, PATRONES_DETALLE, PATTERN_LOOKUP_DATA, interpretacionParaPatron } = require('../scoring/scoring');
+// Vista normalizada de un resultado DISC© (método Marian Gamboa) ya calificado
+// y guardado en la tabla `resultados`. La usan por igual el detalle del panel
+// del evaluador y las 4 exportaciones (docx, xlsx, html, json).
+//
+// No agrega ninguna regla de corrección: solo reorganiza lo que ya calculó
+// server/scoring/gamboa.js y los textos de datos/gamboa/.
 
-const NOMBRE_ESCALA = { D: 'Dominante', I: 'Influyente', S: 'Estable', C: 'Concienzudo' };
+const { DIMENSIONES } = require('../scoring/gamboa');
+
 const ESCALAS = ['D', 'I', 'S', 'C'];
+const NOMBRE_ESCALA = {
+  D: 'Dominante',
+  I: 'Influyente',
+  S: 'Sereno / Estable',
+  C: 'Concienzudo',
+};
+const COLOR_ESCALA = { D: 'Rojo', I: 'Amarillo', S: 'Verde', C: 'Azul' };
 
-const CAMPOS_FICHA = [
-  ['Emociones', 'emociones'],
-  ['Meta', 'meta'],
-  ['Juzga a los demás por', 'juzga_a_otros_por'],
-  ['Influye en los demás mediante', 'influye_mediante'],
-  ['Su valor para la organización', 'valor_para_organizacion'],
-  ['Abusa de', 'abusa_de'],
-  ['Bajo presión', 'bajo_presion'],
-  ['Teme', 'teme'],
-  ['Sería más eficaz si', 'seria_mas_eficaz_si'],
-];
+function nombresDe(dims) {
+  return (dims || []).map((d) => `${DIMENSIONES[d]?.nombre || NOMBRE_ESCALA[d]} (${COLOR_ESCALA[d]})`);
+}
 
-/**
- * Construye una vista normalizada de un resultado ya calificado (datos
- * guardados en la tabla `resultados`), lista para alimentar cualquiera de
- * los exportadores (docx, xlsx, html, json) o el detalle del panel.
- * No agrega ninguna regla de corrección nueva: solo reorganiza lo ya
- * calculado por server/scoring/scoring.js y los textos de datos/.
- */
+function fichasDe(dims) {
+  return (dims || []).map((d) => ({ dim: d, ...(DIMENSIONES[d] || {}) }));
+}
+
 function buildReportView(datos) {
-  const predNombres = datos.predominantes.map((l) => ESTILOS_BASE[l].nombre);
-  const esSuperactivo = datos.patterns.III === 'Superactivo';
+  const positivos = datos.positivos || { D: 0, I: 0, S: 0, C: 0 };
+  const negativos = datos.negativos || { D: 0, I: 0, S: 0, C: 0 };
+  const neto = datos.neto || {};
+  ESCALAS.forEach((d) => {
+    if (neto[d] === undefined) neto[d] = (positivos[d] || 0) - (negativos[d] || 0);
+  });
+  const maxPositivo = datos.maxPositivo || [];
+  const maxNegativo = datos.maxNegativo || [];
 
-  const fichaPara = (nombrePatron) => {
-    const ficha = interpretacionParaPatron(nombrePatron);
-    if (!ficha) return null;
-    const campos = CAMPOS_FICHA.filter(([, key]) => ficha[key]).map(([label, key]) => [label, ficha[key]]);
-    const narrativa = ficha.narrativa || [];
-    return { campos, narrativa };
-  };
-
-  // Vista de las respuestas en bruto respetando el formato de la hoja DISC:
-  // cada grupo muestra sus 4 palabras en el orden visual original, marcando
-  // cuál se eligió como MÁS (+) y cuál como MENOS (−). Al final, la suma por
-  // escala (+1 por cada selección) alimenta la Gráfica I (MÁS) y II (MENOS).
-  const filas = datos.detalle.map((d) => {
+  // Respuestas en bruto respetando el orden de la hoja: cada grupo muestra sus
+  // 4 palabras marcando cuál se eligió MÁS (+) y cuál MENOS (−).
+  const filas = (datos.detalle || []).map((d) => {
     const orden = Array.isArray(d.orden) && d.orden.length === 4 ? d.orden : ESCALAS;
     return {
       id: d.id,
@@ -66,33 +64,21 @@ function buildReportView(datos) {
     bruto: {
       detalle: datos.detalle,
       filas,
-      sumas: { mas: datos.tallyMas, menos: datos.tallyMenos },
+      sumas: { positivos, negativos },
     },
-    correccion: {
-      tallyMas: datos.tallyMas,
-      tallyMenos: datos.tallyMenos,
-      diferencia: datos.diferencia,
-      levels: datos.levels,
-      codes: datos.codes,
+    resultado: {
+      positivos,
+      negativos,
+      neto,
+      maxPositivo: { dims: maxPositivo, nombres: nombresDe(maxPositivo) },
+      maxNegativo: { dims: maxNegativo, nombres: nombresDe(maxNegativo) },
     },
     interpretacion: {
-      esSuperactivo,
-      patternIII: datos.patterns.III,
-      patternI: datos.patterns.I,
-      patternII: datos.patterns.II,
-      codeIII: datos.codes.III,
-      codeI: datos.codes.I,
-      codeII: datos.codes.II,
-      fichaPrincipal: fichaPara(esSuperactivo ? 'Superactivo' : datos.patterns.III),
-      predominantes: datos.predominantes,
-      predNombres,
-      estilos: datos.predominantes.map((l) => ESTILOS_BASE[l]),
+      dimensiones: DIMENSIONES,
+      predominante: fichasDe(maxPositivo),
+      repelida: fichasDe(maxNegativo),
     },
-    referenciaPatrones: PATTERN_LOOKUP_DATA.PATTERN_LIST.map((nombre) => ({
-      nombre,
-      narrativa: (PATRONES_DETALLE[nombre]?.narrativa || [])[0] || '',
-    })),
   };
 }
 
-module.exports = { buildReportView, ESCALAS, NOMBRE_ESCALA };
+module.exports = { buildReportView, ESCALAS, NOMBRE_ESCALA, COLOR_ESCALA };
