@@ -46,20 +46,27 @@ npm start                    # http://localhost:3000
 
 - DISC — evaluado: `http://localhost:3000/evaluado/` · evaluador: `http://localhost:3000/evaluador/`
 - IPV — evaluado: `http://localhost:3000/ipv/evaluado/` · evaluador: `http://localhost:3000/ipv/evaluador/`
+- Cleaver — evaluado y evaluador en `http://localhost:3000/cleaver/` (el enlace "Acceso restringido", abajo de la pantalla del evaluado, lleva al login)
 
-El login del evaluador es el mismo para ambos instrumentos (misma tabla `evaluadores`, misma cookie de sesión).
+El login del evaluador es el **mismo para los tres instrumentos** (misma tabla `evaluadores`, misma cookie de sesión).
 
-### Cleaver
+### Cleaver (frontend React/Vite con backend real)
 
-El Test de Cleaver vive en `cleaver-app/` como app React/Vite aparte (frontend
-puro con `localStorage`, sin backend). Express la sirve en `/cleaver` **solo si
-existe su build** (`cleaver-app/dist`), que no se versiona. Para desarrollo del
-Cleaver conviene su propio servidor de Vite con recarga en caliente:
+El Test de Cleaver vive en `cleaver-app/` como app React/Vite. A diferencia del
+original (que guardaba en `localStorage`), ahora usa el **backend real**: crea la
+sesión, guarda cada respuesta y califica en el servidor (`/api/cleaver/...`,
+tablas `cleaver_*`), y el evaluador entra con el login de servidor. Express sirve
+el frontend compilado en `/cleaver` **solo si existe su build** (`cleaver-app/dist`,
+que no se versiona).
+
+Para desarrollo con recarga en caliente, levanta el backend (`npm start` en la
+raíz, puerto 3000) y en paralelo el Vite del Cleaver; el `vite.config.js` ya
+tiene un proxy de `/api` al 3000:
 
 ```bash
 cd cleaver-app
 npm install
-npm run dev        # http://localhost:5173/
+npm run dev        # http://localhost:5173/  (las llamadas /api pasan al 3000)
 ```
 
 Para verlo servido por Express en `http://localhost:3000/cleaver/` (como en
@@ -80,6 +87,7 @@ npm test
 
 - DISC (`server/scoring/scoring.test.js`): suma de conteos MÁS = 28, suma MENOS = 28, cobertura completa de las tablas de conversión, los 13 códigos faltantes de la matriz de patrones y los códigos de verificación 1115→Objetivo, 1511→Promotor, 5555→Superactivo.
 - IPV (`server/ipv/scoring.test.js`): 87 preguntas con clave válida, PD por escala = número de ítems con todo correcto, las escalas compuestas R y A como suma exacta de sus partes, los límites de la tabla de decatipos y el rechazo tipado de respuestas incompletas o inválidas.
+- Cleaver (`server/cleaver/scoring.test.js`): 24 grupos con los 4 factores D/I/S/C, suma de M = 24 y suma de L = 24, T = M − L con sus lecturas y claves (D+, I-, D=C+…), motivación/limitaciones solo para factores fuera de la línea media, y el rechazo tipado de respuestas incompletas, con MÁS = MENOS o con factores inválidos.
 
 ## Lógica de calificación del IPV
 
@@ -88,6 +96,14 @@ npm test
 3. **DGV** (Disposición General para la Venta): coincidencias con la clave entre los 21 ítems representativos.
 4. **Decatipos**: cada PD se convierte a un valor tipificado 1–10 según la tabla de baremos mexicanos (n = 300) de cada escala.
 5. **Nivel**: Bajo (decatipo 1–3), Medio (4–7), Alto (8–10). Las descripciones por nivel salen de `datos/ipv/baremos_ipv.json`; el código no inventa interpretación.
+
+## Lógica de calificación del Cleaver
+
+1. **Conteos**: por cada uno de los 24 grupos el evaluado elige una palabra MÁS (M) y una MENOS (L); cada palabra pertenece a un factor D/I/S/C (`datos/cleaver/grupos_cleaver.json`). Se cuenta cuántas veces cada factor fue elegido como M y como L.
+2. **Puntaje bruto**: `T = M − L` por factor. Lectura: ALTO (T>0), BAJO (T<0), LÍNEA MEDIA (T=0). Suma de M = 24 y suma de L = 24.
+3. **Claves** (según el orden de T): `X+` para el factor con T más alto positivo; `X/Y` (combinación básica) del más alto sobre el segundo; `X-` para el más bajo negativo; y `D=C+`/`D=C-` cuando T(D)=T(C). Cada clave trae su interpretación (corto + texto) desde `datos/cleaver/interpretacion_cleaver.json`.
+4. **Motivación y limitaciones**: para cada factor fuera de la línea media se listan lo que "desea/necesita" y las posibles limitaciones bajo presión, también desde `datos/cleaver/`.
+5. **Sin baremo percentilar**: el manual provisto no incluye la conversión a percentiles, así que se reporta el puntaje bruto T con línea media en 0 (no percentiles). Si se captura la tabla, puede agregarse sin tocar la lógica.
 
 ## Despliegue en Railway
 
@@ -124,7 +140,7 @@ no hace falta un segundo servicio ni configuración extra en Railway.
    - Salud: `https://TU-DOMINIO/api/estado` → `{"ok":true,"evaluadorConfigurado":true}`
    - Postulantes DISC: `/evaluado/` · IPV: `/ipv/evaluado/`
    - Evaluador: `/evaluador/` o `/ipv/evaluador/` (login con `ADMIN_USER`/`ADMIN_PASSWORD`)
-   - Cleaver: `/cleaver/` (frontend independiente, sin login de servidor)
+   - Cleaver: `/cleaver/` (postulante); el evaluador entra por "Acceso restringido" con el mismo `ADMIN_USER`/`ADMIN_PASSWORD`
 
 Notas:
 

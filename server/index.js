@@ -13,6 +13,8 @@ const exportarRoutes = require('./routes/exportar');
 const ipvSesionesRoutes = require('./routes/ipv-sesiones');
 const ipvResultadosRoutes = require('./routes/ipv-resultados');
 const ipvExportarRoutes = require('./routes/ipv-exportar');
+const cleaverSesionesRoutes = require('./routes/cleaver-sesiones');
+const cleaverResultadosRoutes = require('./routes/cleaver-resultados');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -61,6 +63,8 @@ app.use('/api/exportar', exportarRoutes);
 app.use('/api/ipv/sesiones', ipvSesionesRoutes);
 app.use('/api/ipv/resultados', ipvResultadosRoutes);
 app.use('/api/ipv/exportar', ipvExportarRoutes);
+app.use('/api/cleaver/sesiones', cleaverSesionesRoutes);
+app.use('/api/cleaver/resultados', cleaverResultadosRoutes);
 
 app.get('/api/estado', (req, res) => {
   res.json({ ok: true, evaluadorConfigurado: hayEvaluadoresRegistrados() });

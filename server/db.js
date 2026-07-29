@@ -70,6 +70,36 @@ db.exec(`
     datos_json TEXT NOT NULL,
     creado_en TEXT NOT NULL DEFAULT (datetime('now'))
   );
+
+  -- ===== Cleaver (Test de Cleaver) =====
+  -- Tercer instrumento independiente: 24 grupos de selección forzada MÁS/MENOS.
+  -- Comparte el login de evaluador, con tablas propias. Cada respuesta guarda
+  -- el factor elegido como MÁS y como MENOS del grupo (una fila por grupo).
+  CREATE TABLE IF NOT EXISTS cleaver_sesiones (
+    folio TEXT PRIMARY KEY,
+    token_sesion TEXT NOT NULL UNIQUE,
+    nombre TEXT NOT NULL DEFAULT '',
+    cargo TEXT NOT NULL DEFAULT '',
+    fecha TEXT NOT NULL DEFAULT '',
+    estado TEXT NOT NULL DEFAULT 'en_progreso',
+    creado_en TEXT NOT NULL DEFAULT (datetime('now')),
+    completado_en TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS cleaver_respuestas (
+    folio TEXT NOT NULL REFERENCES cleaver_sesiones(folio) ON DELETE CASCADE,
+    grupo INTEGER NOT NULL,
+    mas TEXT,
+    menos TEXT,
+    actualizado_en TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (folio, grupo)
+  );
+
+  CREATE TABLE IF NOT EXISTS cleaver_resultados (
+    folio TEXT PRIMARY KEY REFERENCES cleaver_sesiones(folio) ON DELETE CASCADE,
+    datos_json TEXT NOT NULL,
+    creado_en TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 module.exports = db;
