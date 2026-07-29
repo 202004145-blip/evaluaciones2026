@@ -100,34 +100,68 @@ function fichaColorHtml(f) {
 function construirDetalleHtml(folio, datos) {
   const { candidato, bruto, resultado, interpretacion } = datos;
 
-  const filas = bruto.filas || [];
-  const rawBlocks = filas
-    .map((f) => {
-      const rows = f.palabras
-        .map(
-          (p) => `<tr>
-            <td class="rb-word" style="border-left:3px solid ${STYLE_COLOR[p.escala]}">${escapeHtml(p.palabra)}</td>
-            <td class="rb-mark${p.esMas ? ' mas-on' : ''}">${p.esMas ? '+' : ''}</td>
-            <td class="rb-mark${p.esMenos ? ' menos-on' : ''}">${p.esMenos ? '−' : ''}</td>
-          </tr>`
-        )
+  // Tabla tipo "Hoja de respuestas" de Marian Gamboa: cada ítem es una fila y
+  // cada dimensión (D/I/S/C) una columna con su palabra. Se marca la palabra
+  // elegida como MÁS (+) o MENOS (−) y al pie se suma verticalmente cada columna.
+  const HEX = { D: '#C1443C', I: '#D69A2D', S: '#3E7A5B', C: '#3A5A78' };
+  const detalle = (bruto.detalle || []).slice().sort((a, b) => a.id - b.id);
+  const total = (obj) => ['D', 'I', 'S', 'C'].reduce((a, l) => a + (obj[l] || 0), 0);
+
+  const bodyRows = detalle
+    .map((d) => {
+      const celdas = ['D', 'I', 'S', 'C']
+        .map((l) => {
+          const esMas = d.mas === l;
+          const esMenos = d.menos === l;
+          const bg = esMas ? 'background:#e7f1ec;' : esMenos ? 'background:#fbeae8;' : '';
+          const badge = esMas
+            ? '<span style="display:inline-block;min-width:16px;text-align:center;background:#3E7A5B;color:#fff;border-radius:4px;font-weight:700;padding:0 4px;margin-left:6px;">+</span>'
+            : esMenos
+            ? '<span style="display:inline-block;min-width:16px;text-align:center;background:#C1443C;color:#fff;border-radius:4px;font-weight:700;padding:0 4px;margin-left:6px;">−</span>'
+            : '';
+          return `<td style="padding:5px 8px;border:1px solid var(--line);white-space:nowrap;${bg}">${escapeHtml(d.palabras[l])}${badge}</td>`;
+        })
         .join('');
-      return `<div class="rb-block">
-        <table class="rb-table">
-          <thead><tr><th class="rb-num">${f.id}</th><th>+</th><th>−</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>`;
+      return `<tr><td style="padding:5px 8px;border:1px solid var(--line);text-align:center;font-weight:600;color:var(--ink-soft);">${d.id}</td>${celdas}</tr>`;
     })
     .join('');
 
-  const rawSection = `
-    <div class="section-kicker">1. Respuestas en bruto</div>
-    <div class="section-title">Formato de la hoja DISC (28 grupos de 4 palabras)</div>
-    <p class="rb-hint">Cada grupo conserva el orden de las palabras de la hoja original. Se marca una palabra como MÁS (+) y una como MENOS (−). Las puntuaciones solo se muestran aquí, en el panel del evaluador.</p>
-    <div class="rb-grid">${rawBlocks}</div>`;
+  const th = (l) =>
+    `<th style="padding:7px 8px;border:1px solid var(--line);background:${HEX[l]};color:#fff;text-align:left;font-size:11.5px;">${l} · ${NOMBRE_ESCALA[l]} (${COLOR_ESCALA[l]})</th>`;
+  const sumFootRow = (label, obj, strong) =>
+    `<tr>
+      <td style="padding:6px 8px;border:1px solid var(--line);background:#ECEEEA;font-weight:700;text-align:right;">${label}</td>
+      ${['D', 'I', 'S', 'C']
+        .map(
+          (l) =>
+            `<td style="padding:6px 8px;border:1px solid var(--line);background:#ECEEEA;text-align:center;font-weight:${strong ? 800 : 700};color:${HEX[l]};">${
+              obj[l] > 0 && strong ? '+' + obj[l] : obj[l]
+            }</td>`
+        )
+        .join('')}
+    </tr>`;
 
-  const total = (obj) => ['D', 'I', 'S', 'C'].reduce((a, l) => a + (obj[l] || 0), 0);
+  const rawSection = `
+    <div class="section-kicker">1. Respuestas — Hoja de respuestas (Marian Gamboa)</div>
+    <div class="section-title">Cada ítem en su fila; cada dimensión D/I/S/C en su columna</div>
+    <p class="rb-hint">Se marca la palabra elegida como MÁS (<b style="color:#3E7A5B;">+</b>) y como MENOS (<b style="color:#C1443C;">−</b>). Al pie se suma verticalmente cada columna: positivos, negativos y el neto (positivos − negativos). Así se corrige igual que en la hoja del PDF.</p>
+    <div style="overflow-x:auto;">
+      <table style="border-collapse:collapse;width:100%;font-size:12.5px;min-width:640px;">
+        <thead>
+          <tr>
+            <th style="padding:7px 8px;border:1px solid var(--line);background:#ECEEEA;">Ítem</th>
+            ${['D', 'I', 'S', 'C'].map(th).join('')}
+          </tr>
+        </thead>
+        <tbody>${bodyRows}</tbody>
+        <tfoot>
+          ${sumFootRow('Positivos (+)', resultado.positivos, false)}
+          ${sumFootRow('Negativos (−)', resultado.negativos, false)}
+          ${sumFootRow('Neto (+ − −)', resultado.neto, true)}
+        </tfoot>
+      </table>
+    </div>`;
+
   const calcRow = (l) => {
     const neto = resultado.neto[l];
     return `<tr>
