@@ -23,19 +23,19 @@ function generarXlsx(datos) {
   ];
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(resumen), 'Resumen');
 
-  // Respuestas en bruto en el orden visual de la hoja: las 4 palabras de cada
-  // grupo, indicando cuál se eligió MÁS (+) y cuál MENOS (−).
-  const marca = (p) => (p.esMas ? '(+) ' : p.esMenos ? '(−) ' : '') + p.palabra;
+  // Hoja de respuestas (Marian Gamboa): cada ítem en su fila, cada dimensión
+  // en su columna, marcando MÁS (+) / MENOS (−), y la suma vertical al pie.
+  const detalle = (vista.bruto.detalle || []).slice().sort((a, b) => a.id - b.id);
+  const marca = (d, l) => `${d.palabras[l]}${d.mas === l ? ' (+)' : d.menos === l ? ' (−)' : ''}`;
   const bruto = [
-    ['#', '1ª palabra', '2ª palabra', '3ª palabra', '4ª palabra', 'Elegido MÁS', 'Elegido MENOS'],
-    ...vista.bruto.filas.map((f) => [
-      f.id,
-      ...f.palabras.map(marca),
-      `${f.mas} - ${f.palabras.find((p) => p.esMas).palabra}`,
-      `${f.menos} - ${f.palabras.find((p) => p.esMenos).palabra}`,
-    ]),
+    ['Ítem', ...ESCALAS.map((l) => `${l} · ${NOMBRE_ESCALA[l]} (${COLOR_ESCALA[l]})`)],
+    ...detalle.map((d) => [d.id, ...ESCALAS.map((l) => marca(d, l))]),
+    [],
+    ['Positivos (+)', ...ESCALAS.map((l) => r.positivos[l])],
+    ['Negativos (−)', ...ESCALAS.map((l) => r.negativos[l])],
+    ['Neto (+ menos −)', ...ESCALAS.map((l) => r.neto[l])],
   ];
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(bruto), '1. Respuestas en bruto');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(bruto), '1. Hoja de respuestas');
 
   const nombre = (l) => `${l} · ${NOMBRE_ESCALA[l]} (${COLOR_ESCALA[l]})`;
   const total = (o) => ESCALAS.reduce((a, l) => a + (o[l] || 0), 0);
