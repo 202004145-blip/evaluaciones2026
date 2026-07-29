@@ -12,7 +12,9 @@ const {
   WidthType,
   AlignmentType,
 } = require('docx');
-const { buildReportView } = require('./reportView');
+const { buildReportView, NOMBRE_ESCALA, COLOR_ESCALA } = require('./reportView');
+
+const ESCALAS = ['D', 'I', 'S', 'C'];
 
 function celda(texto, opciones = {}) {
   return new TableCell({
@@ -44,15 +46,12 @@ function parrafo(texto, opciones = {}) {
 
 async function generarDocx(datos) {
   const vista = buildReportView(datos);
+  const r = vista.resultado;
   const children = [];
 
   children.push(
+    new Paragraph({ heading: HeadingLevel.TITLE, text: 'DISC© — Estudio de perfil' }),
     new Paragraph({
-      heading: HeadingLevel.TITLE,
-      text: 'Sistema de Perfil Personal (DISC)',
-    }),
-    new Paragraph({
-      alignment: AlignmentType.LEFT,
       spacing: { after: 300 },
       children: [
         new TextRun({
@@ -65,13 +64,10 @@ async function generarDocx(datos) {
     })
   );
 
-  // 1. Respuestas en bruto — formato de la hoja DISC: las 4 palabras de cada
-  // grupo en su orden original, marcando MÁS (+) y MENOS (−).
+  // 1. Respuestas en bruto — orden original de las 4 palabras, marcando MÁS/MENOS.
   children.push(heading('1. Respuestas en bruto'));
   children.push(
-    parrafo(
-      'Cada grupo conserva el orden original de sus 4 palabras. (+) = elegida como MÁS, (−) = elegida como MENOS.'
-    )
+    parrafo('Cada grupo conserva el orden original de sus 4 palabras. (+) = elegida como MÁS, (−) = elegida como MENOS.')
   );
   const marcaPalabra = (p) => `${p.palabra}${p.esMas ? ' (+)' : p.esMenos ? ' (−)' : ''}`;
   children.push(
@@ -80,96 +76,44 @@ async function generarDocx(datos) {
       vista.bruto.filas.map((f) => [f.id, ...f.palabras.map(marcaPalabra)])
     )
   );
-  children.push(heading('Suma por escala (+1 por cada selección)', HeadingLevel.HEADING_3));
+
+  // 2. Calificación — suma de + y − por dimensión y neto.
+  const total = (o) => ESCALAS.reduce((a, l) => a + (o[l] || 0), 0);
+  children.push(heading('2. Calificación'));
+  children.push(parrafo('Por cada dimensión se cuentan los + y los −; el neto = (# de +) − (# de −).'));
   children.push(
     tabla(
-      ['Selección', 'D', 'I', 'S', 'C', 'Total'],
+      ['Dimensión', 'Positivos (+)', 'Negativos (−)', 'Neto'],
       [
-        ['MÁS (+)', ...['D', 'I', 'S', 'C'].map((l) => vista.bruto.sumas.mas[l]), 28],
-        ['MENOS (−)', ...['D', 'I', 'S', 'C'].map((l) => vista.bruto.sumas.menos[l]), 28],
+        ...ESCALAS.map((l) => [`${l} · ${NOMBRE_ESCALA[l]} (${COLOR_ESCALA[l]})`, r.positivos[l], r.negativos[l], r.neto[l]]),
+        ['TOTAL', total(r.positivos), total(r.negativos), total(r.neto)],
       ]
     )
   );
+  children.push(parrafo(`Personalidad predominante (máximo positivo): ${r.maxPositivo.nombres.join(' / ') || '—'}`, { bold: true }));
+  children.push(parrafo(`Personalidad que evita/repele (máximo negativo): ${r.maxNegativo.nombres.join(' / ') || '—'}`, { bold: true }));
 
-  // 2. Corrección
-  children.push(heading('2. Corrección'));
-  children.push(heading('Gráfica I · MÁS', HeadingLevel.HEADING_3));
-  children.push(
-    tabla(
-      ['Escala', 'Conteo', 'Nivel (1-7)'],
-      ['D', 'I', 'S', 'C'].map((l) => [l, vista.correccion.tallyMas[l], vista.correccion.levels.I[l]])
-    )
-  );
-  children.push(parrafo(`Código: ${vista.correccion.codes.I}`));
-
-  children.push(heading('Gráfica II · MENOS', HeadingLevel.HEADING_3));
-  children.push(
-    tabla(
-      ['Escala', 'Conteo', 'Nivel (1-7)'],
-      ['D', 'I', 'S', 'C'].map((l) => [l, vista.correccion.tallyMenos[l], vista.correccion.levels.II[l]])
-    )
-  );
-  children.push(parrafo(`Código: ${vista.correccion.codes.II}`));
-
-  children.push(heading('Gráfica III · Diferencia (MÁS − MENOS)', HeadingLevel.HEADING_3));
-  children.push(
-    tabla(
-      ['Escala', 'Diferencia', 'Nivel (1-7)'],
-      ['D', 'I', 'S', 'C'].map((l) => [l, vista.correccion.diferencia[l], vista.correccion.levels.III[l]])
-    )
-  );
-  children.push(parrafo(`Código de perfil: ${vista.correccion.codes.III}`));
-
-  // 3. Interpretación
+  // 3. Interpretación por colores.
   children.push(heading('3. Interpretación'));
-  if (vista.interpretacion.esSuperactivo) {
-    children.push(
-      parrafo('Superactivo', { bold: true }),
-      parrafo(
-        'Los cuatro estilos obtuvieron niveles igualmente altos en la Gráfica III; no concuerda con ningún Patrón Clásico. Se recomienda interpretar usando la Gráfica I o II.'
-      ),
-      parrafo(`Alternativa según Gráfica I (código ${vista.interpretacion.codeI}): ${vista.interpretacion.patternI || 'no disponible'}`),
-      parrafo(`Alternativa según Gráfica II (código ${vista.interpretacion.codeII}): ${vista.interpretacion.patternII || 'no disponible'}`)
-    );
-  } else {
-    children.push(
-      parrafo(`${vista.interpretacion.patternIII || 'No determinado'} — código de perfil ${vista.interpretacion.codeIII}`, {
-        bold: true,
-      })
-    );
-  }
-  const ficha = vista.interpretacion.fichaPrincipal;
-  if (ficha) {
-    ficha.campos.forEach(([label, valor]) => children.push(parrafo(`${label}: ${valor}.`)));
-    ficha.narrativa.forEach((texto) => children.push(parrafo(texto)));
-  } else if (!vista.interpretacion.esSuperactivo) {
-    children.push(
-      parrafo(
-        'Este código específico no está documentado en la tabla de interpretación original (es uno de los pocos códigos que faltaban en la fuente). Usa la sección de estilo predominante y las descripciones de los patrones clásicos para una interpretación manual.'
-      )
-    );
-  }
-
-  children.push(heading(`Estilo de comportamiento predominante: ${vista.interpretacion.predNombres.join(' / ')}`, HeadingLevel.HEADING_3));
-  vista.interpretacion.estilos.forEach((s) => {
-    children.push(parrafo(s.nombre, { bold: true }));
-    children.push(parrafo(s.descripcion));
-    const listas = [
-      ['Tendencias', s.tendencias],
-      ['Ambiente deseado', s.ambiente_deseado],
-      ['Necesita que otros…', s.necesita_de_otros],
-      ['Para ser más eficaz, necesita…', s.para_ser_mas_eficaz],
-    ];
-    listas.forEach(([titulo, items]) => {
-      children.push(new Paragraph({ text: titulo, heading: HeadingLevel.HEADING_4, spacing: { before: 150 } }));
-      items.forEach((item) => children.push(new Paragraph({ text: item, bullet: { level: 0 } })));
+  const bloque = (titulo, fichas) => {
+    children.push(heading(titulo, HeadingLevel.HEADING_3));
+    fichas.forEach((f) => {
+      children.push(parrafo(`${f.nombre} (${f.color})`, { bold: true }));
+      children.push(parrafo(f.descripcion));
+      if (f.para_comunicarte_con_ella) {
+        children.push(new Paragraph({ text: 'Para comunicarte con esta persona', heading: HeadingLevel.HEADING_4, spacing: { before: 120 } }));
+        children.push(parrafo(f.para_comunicarte_con_ella));
+      }
+      if (f.si_te_identificas) {
+        children.push(new Paragraph({ text: 'Si te identificas con este estilo', heading: HeadingLevel.HEADING_4, spacing: { before: 120 } }));
+        children.push(parrafo(f.si_te_identificas));
+      }
     });
-  });
+  };
+  bloque('Personalidad predominante', vista.interpretacion.predominante);
+  bloque('Personalidad que evita/repele', vista.interpretacion.repelida);
 
-  const doc = new Document({
-    sections: [{ children }],
-  });
-
+  const doc = new Document({ sections: [{ children }] });
   return Packer.toBuffer(doc);
 }
 

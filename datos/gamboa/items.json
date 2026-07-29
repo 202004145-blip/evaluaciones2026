@@ -1,0 +1,429 @@
+{
+  "test": "DISC© Marian Gamboa",
+  "fuente": "Estudio de perfil DISC© — © 2019 Marian Gamboa (Formación Creativa para Trascender)",
+  "formato": "seleccion_forzada",
+  "instrucciones": "En cada uno de los 28 grupos de 4 palabras, elija la palabra que MÁS (+) lo/a describe y la que MENOS (−) lo/a describe, según su percepción personal y su forma de trabajo. Por cada grupo marque solo UNA como MÁS y UNA como MENOS. Conteste con rapidez y espontaneidad; no hay respuestas buenas ni malas.",
+  "nota_item13": "En la hoja de respuestas del PDF, el ítem 13 repite 'Considerado' en las columnas S y C. La palabra C se transcribió como 'Sagaz' (aparece en la hoja de análisis). CONFIRMAR con la fuente.",
+  "items": [
+    {
+      "id": 1,
+      "orden": [
+        "I",
+        "D",
+        "C",
+        "S"
+      ],
+      "palabras": {
+        "D": "Rápido",
+        "I": "Entusiasta",
+        "S": "Apacible",
+        "C": "Lógico"
+      }
+    },
+    {
+      "id": 2,
+      "orden": [
+        "C",
+        "D",
+        "I",
+        "S"
+      ],
+      "palabras": {
+        "D": "Decidido",
+        "I": "Receptivo",
+        "S": "Bondadoso",
+        "C": "Cauteloso"
+      }
+    },
+    {
+      "id": 3,
+      "orden": [
+        "I",
+        "C",
+        "D",
+        "S"
+      ],
+      "palabras": {
+        "D": "Franco",
+        "I": "Amigable",
+        "S": "Tranquilo",
+        "C": "Preciso"
+      }
+    },
+    {
+      "id": 4,
+      "orden": [
+        "I",
+        "C",
+        "S",
+        "D"
+      ],
+      "palabras": {
+        "D": "Decisivo",
+        "I": "Elocuente",
+        "S": "Tolerante",
+        "C": "Controlado"
+      }
+    },
+    {
+      "id": 5,
+      "orden": [
+        "D",
+        "C",
+        "I",
+        "S"
+      ],
+      "palabras": {
+        "D": "Atrevido",
+        "I": "Comunicativo",
+        "S": "Moderado",
+        "C": "Minucioso"
+      }
+    },
+    {
+      "id": 6,
+      "orden": [
+        "I",
+        "C",
+        "S",
+        "D"
+      ],
+      "palabras": {
+        "D": "Acepta riesgos",
+        "I": "Ingenioso",
+        "S": "Ameno",
+        "C": "Investigador"
+      }
+    },
+    {
+      "id": 7,
+      "orden": [
+        "I",
+        "C",
+        "D",
+        "S"
+      ],
+      "palabras": {
+        "D": "Dominante",
+        "I": "Expresivo",
+        "S": "Sensible",
+        "C": "Cuidadoso"
+      }
+    },
+    {
+      "id": 8,
+      "orden": [
+        "I",
+        "C",
+        "S",
+        "D"
+      ],
+      "palabras": {
+        "D": "Impasible",
+        "I": "Extrovertido",
+        "S": "Introvertido",
+        "C": "Precavido"
+      }
+    },
+    {
+      "id": 9,
+      "orden": [
+        "C",
+        "S",
+        "I",
+        "D"
+      ],
+      "palabras": {
+        "D": "Insistente",
+        "I": "Encantador",
+        "S": "Valeroso",
+        "C": "Discreto"
+      }
+    },
+    {
+      "id": 10,
+      "orden": [
+        "D",
+        "I",
+        "S",
+        "C"
+      ],
+      "palabras": {
+        "D": "Valeroso",
+        "I": "Anima a los demás",
+        "S": "Pacífico",
+        "C": "Perfeccionista"
+      }
+    },
+    {
+      "id": 11,
+      "orden": [
+        "C",
+        "S",
+        "D",
+        "I"
+      ],
+      "palabras": {
+        "D": "Osado",
+        "I": "Alegre",
+        "S": "Atento",
+        "C": "Reservado"
+      }
+    },
+    {
+      "id": 12,
+      "orden": [
+        "I",
+        "S",
+        "C",
+        "D"
+      ],
+      "palabras": {
+        "D": "Independiente",
+        "I": "Estimulante",
+        "S": "Gentil",
+        "C": "Perceptivo"
+      }
+    },
+    {
+      "id": 13,
+      "orden": [
+        "D",
+        "S",
+        "I",
+        "C"
+      ],
+      "palabras": {
+        "D": "Competitivo",
+        "I": "Contento",
+        "S": "Considerado",
+        "C": "Sagaz"
+      }
+    },
+    {
+      "id": 14,
+      "orden": [
+        "C",
+        "S",
+        "D",
+        "I"
+      ],
+      "palabras": {
+        "D": "Ideas firmes",
+        "I": "Alentador",
+        "S": "Obediente",
+        "C": "Meticuloso"
+      }
+    },
+    {
+      "id": 15,
+      "orden": [
+        "I",
+        "C",
+        "D",
+        "S"
+      ],
+      "palabras": {
+        "D": "Tenaz",
+        "I": "Popular",
+        "S": "Calmado",
+        "C": "Reflexivo"
+      }
+    },
+    {
+      "id": 16,
+      "orden": [
+        "C",
+        "D",
+        "S",
+        "I"
+      ],
+      "palabras": {
+        "D": "Audaz",
+        "I": "Promotor",
+        "S": "Leal",
+        "C": "Analítico"
+      }
+    },
+    {
+      "id": 17,
+      "orden": [
+        "I",
+        "S",
+        "D",
+        "C"
+      ],
+      "palabras": {
+        "D": "Autosuficiente",
+        "I": "Sociable",
+        "S": "Paciente",
+        "C": "Certero"
+      }
+    },
+    {
+      "id": 18,
+      "orden": [
+        "S",
+        "D",
+        "C",
+        "I"
+      ],
+      "palabras": {
+        "D": "Vivaz",
+        "I": "Resuelto",
+        "S": "Adaptable",
+        "C": "Prevenido"
+      }
+    },
+    {
+      "id": 19,
+      "orden": [
+        "D",
+        "S",
+        "I",
+        "C"
+      ],
+      "palabras": {
+        "D": "Agresivo",
+        "I": "Impetuoso",
+        "S": "Amistoso",
+        "C": "Discerniente"
+      }
+    },
+    {
+      "id": 20,
+      "orden": [
+        "I",
+        "S",
+        "C",
+        "D"
+      ],
+      "palabras": {
+        "D": "Habla directo",
+        "I": "De trato fácil",
+        "S": "Compasivo",
+        "C": "Cauto"
+      }
+    },
+    {
+      "id": 21,
+      "orden": [
+        "C",
+        "S",
+        "I",
+        "D"
+      ],
+      "palabras": {
+        "D": "Persistente",
+        "I": "Animado",
+        "S": "Generoso",
+        "C": "Evaluador"
+      }
+    },
+    {
+      "id": 22,
+      "orden": [
+        "I",
+        "C",
+        "D",
+        "S"
+      ],
+      "palabras": {
+        "D": "Enérgico",
+        "I": "Impulsivo",
+        "S": "Cuida los detalles",
+        "C": "Tranquilo"
+      }
+    },
+    {
+      "id": 23,
+      "orden": [
+        "I",
+        "C",
+        "D",
+        "S"
+      ],
+      "palabras": {
+        "D": "Vigoroso",
+        "I": "Sociable",
+        "S": "Tolerante",
+        "C": "Sistemático"
+      }
+    },
+    {
+      "id": 24,
+      "orden": [
+        "I",
+        "S",
+        "D",
+        "C"
+      ],
+      "palabras": {
+        "D": "Exigente",
+        "I": "Cautivador",
+        "S": "Contento",
+        "C": "Apegado a las normas"
+      }
+    },
+    {
+      "id": 25,
+      "orden": [
+        "D",
+        "C",
+        "S",
+        "I"
+      ],
+      "palabras": {
+        "D": "Le agrada discutir",
+        "I": "Desenvuelto",
+        "S": "Comedido",
+        "C": "Metódico"
+      }
+    },
+    {
+      "id": 26,
+      "orden": [
+        "I",
+        "C",
+        "D",
+        "S"
+      ],
+      "palabras": {
+        "D": "Directo",
+        "I": "Jovial",
+        "S": "Ecuánime",
+        "C": "Preciso"
+      }
+    },
+    {
+      "id": 27,
+      "orden": [
+        "D",
+        "S",
+        "I",
+        "C"
+      ],
+      "palabras": {
+        "D": "Inquieto",
+        "I": "Elocuente",
+        "S": "Amable",
+        "C": "Cuidadoso"
+      }
+    },
+    {
+      "id": 28,
+      "orden": [
+        "C",
+        "D",
+        "I",
+        "S"
+      ],
+      "palabras": {
+        "D": "Pionero",
+        "I": "Colaborador",
+        "S": "Espontáneo",
+        "C": "Prudente"
+      }
+    }
+  ]
+}
