@@ -16,6 +16,8 @@ const ipvExportarRoutes = require('./routes/ipv-exportar');
 const bfiSesionesRoutes = require('./routes/bfi-sesiones');
 const bfiResultadosRoutes = require('./routes/bfi-resultados');
 const bfiExportarRoutes = require('./routes/bfi-exportar');
+const cleaverSesionesRoutes = require('./routes/cleaver-sesiones');
+const cleaverResultadosRoutes = require('./routes/cleaver-resultados');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -67,6 +69,8 @@ app.use('/api/ipv/exportar', ipvExportarRoutes);
 app.use('/api/bfi/sesiones', bfiSesionesRoutes);
 app.use('/api/bfi/resultados', bfiResultadosRoutes);
 app.use('/api/bfi/exportar', bfiExportarRoutes);
+app.use('/api/cleaver/sesiones', cleaverSesionesRoutes);
+app.use('/api/cleaver/resultados', cleaverResultadosRoutes);
 
 app.get('/api/estado', (req, res) => {
   res.json({ ok: true, evaluadorConfigurado: hayEvaluadoresRegistrados() });

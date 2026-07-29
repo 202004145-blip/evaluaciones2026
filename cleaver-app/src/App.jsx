@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
 import * as XLSX from "xlsx";
-import { BLOQUES, GRUPOS, FACTORES, NOMBRE_FACTOR } from "./datos-test.js";
-import { INTERPRETACION_RAPIDA, MOTIVACION, LIMITACIONES } from "./interpretacion.js";
+import { BLOQUES, GRUPOS, FACTORES } from "./datos-test.js";
 import {
-  calcularAnalisis,
+  apiEvaluado,
+  apiEvaluador,
+  sesionActiva,
   fmt,
   formatearFecha,
-  storage,
-  PASSWORD_EVALUADOR,
-} from "./calificacion.js";
+} from "./api.js";
 
 const cx = (...c) => c.filter(Boolean).join(" ");
+const HOY = () => new Date().toISOString().slice(0, 10);
 
 /* ============================================================
    HOJA DE RESPUESTAS (formato tradicional del Excel)
@@ -191,59 +191,84 @@ function EncabezadoHoja() {
   );
 }
 
+/* Convierte { g: {mas, menos} } (servidor) → { g: {M, L} } (interfaz). */
+function respuestasDesdeServidor(resp) {
+  const out = {};
+  Object.entries(resp || {}).forEach(([g, v]) => {
+    out[g] = {};
+    if (v && v.mas) out[g].M = v.mas;
+    if (v && v.menos) out[g].L = v.menos;
+  });
+  return out;
+}
+
 /* ============================================================
    VISTA DEL EVALUADO
    ============================================================ */
 
 function VistaEvaluado({ onIrEvaluador }) {
-  const [fase, setFase] = useState("inicio");
-  const [datos, setDatos] = useState({
-    nombre: "",
-    puesto: "",
-    fecha: new Date().toISOString().slice(0, 10),
-  });
-  const [sesion, setSesion] = useState(null);
+  const [fase, setFase] = useState("inicio"); // inicio | test | fin
+  const [datos, setDatos] = useState({ nombre: "", cargo: "", fecha: HOY() });
+  const [sesion, setSesion] = useState(null); // { folio, token, respuestas: { g: {M,L} } }
   const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
   const [reanudable, setReanudable] = useState(null);
 
-  const comenzar = () => {
-    if (!datos.nombre.trim()) { setError("Escriba su nombre completo para comenzar."); return; }
-    setError("");
-    const idx = storage.getIndex();
-    const pendiente = idx.sesiones.find(
-      (s) => !s.completado && s.datos?.nombre?.trim().toLowerCase() === datos.nombre.trim().toLowerCase()
-    );
-    if (pendiente) { setReanudable(pendiente); return; }
-    crearNueva();
-  };
+  // Al cargar, intentar reanudar una sesión activa guardada en este navegador.
+  useEffect(() => {
+    const activa = sesionActiva.get();
+    if (!activa) return;
+    apiEvaluado
+      .cargarSesion(activa.folio, activa.token)
+      .then((s) => {
+        if (s.estado !== "en_progreso") { sesionActiva.clear(); return; }
+        setReanudable({
+          folio: s.folio,
+          token: activa.token,
+          respuestas: respuestasDesdeServidor(s.respuestas),
+          datos: { nombre: s.nombre || "", cargo: s.cargo || "", fecha: s.fecha || HOY() },
+        });
+      })
+      .catch(() => sesionActiva.clear());
+  }, []);
 
-  const crearNueva = () => {
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const limpio = Object.fromEntries(
-      Object.entries(datos).map(([k, v]) => [k, typeof v === "string" ? v.trim() : v])
-    );
-    const nueva = { id, datos: limpio, creado: new Date().toISOString(), respuestas: {}, completado: false };
-    storage.setSesion(id, nueva);
-    const idx = storage.getIndex();
-    idx.sesiones.push({ id, datos: limpio, creado: nueva.creado, completado: false });
-    storage.setIndex(idx);
-    setSesion(nueva); setFase("test"); setReanudable(null);
+  const comenzar = async () => {
+    if (!datos.nombre.trim()) { setError("Escriba su nombre completo para comenzar."); return; }
+    setError(""); setCargando(true);
+    try {
+      const r = await apiEvaluado.crearSesion({
+        nombre: datos.nombre.trim(), cargo: datos.cargo.trim(), fecha: datos.fecha,
+      });
+      sesionActiva.set(r.folio, r.token);
+      setSesion({ folio: r.folio, token: r.token, respuestas: {} });
+      setFase("test"); setReanudable(null);
+    } catch (e) {
+      setError(e.message || "No se pudo iniciar la sesión. Revise su conexión e intente de nuevo.");
+    } finally {
+      setCargando(false);
+    }
   };
 
   const reanudar = () => {
-    const d = storage.getSesion(reanudable.id);
-    if (!d) { setReanudable(null); crearNueva(); return; }
-    setSesion(d); setFase("test"); setReanudable(null);
+    setDatos(reanudable.datos);
+    setSesion({ folio: reanudable.folio, token: reanudable.token, respuestas: reanudable.respuestas });
+    setFase("test"); setReanudable(null);
   };
 
-  const responder = (grupo, respuesta) => {
-    const actualizada = { ...sesion, respuestas: { ...sesion.respuestas, [grupo]: respuesta } };
+  const descartar = () => { sesionActiva.clear(); setReanudable(null); };
+
+  const responder = (grupo, nuevaMarca) => {
+    const actualizada = { ...sesion, respuestas: { ...sesion.respuestas, [grupo]: nuevaMarca } };
     setSesion(actualizada);
-    try { storage.setSesion(sesion.id, actualizada); setError(""); }
-    catch { setError("Advertencia: no se pudo guardar la última respuesta."); }
+    apiEvaluado
+      .guardarRespuesta(sesion.folio, sesion.token, grupo, {
+        mas: nuevaMarca.M || null, menos: nuevaMarca.L || null,
+      })
+      .then(() => setError(""))
+      .catch(() => setError("Advertencia: no se pudo guardar la última respuesta. Revise su conexión."));
   };
 
-  const finalizar = () => {
+  const finalizar = async () => {
     const incompletos = GRUPOS.filter((gr) => {
       const r = sesion.respuestas[gr.g] || {};
       return !r.M || !r.L;
@@ -253,12 +278,18 @@ function VistaEvaluado({ onIrEvaluador }) {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    const final = { ...sesion, completado: true, finalizado: new Date().toISOString() };
-    storage.setSesion(sesion.id, final);
-    const idx = storage.getIndex();
-    idx.sesiones = idx.sesiones.map((s) => (s.id === sesion.id ? { ...s, completado: true } : s));
-    storage.setIndex(idx);
-    setFase("fin");
+    setCargando(true);
+    try {
+      await apiEvaluado.finalizar(sesion.folio, sesion.token, {
+        nombre: datos.nombre.trim(), cargo: datos.cargo.trim(), fecha: datos.fecha,
+      });
+      sesionActiva.clear();
+      setFase("fin");
+    } catch (e) {
+      setError(e.message || "No se pudo finalizar el cuestionario. Intente de nuevo.");
+    } finally {
+      setCargando(false);
+    }
   };
 
   if (fase === "fin") {
@@ -282,9 +313,9 @@ function VistaEvaluado({ onIrEvaluador }) {
 
         {/* Datos del postulante */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4 text-sm">
-          <div><span className="font-semibold">Nombre:</span> {sesion.datos.nombre}</div>
-          <div><span className="font-semibold">Cargo al que postula:</span> {sesion.datos.puesto || "—"}</div>
-          <div><span className="font-semibold">Fecha de administración:</span> {formatearFecha(sesion.datos.fecha)}</div>
+          <div><span className="font-semibold">Nombre:</span> {datos.nombre}</div>
+          <div><span className="font-semibold">Cargo al que postula:</span> {datos.cargo || "—"}</div>
+          <div><span className="font-semibold">Fecha de administración:</span> {formatearFecha(datos.fecha)}</div>
         </div>
 
         {/* Instrucciones */}
@@ -308,7 +339,9 @@ function VistaEvaluado({ onIrEvaluador }) {
         <HojaRespuestas sesion={sesion} onResponder={responder} />
 
         <div className="flex justify-end mt-6">
-          <Boton onClick={finalizar}>Finalizar cuestionario</Boton>
+          <Boton onClick={finalizar} disabled={cargando}>
+            {cargando ? "Enviando…" : "Finalizar cuestionario"}
+          </Boton>
         </div>
       </div>
     );
@@ -329,7 +362,7 @@ function VistaEvaluado({ onIrEvaluador }) {
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1">Cargo al que postula</label>
-            <input value={datos.puesto} onChange={(e) => setDatos({ ...datos, puesto: e.target.value })}
+            <input value={datos.cargo} onChange={(e) => setDatos({ ...datos, cargo: e.target.value })}
               className="w-full border border-slate-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500" />
           </div>
           <div>
@@ -342,15 +375,17 @@ function VistaEvaluado({ onIrEvaluador }) {
         {reanudable ? (
           <div className="border border-slate-200 rounded p-4 bg-slate-50 mt-4">
             <p className="text-sm text-slate-700 mb-3">
-              Se encontró un cuestionario sin terminar a nombre de <strong>{reanudable.datos?.nombre}</strong>. ¿Desea continuarlo?
+              Se encontró un cuestionario sin terminar a nombre de <strong>{reanudable.datos?.nombre || "—"}</strong>. ¿Desea continuarlo?
             </p>
             <div className="flex gap-2">
               <Boton onClick={reanudar}>Continuar donde me quedé</Boton>
-              <Boton variante="secundario" onClick={crearNueva}>Empezar de nuevo</Boton>
+              <Boton variante="secundario" onClick={descartar}>Empezar de nuevo</Boton>
             </div>
           </div>
         ) : (
-          <Boton onClick={comenzar} className="w-full mt-4">Comenzar</Boton>
+          <Boton onClick={comenzar} disabled={cargando} className="w-full mt-4">
+            {cargando ? "Iniciando…" : "Comenzar"}
+          </Boton>
         )}
       </Tarjeta>
       <div className="text-center mt-10">
@@ -363,52 +398,94 @@ function VistaEvaluado({ onIrEvaluador }) {
 }
 
 /* ============================================================
-   PANEL EVALUADOR
+   PANEL DEL EVALUADOR
    ============================================================ */
 
 function PanelEvaluador({ onSalir }) {
-  const [autenticado, setAutenticado] = useState(false);
-  const [pass, setPass] = useState("");
-  const [errorPass, setErrorPass] = useState("");
+  const [estadoAuth, setEstadoAuth] = useState("verificando"); // verificando | login | dentro
+  const [usuario, setUsuario] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorLogin, setErrorLogin] = useState("");
   const [lista, setLista] = useState(null);
   const [sesionSel, setSesionSel] = useState(null);
+  const [reporte, setReporte] = useState(null);
   const [tab, setTab] = useState("respuestas");
   const [confirmarBorrado, setConfirmarBorrado] = useState(null);
+  const [aviso, setAviso] = useState("");
 
   const cargarLista = useCallback(() => {
-    const idx = storage.getIndex();
-    setLista(idx.sesiones.slice().reverse());
+    apiEvaluador.listar().then(setLista).catch(() => setLista([]));
   }, []);
 
-  useEffect(() => { if (autenticado) cargarLista(); }, [autenticado, cargarLista]);
+  useEffect(() => {
+    apiEvaluador
+      .sesionActual()
+      .then(() => setEstadoAuth("dentro"))
+      .catch(() => setEstadoAuth("login"));
+  }, []);
 
-  const abrirSesion = (meta) => {
-    const d = storage.getSesion(meta.id);
-    if (d) { setSesionSel(d); setTab("respuestas"); }
+  useEffect(() => {
+    if (estadoAuth === "dentro") cargarLista();
+  }, [estadoAuth, cargarLista]);
+
+  const entrar = async () => {
+    setErrorLogin("");
+    try {
+      await apiEvaluador.login(usuario.trim(), password);
+      setPassword("");
+      setEstadoAuth("dentro");
+    } catch (e) {
+      setErrorLogin(e.status === 401 ? "Usuario o contraseña incorrectos." : (e.message || "No se pudo iniciar sesión."));
+    }
   };
 
-  const eliminarSesion = (id) => {
-    storage.deleteSesion(id);
+  const salir = async () => {
+    try { await apiEvaluador.logout(); } catch { /* ignorar */ }
+    setEstadoAuth("login"); setLista(null); setSesionSel(null); setReporte(null);
+  };
+
+  const abrirSesion = async (meta) => {
+    setAviso("");
+    if (meta.estado !== "completada") {
+      setAviso("Este cuestionario aún no ha sido finalizado por el evaluado, por lo que no tiene calificación.");
+      return;
+    }
+    try {
+      const rep = await apiEvaluador.reporte(meta.folio);
+      setReporte(rep); setSesionSel(meta); setTab("respuestas");
+    } catch (e) {
+      setAviso(e.message || "No se pudo cargar el resultado.");
+    }
+  };
+
+  const eliminarSesion = async (folio) => {
+    try { await apiEvaluador.eliminar(folio); } catch { /* ignorar */ }
     setConfirmarBorrado(null);
-    if (sesionSel && sesionSel.id === id) setSesionSel(null);
+    if (sesionSel && sesionSel.folio === folio) { setSesionSel(null); setReporte(null); }
     cargarLista();
   };
 
-  if (!autenticado) {
-    const intentar = () =>
-      pass === PASSWORD_EVALUADOR ? setAutenticado(true) : setErrorPass("Contraseña incorrecta.");
+  if (estadoAuth === "verificando") {
+    return <div className="max-w-sm mx-auto px-4 pt-28 text-center text-sm text-slate-500">Cargando…</div>;
+  }
+
+  if (estadoAuth === "login") {
     return (
       <div className="max-w-sm mx-auto px-4 pt-28">
         <Tarjeta className="p-6">
           <h2 className="text-lg font-semibold text-slate-800 mb-1">Sección confidencial</h2>
           <p className="text-sm text-slate-500 mb-4">Acceso exclusivo para el evaluador.</p>
-          <input type="password" value={pass} onChange={(e) => setPass(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && intentar()}
+          <input value={usuario} onChange={(e) => setUsuario(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && entrar()}
+            className="w-full border border-slate-300 rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-slate-500"
+            placeholder="Usuario" />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && entrar()}
             className="w-full border border-slate-300 rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-slate-500"
             placeholder="Contraseña" />
-          {errorPass && <p className="text-sm text-red-600 mb-3">{errorPass}</p>}
+          {errorLogin && <p className="text-sm text-red-600 mb-3">{errorLogin}</p>}
           <div className="flex gap-2">
-            <Boton onClick={intentar}>Entrar</Boton>
+            <Boton onClick={entrar}>Entrar</Boton>
             <Boton variante="secundario" onClick={onSalir}>Volver</Boton>
           </div>
         </Tarjeta>
@@ -416,36 +493,40 @@ function PanelEvaluador({ onSalir }) {
     );
   }
 
-  if (sesionSel) {
-    const an = calcularAnalisis(sesionSel.respuestas || {});
+  // ---- Detalle de un evaluado (resultado completo) ----
+  if (sesionSel && reporte) {
+    const hojaSesion = {
+      respuestas: Object.fromEntries((reporte.detalle || []).map((d) => [d.g, { M: d.M, L: d.L }])),
+    };
+    const factoresActivos = FACTORES.filter((f) => reporte.estado[f] !== "LÍNEA MEDIA");
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex items-start justify-between mb-6 gap-4 flex-wrap no-print">
           <div>
-            <button onClick={() => { setSesionSel(null); cargarLista(); }}
+            <button onClick={() => { setSesionSel(null); setReporte(null); cargarLista(); }}
               className="text-sm text-slate-500 hover:text-slate-800 mb-1">← Volver al listado</button>
-            <h2 className="text-2xl font-semibold text-slate-800">{sesionSel.datos?.nombre}</h2>
+            <h2 className="text-2xl font-semibold text-slate-800">{reporte.nombre}</h2>
             <p className="text-sm text-slate-600">
-              {sesionSel.datos?.puesto && <>Cargo al que postula: <strong>{sesionSel.datos.puesto}</strong> · </>}
-              Fecha de administración: <strong>{formatearFecha(sesionSel.datos?.fecha)}</strong>
+              {reporte.cargo && <>Cargo al que postula: <strong>{reporte.cargo}</strong> · </>}
+              Fecha de administración: <strong>{formatearFecha(reporte.fecha)}</strong>
             </p>
             <p className="text-sm text-slate-500">
-              Inició: {new Date(sesionSel.creado).toLocaleString()} · {sesionSel.completado ? `Finalizó: ${new Date(sesionSel.finalizado).toLocaleString()}` : "Cuestionario incompleto"}
+              Registro: {sesionSel.creado_en} · {reporte.completado_en ? `Finalizó: ${new Date(reporte.completado_en).toLocaleString()}` : ""}
             </p>
           </div>
           <div className="flex flex-wrap gap-2 justify-end">
-            <Boton variante="secundario" onClick={() => descargarHTML(sesionSel, an)}>Exportar HTML</Boton>
-            <Boton variante="secundario" onClick={() => descargarXLSX(sesionSel, an)}>Exportar Excel</Boton>
-            <Boton variante="secundario" onClick={() => descargarDOC(sesionSel, an)}>Exportar Word</Boton>
+            <Boton variante="secundario" onClick={() => descargarHTML(reporte)}>Exportar HTML</Boton>
+            <Boton variante="secundario" onClick={() => descargarXLSX(reporte)}>Exportar Excel</Boton>
+            <Boton variante="secundario" onClick={() => descargarDOC(reporte)}>Exportar Word</Boton>
             <Boton variante="sutil" onClick={() => window.print()}>Imprimir</Boton>
-            {confirmarBorrado === sesionSel.id ? (
+            {confirmarBorrado === sesionSel.folio ? (
               <span className="flex items-center gap-2 border border-red-200 bg-red-50 rounded-md px-3 py-1.5">
                 <span className="text-xs text-red-700 font-medium">¿Eliminar definitivamente?</span>
-                <button onClick={() => eliminarSesion(sesionSel.id)} className="text-xs font-semibold text-red-700 hover:text-red-900">Sí, eliminar</button>
+                <button onClick={() => eliminarSesion(sesionSel.folio)} className="text-xs font-semibold text-red-700 hover:text-red-900">Sí, eliminar</button>
                 <button onClick={() => setConfirmarBorrado(null)} className="text-xs text-slate-500 hover:text-slate-700">Cancelar</button>
               </span>
             ) : (
-              <button onClick={() => setConfirmarBorrado(sesionSel.id)}
+              <button onClick={() => setConfirmarBorrado(sesionSel.folio)}
                 className="px-4 py-2.5 rounded-md text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 transition-colors">
                 Eliminar respuestas
               </button>
@@ -472,21 +553,18 @@ function PanelEvaluador({ onSalir }) {
           <Tarjeta className="p-5">
             <EncabezadoHoja />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4 text-sm">
-              <div><span className="font-semibold">Nombre:</span> {sesionSel.datos?.nombre}</div>
-              <div><span className="font-semibold">Cargo al que postula:</span> {sesionSel.datos?.puesto || "—"}</div>
-              <div><span className="font-semibold">Fecha de administración:</span> {formatearFecha(sesionSel.datos?.fecha)}</div>
+              <div><span className="font-semibold">Nombre:</span> {reporte.nombre}</div>
+              <div><span className="font-semibold">Cargo al que postula:</span> {reporte.cargo || "—"}</div>
+              <div><span className="font-semibold">Fecha de administración:</span> {formatearFecha(reporte.fecha)}</div>
             </div>
-            <HojaRespuestas sesion={sesionSel} soloLectura />
-            {!sesionSel.completado && (
-              <p className="mt-3 text-xs text-amber-700">Este cuestionario aún no ha sido finalizado por el evaluado.</p>
-            )}
+            <HojaRespuestas sesion={hojaSesion} soloLectura />
           </Tarjeta>
         )}
 
         {tab === "precalificacion" && (
           <Tarjeta className="p-5">
             <p className="text-sm text-slate-600 mb-4">
-              Aplicación de la clave de corrección: cada marca <strong>MÁS</strong> suma 1 al conteo M del factor de la palabra elegida; cada marca <strong>MENOS</strong> suma 1 al conteo L. Máximo 24 marcas por columna.
+              Conteo de veces que cada factor fue elegido como <strong>MÁS (M)</strong> y como <strong>MENOS (L)</strong>.
             </p>
             <table className="w-full text-sm max-w-lg">
               <thead>
@@ -499,15 +577,15 @@ function PanelEvaluador({ onSalir }) {
               <tbody>
                 {FACTORES.map((f) => (
                   <tr key={f} className="border-b border-slate-100">
-                    <td className="py-2 pr-4 text-slate-800">{f} — {NOMBRE_FACTOR[f]}</td>
-                    <td className="py-2 pr-4 text-center font-semibold">{an.M[f]}</td>
-                    <td className="py-2 text-center font-semibold">{an.L[f]}</td>
+                    <td className="py-2 pr-4 text-slate-800">{f} — {reporte.nombreFactor[f]}</td>
+                    <td className="py-2 pr-4 text-center font-semibold">{reporte.M[f]}</td>
+                    <td className="py-2 text-center font-semibold">{reporte.L[f]}</td>
                   </tr>
                 ))}
                 <tr>
                   <td className="py-2 pr-4 text-slate-500">Suma de verificación</td>
-                  <td className="py-2 pr-4 text-center text-slate-500">{FACTORES.reduce((a, f) => a + an.M[f], 0)} / 24</td>
-                  <td className="py-2 text-center text-slate-500">{FACTORES.reduce((a, f) => a + an.L[f], 0)} / 24</td>
+                  <td className="py-2 pr-4 text-center text-slate-500">{reporte.sumaM} / 24</td>
+                  <td className="py-2 text-center text-slate-500">{reporte.sumaL} / 24</td>
                 </tr>
               </tbody>
             </table>
@@ -532,20 +610,20 @@ function PanelEvaluador({ onSalir }) {
               <tbody>
                 {FACTORES.map((f) => (
                   <tr key={f} className="border-b border-slate-100">
-                    <td className="py-2 pr-4">{f} — {NOMBRE_FACTOR[f]}</td>
-                    <td className="py-2 pr-4 text-center">{an.M[f]}</td>
-                    <td className="py-2 pr-4 text-center">{an.L[f]}</td>
-                    <td className="py-2 pr-4 text-center font-semibold">{fmt(an.T[f])}</td>
+                    <td className="py-2 pr-4">{f} — {reporte.nombreFactor[f]}</td>
+                    <td className="py-2 pr-4 text-center">{reporte.M[f]}</td>
+                    <td className="py-2 pr-4 text-center">{reporte.L[f]}</td>
+                    <td className="py-2 pr-4 text-center font-semibold">{fmt(reporte.T[f])}</td>
                     <td className="py-2">
-                      <Etiqueta tono={an.estado[f] === "ALTO" ? "alto" : an.estado[f] === "BAJO" ? "bajo" : "gris"}>
-                        {an.estado[f]}
+                      <Etiqueta tono={reporte.estado[f] === "ALTO" ? "alto" : reporte.estado[f] === "BAJO" ? "bajo" : "gris"}>
+                        {reporte.estado[f]}
                       </Etiqueta>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <GraficaPerfil M={an.M} L={an.L} T={an.T} />
+            <GraficaPerfil M={reporte.M} L={reporte.L} T={reporte.T} />
           </Tarjeta>
         )}
 
@@ -554,41 +632,37 @@ function PanelEvaluador({ onSalir }) {
             <Tarjeta className="p-5">
               <h3 className="font-semibold text-slate-800 mb-2">Claves aplicadas</h3>
               <ul className="text-sm text-slate-600 space-y-1 mb-2">
-                {an.claves.map((c) => (
+                {reporte.claves.map((c) => (
                   <li key={c.clave}>
-                    <strong className="text-slate-800">{c.clave}</strong> ({INTERPRETACION_RAPIDA[c.clave]?.corto}) — {c.motivo}
+                    <strong className="text-slate-800">{c.clave}</strong> ({c.corto}) — {c.motivo}
                   </li>
                 ))}
               </ul>
               <p className="text-xs text-slate-400">
-                Orden de factores por T: {an.orden.map((f) => `${f} (${fmt(an.T[f])})`).join(" › ")}
+                Orden de factores por T: {reporte.orden.map((f) => `${f} (${fmt(reporte.T[f])})`).join(" › ")}
               </p>
             </Tarjeta>
 
-            {an.claves.map((c) => (
+            {reporte.claves.map((c) => (
               <Tarjeta key={c.clave} className="p-5">
                 <div className="flex items-baseline gap-3 mb-2">
                   <span className="text-lg font-semibold text-slate-800">{c.clave}</span>
-                  <span className="text-sm font-medium text-slate-500 uppercase tracking-wide">
-                    {INTERPRETACION_RAPIDA[c.clave]?.corto}
-                  </span>
+                  <span className="text-sm font-medium text-slate-500 uppercase tracking-wide">{c.corto}</span>
                 </div>
-                <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
-                  {INTERPRETACION_RAPIDA[c.clave]?.texto}
-                </p>
+                <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">{c.texto}</p>
               </Tarjeta>
             ))}
 
             <Tarjeta className="p-5">
               <h3 className="font-semibold text-slate-800 mb-3">Claves de motivación</h3>
               <div className="grid md:grid-cols-2 gap-5">
-                {FACTORES.filter((f) => an.estado[f] !== "LÍNEA MEDIA").map((f) => {
-                  const nivel = an.estado[f] === "ALTO" ? "alto" : "bajo";
-                  const m = MOTIVACION[f][nivel];
+                {factoresActivos.map((f) => {
+                  const m = reporte.motivacion[f];
+                  if (!m) return null;
                   return (
                     <div key={f} className="border border-slate-200 rounded-md p-4">
                       <div className="text-sm font-semibold text-slate-800 mb-2">
-                        {f} {an.estado[f]} — {NOMBRE_FACTOR[f]}
+                        {f} {reporte.estado[f]} — {reporte.nombreFactor[f]}
                       </div>
                       <div className="text-xs font-semibold text-slate-500 uppercase mb-1">Desea</div>
                       <ul className="text-sm text-slate-600 list-disc pl-5 mb-3">
@@ -607,15 +681,16 @@ function PanelEvaluador({ onSalir }) {
             <Tarjeta className="p-5">
               <h3 className="font-semibold text-slate-800 mb-3">Posibles limitaciones bajo presión</h3>
               <div className="grid md:grid-cols-2 gap-5">
-                {FACTORES.filter((f) => an.estado[f] !== "LÍNEA MEDIA").map((f) => {
-                  const nivel = an.estado[f] === "ALTO" ? "alto" : "bajo";
+                {factoresActivos.map((f) => {
+                  const lim = reporte.limitaciones[f];
+                  if (!lim) return null;
                   return (
                     <div key={f} className="border border-slate-200 rounded-md p-4">
                       <div className="text-sm font-semibold text-slate-800 mb-2">
-                        {f} {an.estado[f]} — tiende a:
+                        {f} {reporte.estado[f]} — tiende a:
                       </div>
                       <ul className="text-sm text-slate-600 list-disc pl-5">
-                        {LIMITACIONES[f][nivel].map((x) => <li key={x}>{x}</li>)}
+                        {lim.lista.map((x) => <li key={x}>{x}</li>)}
                       </ul>
                     </div>
                   );
@@ -628,6 +703,7 @@ function PanelEvaluador({ onSalir }) {
     );
   }
 
+  // ---- Listado de evaluados ----
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
@@ -637,30 +713,31 @@ function PanelEvaluador({ onSalir }) {
         </div>
         <div className="flex gap-2">
           <Boton variante="secundario" onClick={cargarLista}>Actualizar</Boton>
-          <Boton variante="secundario" onClick={onSalir}>Salir</Boton>
+          <Boton variante="secundario" onClick={salir}>Cerrar sesión</Boton>
         </div>
       </div>
+      {aviso && <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded text-sm text-amber-800">{aviso}</div>}
       <Tarjeta>
         {lista && lista.length === 0 && (
           <p className="p-6 text-sm text-slate-500">Aún no hay evaluados registrados.</p>
         )}
         {lista && lista.map((s) => (
-          <div key={s.id} className="flex items-center justify-between px-5 py-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
+          <div key={s.folio} className="flex items-center justify-between px-5 py-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
             <button onClick={() => abrirSesion(s)} className="flex-1 text-left">
-              <div className="font-medium text-slate-800">{s.datos?.nombre}</div>
-              <div className="text-xs text-slate-500">{s.datos?.puesto || "Sin cargo especificado"} · Administración: {formatearFecha(s.datos?.fecha)}</div>
-              <div className="text-xs text-slate-400">Registro: {new Date(s.creado).toLocaleString()}</div>
+              <div className="font-medium text-slate-800">{s.nombre || "Sin nombre"}</div>
+              <div className="text-xs text-slate-500">{s.cargo || "Sin cargo especificado"} · Administración: {formatearFecha(s.fecha)}</div>
+              <div className="text-xs text-slate-400">Folio: {s.folio} · Registro: {s.creado_en}</div>
             </button>
             <div className="flex items-center gap-3 ml-3">
-              <Etiqueta tono={s.completado ? "alto" : "bajo"}>{s.completado ? "Completado" : "En curso"}</Etiqueta>
-              {confirmarBorrado === s.id ? (
+              <Etiqueta tono={s.estado === "completada" ? "alto" : "bajo"}>{s.estado === "completada" ? "Completado" : "En curso"}</Etiqueta>
+              {confirmarBorrado === s.folio ? (
                 <span className="flex items-center gap-2 border border-red-200 bg-red-50 rounded-md px-2 py-1">
                   <span className="text-xs text-red-700">¿Eliminar?</span>
-                  <button onClick={() => eliminarSesion(s.id)} className="text-xs font-semibold text-red-700 hover:text-red-900">Sí</button>
+                  <button onClick={() => eliminarSesion(s.folio)} className="text-xs font-semibold text-red-700 hover:text-red-900">Sí</button>
                   <button onClick={() => setConfirmarBorrado(null)} className="text-xs text-slate-500 hover:text-slate-700">No</button>
                 </span>
               ) : (
-                <button onClick={() => setConfirmarBorrado(s.id)}
+                <button onClick={() => setConfirmarBorrado(s.folio)}
                   className="text-xs text-red-500 hover:text-red-700 border border-transparent hover:border-red-200 rounded px-2 py-1 transition-colors">
                   Eliminar
                 </button>
@@ -674,7 +751,7 @@ function PanelEvaluador({ onSalir }) {
 }
 
 /* ============================================================
-   EXPORTACIONES
+   EXPORTACIONES (a partir del reporte del servidor)
    ============================================================ */
 
 function descargar(nombre, contenido, mime) {
@@ -686,25 +763,33 @@ function descargar(nombre, contenido, mime) {
   URL.revokeObjectURL(url);
 }
 
-function nombreArchivo(sesion) {
-  return `cleaver_${(sesion.datos?.nombre || "evaluado").replace(/\s+/g, "_")}`;
+function nombreArchivo(reporte) {
+  return `cleaver_${(reporte.nombre || "evaluado").replace(/\s+/g, "_")}`;
 }
 
-function descargarXLSX(sesion, an) {
-  const wb = XLSX.utils.book_new();
+// Mapa grupo → { M, L } (factores) a partir del detalle del reporte.
+function marcasDe(reporte) {
+  const m = {};
+  (reporte.detalle || []).forEach((d) => { m[d.g] = { M: d.M, L: d.L }; });
+  return m;
+}
 
-  // Hoja 1: Respuestas en bruto
+function descargarXLSX(reporte) {
+  const wb = XLSX.utils.book_new();
+  const marcas = marcasDe(reporte);
+  const NF = reporte.nombreFactor;
+
   const filas = [
     ["TEST DE CLEAVER — HOJA DE RESPUESTAS"],
     [],
-    ["Nombre:", sesion.datos?.nombre || ""],
-    ["Cargo al que postula:", sesion.datos?.puesto || ""],
-    ["Fecha de administración:", formatearFecha(sesion.datos?.fecha)],
+    ["Nombre:", reporte.nombre || ""],
+    ["Cargo al que postula:", reporte.cargo || ""],
+    ["Fecha de administración:", formatearFecha(reporte.fecha)],
     [],
     ["Grupo", "Palabra D", "Palabra I", "Palabra S", "Palabra C", "MÁS (palabra)", "Factor M", "MENOS (palabra)", "Factor L"],
   ];
   GRUPOS.forEach((gr) => {
-    const r = sesion.respuestas[gr.g] || {};
+    const r = marcas[gr.g] || {};
     filas.push([gr.g, gr.palabras.D, gr.palabras.I, gr.palabras.S, gr.palabras.C,
       r.M ? gr.palabras[r.M] : "", r.M || "", r.L ? gr.palabras[r.L] : "", r.L || ""]);
   });
@@ -712,61 +797,57 @@ function descargarXLSX(sesion, an) {
   ws1["!cols"] = [{ wch: 6 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 9 }, { wch: 22 }, { wch: 9 }];
   XLSX.utils.book_append_sheet(wb, ws1, "Respuestas");
 
-  // Hoja 2: Calificación
   const cal = [
     ["PRECALIFICACIÓN Y CALIFICACIÓN"], [],
     ["Factor", "Nombre", "M", "L", "T = M − L", "Lectura"],
   ];
-  FACTORES.forEach((f) => cal.push([f, NOMBRE_FACTOR[f], an.M[f], an.L[f], an.T[f], an.estado[f]]));
+  FACTORES.forEach((f) => cal.push([f, NF[f], reporte.M[f], reporte.L[f], reporte.T[f], reporte.estado[f]]));
   cal.push([]);
-  cal.push(["Verificación totales", "", FACTORES.reduce((a, f) => a + an.M[f], 0), FACTORES.reduce((a, f) => a + an.L[f], 0), "de 24 esperados"]);
+  cal.push(["Verificación totales", "", reporte.sumaM, reporte.sumaL, "de 24 esperados"]);
   const ws2 = XLSX.utils.aoa_to_sheet(cal);
   ws2["!cols"] = [{ wch: 10 }, { wch: 28 }, { wch: 8 }, { wch: 8 }, { wch: 12 }, { wch: 16 }];
   XLSX.utils.book_append_sheet(wb, ws2, "Calificación");
 
-  // Hoja 3: Interpretación
   const inte = [["INTERPRETACIÓN"], []];
-  inte.push(["Orden de factores por T:", an.orden.map((f) => `${f} (${fmt(an.T[f])})`).join(" > ")]);
+  inte.push(["Orden de factores por T:", reporte.orden.map((f) => `${f} (${fmt(reporte.T[f])})`).join(" > ")]);
   inte.push([]);
   inte.push(["Clave", "Nombre", "Criterio", "Texto"]);
-  an.claves.forEach((c) => {
-    const info = INTERPRETACION_RAPIDA[c.clave];
-    inte.push([c.clave, info?.corto || "", c.motivo, info?.texto || ""]);
-  });
+  reporte.claves.forEach((c) => inte.push([c.clave, c.corto || "", c.motivo, c.texto || ""]));
   const ws3 = XLSX.utils.aoa_to_sheet(inte);
   ws3["!cols"] = [{ wch: 10 }, { wch: 24 }, { wch: 60 }, { wch: 100 }];
   XLSX.utils.book_append_sheet(wb, ws3, "Interpretación");
 
-  XLSX.writeFile(wb, `${nombreArchivo(sesion)}.xlsx`);
+  XLSX.writeFile(wb, `${nombreArchivo(reporte)}.xlsx`);
 }
 
-function descargarDOC(sesion, an) {
+function descargarDOC(reporte) {
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const marcas = marcasDe(reporte);
+  const NF = reporte.nombreFactor;
 
   const filasHoja = BLOQUES.map((bloque) => {
-    return FACTORES.map((factor, fIdx) => {
+    return FACTORES.map((factor) => {
       const celdas = bloque.map((grupo) => {
-        const r = sesion.respuestas[grupo.g] || {};
+        const r = marcas[grupo.g] || {};
         const marcaM = r.M === factor ? "X" : "";
         const marcaL = r.L === factor ? "X" : "";
         return `<td>${grupo.g}. ${esc(grupo.palabras[factor])}</td><td style="text-align:center;font-weight:bold">${marcaM}</td><td style="text-align:center;font-weight:bold">${marcaL}</td>`;
       }).join("");
       return `<tr>${celdas}</tr>`;
     }).join("");
-  }).map((filas, i) =>
+  }).map((filas) =>
     `<table><tr>${Array(4).fill('<th></th><th style="background:#e5e7eb">MÁS</th><th style="background:#e5e7eb">MENOS</th>').join("")}</tr>${filas}</table><br/>`
   ).join("");
 
   const filasCal = FACTORES.map((f) =>
-    `<tr><td>${f}</td><td>${esc(NOMBRE_FACTOR[f])}</td><td style="text-align:center">${an.M[f]}</td><td style="text-align:center">${an.L[f]}</td><td style="text-align:center"><b>${fmt(an.T[f])}</b></td><td>${an.estado[f]}</td></tr>`
+    `<tr><td>${f}</td><td>${esc(NF[f])}</td><td style="text-align:center">${reporte.M[f]}</td><td style="text-align:center">${reporte.L[f]}</td><td style="text-align:center"><b>${fmt(reporte.T[f])}</b></td><td>${reporte.estado[f]}</td></tr>`
   ).join("");
 
-  const bloquesClaves = an.claves.map((c) => {
-    const info = INTERPRETACION_RAPIDA[c.clave];
-    return `<h3>${esc(c.clave)} — ${esc(info?.corto || "")}</h3>
+  const bloquesClaves = reporte.claves.map((c) =>
+    `<h3>${esc(c.clave)} — ${esc(c.corto || "")}</h3>
       <p style="color:#666;font-size:10pt"><i>Criterio: ${esc(c.motivo)}</i></p>
-      <p>${esc(info?.texto || "").replace(/\n/g, "<br/>")}</p>`;
-  }).join("");
+      <p>${esc(c.texto || "").replace(/\n/g, "<br/>")}</p>`
+  ).join("");
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reporte Cleaver</title>
     <style>
@@ -781,9 +862,9 @@ function descargarDOC(sesion, an) {
     </style></head><body>
     <h1>TEST DE CLEAVER</h1>
     <table class="meta">
-      <tr><td><b>Nombre:</b></td><td>${esc(sesion.datos?.nombre || "")}</td></tr>
-      <tr><td><b>Cargo al que postula:</b></td><td>${esc(sesion.datos?.puesto || "—")}</td></tr>
-      <tr><td><b>Fecha de administración:</b></td><td>${formatearFecha(sesion.datos?.fecha)}</td></tr>
+      <tr><td><b>Nombre:</b></td><td>${esc(reporte.nombre || "")}</td></tr>
+      <tr><td><b>Cargo al que postula:</b></td><td>${esc(reporte.cargo || "—")}</td></tr>
+      <tr><td><b>Fecha de administración:</b></td><td>${formatearFecha(reporte.fecha)}</td></tr>
     </table>
 
     <h2>1. Hoja de respuestas</h2>
@@ -796,23 +877,25 @@ function descargarDOC(sesion, an) {
     </table>
 
     <h2>3. Interpretación</h2>
-    <p><b>Orden por T:</b> ${an.orden.map((f) => `${f} (${fmt(an.T[f])})`).join(" › ")}</p>
+    <p><b>Orden por T:</b> ${reporte.orden.map((f) => `${f} (${fmt(reporte.T[f])})`).join(" › ")}</p>
     ${bloquesClaves}
 
     <p style="color:#666;font-size:9pt;margin-top:24pt">Documento confidencial de uso exclusivo del evaluador. Generado el ${new Date().toLocaleString()}.</p>
     </body></html>`;
 
-  descargar(`${nombreArchivo(sesion)}.doc`, "\ufeff" + html, "application/msword;charset=utf-8");
+  descargar(`${nombreArchivo(reporte)}.doc`, "﻿" + html, "application/msword;charset=utf-8");
 }
 
-function descargarHTML(sesion, an) {
+function descargarHTML(reporte) {
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  // Reutilizamos la estética del DOC pero como página web autocontenida.
+  const marcas = marcasDe(reporte);
+  const NF = reporte.nombreFactor;
+
   const filasHoja = BLOQUES.map((bloque) => {
     const encabezados = bloque.map(() => '<th></th><th style="background:#e5e7eb;padding:4px">MÁS</th><th style="background:#e5e7eb;padding:4px">MENOS</th>').join("");
     const filas = FACTORES.map((factor) => {
       const celdas = bloque.map((grupo) => {
-        const r = sesion.respuestas[grupo.g] || {};
+        const r = marcas[grupo.g] || {};
         const marcaM = r.M === factor ? "X" : "";
         const marcaL = r.L === factor ? "X" : "";
         return `<td style="border:1px solid #64748b;padding:4px 8px">${grupo.g}. ${esc(grupo.palabras[factor])}</td><td style="border:1px solid #64748b;text-align:center;font-weight:bold;width:40px;${r.M === factor ? "background:#1e293b;color:#fff" : ""}">${marcaM}</td><td style="border:1px solid #64748b;text-align:center;font-weight:bold;width:40px;${r.L === factor ? "background:#f59e0b;color:#fff" : ""}">${marcaL}</td>`;
@@ -823,28 +906,27 @@ function descargarHTML(sesion, an) {
   }).join("");
 
   const filasCal = FACTORES.map((f) => {
-    const tono = an.estado[f] === "ALTO" ? "background:#ecfdf5;color:#047857" : an.estado[f] === "BAJO" ? "background:#fffbeb;color:#b45309" : "background:#f1f5f9;color:#475569";
+    const tono = reporte.estado[f] === "ALTO" ? "background:#ecfdf5;color:#047857" : reporte.estado[f] === "BAJO" ? "background:#fffbeb;color:#b45309" : "background:#f1f5f9;color:#475569";
     return `<tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9">${f} — ${esc(NOMBRE_FACTOR[f])}</td>
-      <td style="padding:8px 12px;text-align:center;border-bottom:1px solid #f1f5f9">${an.M[f]}</td>
-      <td style="padding:8px 12px;text-align:center;border-bottom:1px solid #f1f5f9">${an.L[f]}</td>
-      <td style="padding:8px 12px;text-align:center;font-weight:600;border-bottom:1px solid #f1f5f9">${fmt(an.T[f])}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9"><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;${tono}">${an.estado[f]}</span></td>
+      <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9">${f} — ${esc(NF[f])}</td>
+      <td style="padding:8px 12px;text-align:center;border-bottom:1px solid #f1f5f9">${reporte.M[f]}</td>
+      <td style="padding:8px 12px;text-align:center;border-bottom:1px solid #f1f5f9">${reporte.L[f]}</td>
+      <td style="padding:8px 12px;text-align:center;font-weight:600;border-bottom:1px solid #f1f5f9">${fmt(reporte.T[f])}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9"><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;${tono}">${reporte.estado[f]}</span></td>
     </tr>`;
   }).join("");
 
-  const bloquesClaves = an.claves.map((c) => {
-    const info = INTERPRETACION_RAPIDA[c.clave];
-    return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin-bottom:20px">
+  const bloquesClaves = reporte.claves.map((c) =>
+    `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin-bottom:20px">
       <div style="margin-bottom:8px"><span style="font-size:17px;font-weight:600">${esc(c.clave)}</span>
-      <span style="font-size:13px;font-weight:500;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-left:10px">${esc(info?.corto || "")}</span></div>
+      <span style="font-size:13px;font-weight:500;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-left:10px">${esc(c.corto || "")}</span></div>
       <p style="font-size:12px;color:#94a3b8;margin:0 0 10px"><i>Criterio: ${esc(c.motivo)}</i></p>
-      <p style="font-size:14px;color:#334155;line-height:1.6;white-space:pre-line;margin:0">${esc(info?.texto || "")}</p>
-    </div>`;
-  }).join("");
+      <p style="font-size:14px;color:#334155;line-height:1.6;white-space:pre-line;margin:0">${esc(c.texto || "")}</p>
+    </div>`
+  ).join("");
 
   const html = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
-  <title>Resultados Cleaver — ${esc(sesion.datos?.nombre || "")}</title>
+  <title>Resultados Cleaver — ${esc(reporte.nombre || "")}</title>
   <style>
     body { margin:0; background:#f8fafc; font-family:'Segoe UI',system-ui,sans-serif; color:#0f172a; }
     .contenedor { max-width: 920px; margin: 0 auto; padding: 32px 20px 60px; }
@@ -855,9 +937,9 @@ function descargarHTML(sesion, an) {
   <h1>TEST DE CLEAVER</h1>
 
   <table style="width:100%;font-size:13px;margin:16px 0"><tbody>
-    <tr><td><b>Nombre:</b> ${esc(sesion.datos?.nombre || "")}</td></tr>
-    <tr><td><b>Cargo al que postula:</b> ${esc(sesion.datos?.puesto || "—")}</td></tr>
-    <tr><td><b>Fecha de administración:</b> ${formatearFecha(sesion.datos?.fecha)}</td></tr>
+    <tr><td><b>Nombre:</b> ${esc(reporte.nombre || "")}</td></tr>
+    <tr><td><b>Cargo al que postula:</b> ${esc(reporte.cargo || "—")}</td></tr>
+    <tr><td><b>Fecha de administración:</b> ${formatearFecha(reporte.fecha)}</td></tr>
   </tbody></table>
 
   <h2>1 · Hoja de respuestas</h2>
@@ -873,9 +955,9 @@ function descargarHTML(sesion, an) {
 
   <h2>3 · Interpretación</h2>
   <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin-bottom:20px">
-    <p style="font-size:13px;color:#475569;margin:0 0 8px"><b>Orden por T:</b> ${an.orden.map((f) => `${f} (${fmt(an.T[f])})`).join(" › ")}</p>
+    <p style="font-size:13px;color:#475569;margin:0 0 8px"><b>Orden por T:</b> ${reporte.orden.map((f) => `${f} (${fmt(reporte.T[f])})`).join(" › ")}</p>
     <ul style="margin:0;padding-left:18px;font-size:13px;color:#475569;line-height:1.6">
-    ${an.claves.map((c) => `<li><b>${esc(c.clave)}</b> (${esc(INTERPRETACION_RAPIDA[c.clave]?.corto || "")}) — ${esc(c.motivo)}</li>`).join("")}
+    ${reporte.claves.map((c) => `<li><b>${esc(c.clave)}</b> (${esc(c.corto || "")}) — ${esc(c.motivo)}</li>`).join("")}
     </ul>
   </div>
   ${bloquesClaves}
@@ -883,7 +965,7 @@ function descargarHTML(sesion, an) {
   <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:30px">Documento confidencial · Generado el ${new Date().toLocaleString()}</p>
   </div></body></html>`;
 
-  descargar(`${nombreArchivo(sesion)}_pagina.html`, html, "text/html;charset=utf-8");
+  descargar(`${nombreArchivo(reporte)}_pagina.html`, html, "text/html;charset=utf-8");
 }
 
 /* ============================================================

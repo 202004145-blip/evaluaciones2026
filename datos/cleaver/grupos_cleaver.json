@@ -1,0 +1,244 @@
+{
+  "factores": [
+    "D",
+    "I",
+    "S",
+    "C"
+  ],
+  "nombreFactor": {
+    "D": "Empuje (Dominio)",
+    "I": "Influencia",
+    "S": "Constancia / Estabilidad",
+    "C": "Apego / Cumplimiento"
+  },
+  "bloques": [
+    [
+      {
+        "g": 1,
+        "palabras": {
+          "D": "Persuasivo",
+          "I": "Gentil",
+          "S": "Humilde",
+          "C": "Original"
+        }
+      },
+      {
+        "g": 5,
+        "palabras": {
+          "D": "Fuerza de Voluntad",
+          "I": "Mente Abierta",
+          "S": "Complaciente",
+          "C": "Animoso"
+        }
+      },
+      {
+        "g": 9,
+        "palabras": {
+          "D": "Obediente",
+          "I": "Quisquilloso",
+          "S": "Inconquistable",
+          "C": "Juguetón"
+        }
+      },
+      {
+        "g": 13,
+        "palabras": {
+          "D": "Aventurero",
+          "I": "Receptivo",
+          "S": "Cordial",
+          "C": "Moderado"
+        }
+      }
+    ],
+    [
+      {
+        "g": 2,
+        "palabras": {
+          "D": "Agresivo",
+          "I": "Alma de la Fiesta",
+          "S": "Comodino",
+          "C": "Temeroso"
+        }
+      },
+      {
+        "g": 6,
+        "palabras": {
+          "D": "Confiado",
+          "I": "Simpatizador",
+          "S": "Tolerante",
+          "C": "Afirmativo"
+        }
+      },
+      {
+        "g": 10,
+        "palabras": {
+          "D": "Respetuoso",
+          "I": "Emprendedor",
+          "S": "Optimista",
+          "C": "Servicial"
+        }
+      },
+      {
+        "g": 14,
+        "palabras": {
+          "D": "Indulgente",
+          "I": "Esteta",
+          "S": "Vigoroso",
+          "C": "Sociable"
+        }
+      }
+    ],
+    [
+      {
+        "g": 3,
+        "palabras": {
+          "D": "Agradable",
+          "I": "Temeroso de Dios",
+          "S": "Tenaz",
+          "C": "Atractivo"
+        }
+      },
+      {
+        "g": 7,
+        "palabras": {
+          "D": "Ecuánime",
+          "I": "Preciso",
+          "S": "Nervioso",
+          "C": "Jovial"
+        }
+      },
+      {
+        "g": 11,
+        "palabras": {
+          "D": "Valiente",
+          "I": "Inspirador",
+          "S": "Sumiso",
+          "C": "Tímido"
+        }
+      },
+      {
+        "g": 15,
+        "palabras": {
+          "D": "Parlanchín",
+          "I": "Controlado",
+          "S": "Convencional",
+          "C": "Decisivo"
+        }
+      }
+    ],
+    [
+      {
+        "g": 4,
+        "palabras": {
+          "D": "Cauteloso",
+          "I": "Determinado",
+          "S": "Convincente",
+          "C": "Bonachón"
+        }
+      },
+      {
+        "g": 8,
+        "palabras": {
+          "D": "Disciplinado",
+          "I": "Generoso",
+          "S": "Animoso",
+          "C": "Persistente"
+        }
+      },
+      {
+        "g": 12,
+        "palabras": {
+          "D": "Adaptable",
+          "I": "Disputador",
+          "S": "Indiferente",
+          "C": "Sangre Liviana"
+        }
+      },
+      {
+        "g": 16,
+        "palabras": {
+          "D": "Cohibido",
+          "I": "Exacto",
+          "S": "Franco",
+          "C": "Buen Compañero"
+        }
+      }
+    ],
+    [
+      {
+        "g": 17,
+        "palabras": {
+          "D": "Dócil",
+          "I": "Atrevido",
+          "S": "Leal",
+          "C": "Encantador"
+        }
+      },
+      {
+        "g": 18,
+        "palabras": {
+          "D": "Competitivo",
+          "I": "Alegre",
+          "S": "Considerado",
+          "C": "Armonioso"
+        }
+      },
+      {
+        "g": 19,
+        "palabras": {
+          "D": "Amiguero",
+          "I": "Paciente",
+          "S": "Confianza en sí Mismo",
+          "C": "Mesurado para Hablar"
+        }
+      },
+      {
+        "g": 20,
+        "palabras": {
+          "D": "Diplomático",
+          "I": "Audaz",
+          "S": "Refinado",
+          "C": "Satisfecho"
+        }
+      }
+    ],
+    [
+      {
+        "g": 21,
+        "palabras": {
+          "D": "Dispuesto",
+          "I": "Deseoso",
+          "S": "Consecuente",
+          "C": "Entusiasta"
+        }
+      },
+      {
+        "g": 22,
+        "palabras": {
+          "D": "Admirable",
+          "I": "Bondadoso",
+          "S": "Resignado",
+          "C": "Carácter Firme"
+        }
+      },
+      {
+        "g": 23,
+        "palabras": {
+          "D": "Conforme",
+          "I": "Confiable",
+          "S": "Pacífico",
+          "C": "Positivo"
+        }
+      },
+      {
+        "g": 24,
+        "palabras": {
+          "D": "Inquieto",
+          "I": "Popular",
+          "S": "Buen Vecino",
+          "C": "Devoto"
+        }
+      }
+    ]
+  ]
+}
