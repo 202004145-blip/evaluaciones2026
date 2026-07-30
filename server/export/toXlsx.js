@@ -34,6 +34,9 @@ function generarXlsx(datos) {
     ['Positivos (+)', ...ESCALAS.map((l) => r.positivos[l])],
     ['Negativos (−)', ...ESCALAS.map((l) => r.negativos[l])],
     ['Neto (+ menos −)', ...ESCALAS.map((l) => r.neto[l])],
+    [],
+    ['Dimensión con más positivos (predominante)', r.maxPositivo.nombres.join(' / ')],
+    ['Dimensión con más negativos (evita/repele)', r.maxNegativo.nombres.join(' / ')],
   ];
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(bruto), '1. Hoja de respuestas');
 
