@@ -244,3 +244,38 @@ function volverALista() {
 }
 
 document.getElementById('btnVolverLista').addEventListener('click', volverALista);
+
+async function recalificarTodo() {
+  const btn = document.getElementById('btnRecalificarTodo');
+  const ok = confirm(
+    'Vuelve a calificar TODOS los evaluados IPV usando la lógica vigente.\n\n' +
+      'Sirve para actualizar resultados que se calcularon con una versión anterior ' +
+      'del baremo o de la clave. No borra ninguna respuesta y es idempotente ' +
+      '(volver a ejecutar no cambia los resultados si la lógica no cambió).\n\n' +
+      '¿Continuar?'
+  );
+  if (!ok) return;
+  const original = btn.textContent;
+  btn.textContent = 'Recalificando…';
+  btn.disabled = true;
+  try {
+    const r = await api('/api/ipv/resultados/recalificar-todo', { method: 'POST' });
+    alert(
+      `Recalificación terminada.\n` +
+        `Total: ${r.total}\n` +
+        `Recalificados con éxito: ${r.recalificados}\n` +
+        (r.fallidos && r.fallidos.length
+          ? `Con problemas: ${r.fallidos.length}\n` +
+            r.fallidos.map((f) => `  · ${f.folio}: ${f.error}`).join('\n')
+          : '')
+    );
+    cargarListaResultados();
+  } catch (err) {
+    alert('Error al recalificar: ' + (err.message || err));
+  } finally {
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('btnRecalificarTodo').addEventListener('click', recalificarTodo);
