@@ -47,16 +47,21 @@ table.score-table tr.global{background:#EAF0F2;}
 table.score-table tr.global td{font-weight:600;}
 .deca{font-family:'Source Serif 4',serif; font-size:18px; font-weight:600;}
 .lvl{font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.04em; padding:3px 8px; display:inline-block;}
-.lvl.bajo{background:#FDEAE1; color:var(--d);}
-.lvl.medio{background:#FEF3C7; color:#78350F;}
-.lvl.alto{background:#E3EDDC; color:#2E4A22;}
+/* 5 niveles del manual oficial: n1 Muy Bajo, n2 Bajo, n3 Promedio, n4 Mayor Promedio, n5 Alto */
+.lvl.n1{background:#FDEAE1; color:#7C1D0A;}
+.lvl.n2{background:#FEE4CC; color:#9A3412;}
+.lvl.n3{background:#FEF3C7; color:#78350F;}
+.lvl.n4{background:#DCFCE7; color:#166534;}
+.lvl.n5{background:#BBF7D0; color:#14532D;}
 
 /* Medidor de decatipo (10 segmentos) */
 .deca-meter{display:flex; gap:2px; width:120px;}
 .deca-seg{flex:1; height:10px; background:#F0EFE9;}
-.deca-seg.on.bajo{background:var(--d);}
-.deca-seg.on.medio{background:var(--i);}
-.deca-seg.on.alto{background:var(--s);}
+.deca-seg.on.n1{background:#B14B33;}
+.deca-seg.on.n2{background:#D97706;}
+.deca-seg.on.n3{background:#CA8A04;}
+.deca-seg.on.n4{background:#65A30D;}
+.deca-seg.on.n5{background:#15803D;}
 
 /* Tarjetas de interpretación */
 .interp-card{background:var(--card); border:1px solid var(--hairline); border-left:4px solid var(--c); padding:18px 22px; margin-bottom:14px;}

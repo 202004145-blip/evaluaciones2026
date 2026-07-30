@@ -29,7 +29,7 @@
         "B": "Capacidad para modificar sus razonamientos según la actitud del auditorio.",
         "C": "Facultad para mantener el orden de sus ideas a pesar de las interrupciones."
       },
-      "clave": "A"
+      "clave": "B"
     },
     {
       "n": 4,
@@ -49,7 +49,7 @@
         "B": "No les gusta la hipocresía.",
         "C": "Piensan que esto simplifica las relaciones."
       },
-      "clave": "B"
+      "clave": "A"
     },
     {
       "n": 6,
@@ -79,7 +79,7 @@
         "B": "Convencido de que no está dotado para las actividades corporales, buscará otra forma de actividad.",
         "C": "Continuará sus esfuerzos con la esperanza de que seguramente serán un día coronados por el éxito."
       },
-      "clave": "A"
+      "clave": "B"
     },
     {
       "n": 9,
@@ -109,7 +109,7 @@
         "B": "Hará numerosas compras, incluso un poco inútiles, porque le encanta discutir los precios.",
         "C": "Convencido de que le timarían, preferirá los almacenes de precios fijos."
       },
-      "clave": "C"
+      "clave": "B"
     },
     {
       "n": 12,
@@ -138,7 +138,7 @@
         "A": "Un tema ampliamente tratado durante el curso con el que tiene, casi, la plena seguridad de alcanzar la nota media necesaria.",
         "B": "Un tema que le permita, con un mínimo de conocimiento, obtener una calificación muy buena pero, quizá también muy mala."
       },
-      "clave": "B"
+      "clave": "A"
     },
     {
       "n": 15,
@@ -148,7 +148,7 @@
         "B": "Un baño de sol en una playa de arena fina, en un hermoso día de verano con el aire en calma.",
         "C": "Un paseo por el campo en primavera."
       },
-      "clave": "C"
+      "clave": "A"
     },
     {
       "n": 16,
@@ -188,7 +188,7 @@
         "B": "Alguien ha quedado atrapado en la acera y trata de mover un coche para salir.",
         "C": "¿Qué estará haciendo? Parece que utiliza un destornillador."
       },
-      "clave": "A"
+      "clave": "C"
     },
     {
       "n": 20,
@@ -218,7 +218,7 @@
         "B": "Presentarlas el lunes en el desayuno.",
         "C": "Presentarlas en el momento en que pueda aportar, además, alguna compensación."
       },
-      "clave": "A"
+      "clave": "C"
     },
     {
       "n": 23,
@@ -228,7 +228,7 @@
         "B": "Que tal vez se ha excedido un poco.",
         "C": "Que es conveniente enfadarse de verdad una vez para no tener que volver a hacerlo."
       },
-      "clave": "C"
+      "clave": "B"
     },
     {
       "n": 24,
@@ -238,7 +238,7 @@
         "B": "No dice nada porque piensa que el daño causado es tal vez menor de lo que había creído.",
         "C": "Se esfuerza en ocultar su resentimiento para no entorpecer sus futuras relaciones."
       },
-      "clave": "B"
+      "clave": "C"
     },
     {
       "n": 25,
@@ -258,7 +258,7 @@
         "B": "Siempre ocurre lo mismo; el juego de las cartas no se me da bien.",
         "C": "Realmente no estoy en forma esta tarde."
       },
-      "clave": "A"
+      "clave": "B"
     },
     {
       "n": 27,
@@ -268,7 +268,7 @@
         "B": "Cambiar de lugar.",
         "C": "Concentrarse más en la película para evitar la molestia."
       },
-      "clave": "C"
+      "clave": "A"
     },
     {
       "n": 28,
@@ -288,7 +288,7 @@
         "B": "Probablemente tiene serias dificultades en sus relaciones con los demás.",
         "C": "Posee una fuerte personalidad."
       },
-      "clave": "B"
+      "clave": "C"
     },
     {
       "n": 30,
@@ -308,7 +308,7 @@
         "B": "Estimando que es tan peligroso circular demasiado despacio como demasiado deprisa, adelantan a los vehículos que les obligan a ir lentamente.",
         "C": "Toleran de mala gana no tener vía libre y adelantan sistemáticamente a los vehículos que van delante de ellos."
       },
-      "clave": "A"
+      "clave": "C"
     },
     {
       "n": 32,
@@ -318,7 +318,7 @@
         "B": "Un ambiente agradable.",
         "C": "La posibilidad de comer el plato especial de la casa."
       },
-      "clave": "B"
+      "clave": "C"
     },
     {
       "n": 33,
@@ -328,7 +328,7 @@
         "B": "Ver si conoce a alguien por la zona que pueda prestarle dinero o tratar de que le vendan a crédito.",
         "C": "Dejar las compras para otra ocasión y aprovechar la oportunidad para dar un paseo por el barrio."
       },
-      "clave": "A"
+      "clave": "B"
     },
     {
       "n": 34,
@@ -358,7 +358,7 @@
         "B": "Participar en una carrera automovilística Madrid–Bombay.",
         "C": "Visitar el mayor número posible de países."
       },
-      "clave": "B"
+      "clave": "C"
     },
     {
       "n": 37,
@@ -368,7 +368,7 @@
         "B": "Le prestará el dinero porque a él le gustaría que le hicieran lo mismo si lo necesitara.",
         "C": "No le dará el dinero, considerando que su compañero tiene, probablemente, buenos amigos dispuestos a ayudarle."
       },
-      "clave": "B"
+      "clave": "A"
     },
     {
       "n": 38,
@@ -388,7 +388,7 @@
         "B": "Fijarse un sistema de mando bien elaborado e idéntico para todos.",
         "C": "Basándose en la experiencia, dejarse guiar por su intuición."
       },
-      "clave": "B"
+      "clave": "A"
     },
     {
       "n": 40,
@@ -398,7 +398,7 @@
         "B": "Interesar al auditorio y mantener su atención.",
         "C": "Hacer participar a todos los asistentes."
       },
-      "clave": "C"
+      "clave": "A"
     },
     {
       "n": 41,
@@ -418,7 +418,7 @@
         "B": "Dará airadamente su opinión al conductor sobre su manera de conducir.",
         "C": "Lanzará al conductor algunos insultos que no puede reprimir."
       },
-      "clave": "B"
+      "clave": "A"
     },
     {
       "n": 43,
@@ -428,7 +428,7 @@
         "B": "El gusto por el trabajo bien hecho.",
         "C": "La capacidad para desenvolverse solo rápidamente."
       },
-      "clave": "C"
+      "clave": "B"
     },
     {
       "n": 44,
@@ -438,7 +438,7 @@
         "B": "Puede que tengas razón.",
         "C": "Admite, por lo menos, que cuando ocurre es difícil de aceptar."
       },
-      "clave": "C"
+      "clave": "A"
     },
     {
       "n": 45,
@@ -448,7 +448,7 @@
         "B": "Provocar la discusión.",
         "C": "Dar su opinión si no puede evitarlo."
       },
-      "clave": "C"
+      "clave": "B"
     },
     {
       "n": 46,
@@ -458,7 +458,7 @@
         "B": "La sinceridad.",
         "C": "La aceptación de compromisos."
       },
-      "clave": "C"
+      "clave": "B"
     },
     {
       "n": 47,
@@ -488,7 +488,7 @@
         "B": "El temor de tener dificultad para integrarse en la discusión.",
         "C": "La perspectiva de parecer descortés."
       },
-      "clave": "C"
+      "clave": "A"
     },
     {
       "n": 50,
@@ -498,7 +498,7 @@
         "B": "Un grupo de amigos.",
         "C": "Él mismo."
       },
-      "clave": "A"
+      "clave": "C"
     },
     {
       "n": 51,
@@ -508,7 +508,7 @@
         "B": "Hacer los planos él mismo y trabajar directamente con un constructor.",
         "C": "Hacer los planos con un amigo que acaba de hacer una casa."
       },
-      "clave": "A"
+      "clave": "B"
     },
     {
       "n": 52,
@@ -538,7 +538,7 @@
         "B": "Al miedo ante una situación inesperada.",
         "C": "Al temor de ocuparse de lo que no le compete a uno."
       },
-      "clave": "C"
+      "clave": "A"
     },
     {
       "n": 55,
@@ -568,7 +568,7 @@
         "B": "Está convencido de la justicia de la reivindicación.",
         "C": "Está bien integrado con el personal."
       },
-      "clave": "B"
+      "clave": "A"
     },
     {
       "n": 58,
@@ -578,7 +578,7 @@
         "B": "Hacerle un pequeño chantaje del tipo: 'Demuestra a mamá que eres bueno y que la quieres'.",
         "C": "Dejar al niño, pensando que comerá más en la comida siguiente."
       },
-      "clave": "B"
+      "clave": "C"
     },
     {
       "n": 59,
@@ -608,7 +608,7 @@
         "B": "'Se han fastidiado las vacaciones… No me apetece nada viajar de pie en el tren siguiente'.",
         "C": "'¡Qué le vamos a hacer! Voy a devolver los billetes y nos quedaremos en casa'."
       },
-      "clave": "C"
+      "clave": "B"
     },
     {
       "n": 62,
@@ -618,7 +618,7 @@
         "B": "Coincidencia de circunstancias negativas.",
         "C": "Fallos ocasionales."
       },
-      "clave": "C"
+      "clave": "A"
     },
     {
       "n": 63,
@@ -628,7 +628,7 @@
         "B": "Irá personalmente a reclamar.",
         "C": "Rogará a uno de sus amigos, empleado en esa casa, que intervenga."
       },
-      "clave": "A"
+      "clave": "B"
     },
     {
       "n": 64,
@@ -648,7 +648,7 @@
         "B": "Renuncia a esta visita porque le parece más importante no hacer esperar a los demás.",
         "C": "Trata de encontrar a sus amigos para persuadirles que hagan la visita con él, aun a riesgo de desorganizar la última parte del viaje."
       },
-      "clave": "B"
+      "clave": "C"
     },
     {
       "n": 66,
@@ -658,7 +658,7 @@
         "B": "Director adjunto de una empresa internacional.",
         "C": "Asesor científico de alto nivel."
       },
-      "clave": "B"
+      "clave": "A"
     },
     {
       "n": 67,
@@ -668,7 +668,7 @@
         "B": "Confía en el buen carácter del niño.",
         "C": "Busca otras alternativas para el niño."
       },
-      "clave": "A"
+      "clave": "B"
     },
     {
       "n": 68,
@@ -678,7 +678,7 @@
         "B": "Arreglárselas para hacer antes algunas horas de vela en una escuela.",
         "C": "No aceptar ante el temor de ser una molestia para su amigo."
       },
-      "clave": "B"
+      "clave": "A"
     },
     {
       "n": 69,
@@ -688,7 +688,7 @@
         "B": "El hecho de tener que esperar sin poder moverse ni hacer nada.",
         "C": "Los toques de claxon —inútiles— de otros automovilistas."
       },
-      "clave": "A"
+      "clave": "B"
     },
     {
       "n": 70,
@@ -698,7 +698,7 @@
         "B": "Realiza todas las actividades propuestas, pero sin esforzarse demasiado, porque tiene un trabajo cansado.",
         "C": "Se entrega a fondo y frecuentemente termina agotado, porque no concibe el deporte de otra manera."
       },
-      "clave": "A"
+      "clave": "C"
     },
     {
       "n": 71,
@@ -708,7 +708,7 @@
         "B": "Favorece la ocasión de caminar un poco cada día paseando al perro.",
         "C": "Vigila el apartamento."
       },
-      "clave": "C"
+      "clave": "B"
     },
     {
       "n": 72,
@@ -728,7 +728,7 @@
         "B": "Tener buenos conocimientos pedagógicos.",
         "C": "Saber escuchar."
       },
-      "clave": "B"
+      "clave": "C"
     },
     {
       "n": 74,
@@ -738,7 +738,7 @@
         "B": "Invitar a personas que puedan coincidir con sus intereses.",
         "C": "Cuidar de que a nadie le falte nada."
       },
-      "clave": "C"
+      "clave": "A"
     },
     {
       "n": 75,
@@ -748,7 +748,7 @@
         "B": "Conozca sus antecedentes profesionales.",
         "C": "Lea el informe sobre un trabajo hecho por su colega."
       },
-      "clave": "B"
+      "clave": "C"
     },
     {
       "n": 76,
@@ -787,7 +787,7 @@
         "B": "La gran dificultad para atenerse a la complejidad de sus reglamentos.",
         "C": "La falta de atención a aspectos que él cree fundamentales."
       },
-      "clave": "A"
+      "clave": "B"
     },
     {
       "n": 80,
@@ -797,7 +797,7 @@
         "B": "Visitar a una persona mayor cada semana.",
         "C": "Hacer colectas para la construcción de un hogar de ancianos."
       },
-      "clave": "B"
+      "clave": "C"
     },
     {
       "n": 81,
@@ -807,7 +807,7 @@
         "B": "El 'slogan'.",
         "C": "El testimonio de una 'estrella'."
       },
-      "clave": "B"
+      "clave": "C"
     },
     {
       "n": 82,
@@ -817,7 +817,7 @@
         "B": "Abrir la ventana.",
         "C": "Hablar de nuevo con su vecino con el objeto de convencerle de que deje de fumar."
       },
-      "clave": "B"
+      "clave": "C"
     },
     {
       "n": 83,
@@ -827,7 +827,7 @@
         "B": "En publicidad para dar a conocer su producto.",
         "C": "En la investigación de envases y presentación."
       },
-      "clave": "A"
+      "clave": "B"
     },
     {
       "n": 84,
@@ -837,7 +837,7 @@
         "B": "Divertirse simplemente en el juego de la discusión.",
         "C": "Dejarse convencer cuando vea que sus posiciones son poco defendibles."
       },
-      "clave": "B"
+      "clave": "A"
     },
     {
       "n": 85,
@@ -847,7 +847,7 @@
         "B": "La especialidad de la casa.",
         "C": "Un plato exótico que usted desconoce en lo absoluto."
       },
-      "clave": "A"
+      "clave": "C"
     },
     {
       "n": 86,
@@ -857,7 +857,7 @@
         "B": "La soledad.",
         "C": "La falta de algunos atractivos de la vida anterior."
       },
-      "clave": "C"
+      "clave": "A"
     },
     {
       "n": 87,
