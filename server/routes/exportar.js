@@ -6,11 +6,19 @@ const { requireAuth } = require('../auth');
 const { generarDocx } = require('../export/toDocx');
 const { generarXlsx } = require('../export/toXlsx');
 const { generarHtml } = require('../export/toHtml');
+const { generarPlantillaHtml } = require('../export/toPlantilla');
 const { buildReportView } = require('../export/reportView');
 
 const router = express.Router();
 
 router.use(requireAuth);
+
+// Hoja en blanco imprimible (test + corrección) para aplicar el DISC en papel.
+// Va antes de la ruta con :folio para que "plantilla" no se interprete como folio.
+router.get('/plantilla', (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(generarPlantillaHtml());
+});
 
 function cargarResultado(folio) {
   const fila = db.prepare('SELECT datos_json FROM resultados WHERE folio = ?').get(folio);
