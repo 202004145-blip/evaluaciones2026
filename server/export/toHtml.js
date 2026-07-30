@@ -31,7 +31,6 @@ function generarHtml(datos) {
   // Tabla "Hoja de respuestas" de Marian Gamboa: ítems en filas, dimensiones
   // D/I/S/C en columnas, con la suma vertical al pie.
   const detalle = (v.bruto.detalle || []).slice().sort((a, b) => a.id - b.id);
-  const total = (obj) => ESCALAS.reduce((a, l) => a + (obj[l] || 0), 0);
   const hojaFilas = detalle
     .map((d) => {
       const celdas = ESCALAS.map((l) => {
@@ -53,15 +52,6 @@ function generarHtml(datos) {
       <tbody>${hojaFilas}</tbody>
       <tfoot>${hojaSum('Positivos (+)', r.positivos, false)}${hojaSum('Negativos (−)', r.negativos, false)}${hojaSum('Neto (+ − −)', r.neto, true)}</tfoot>
     </table></div>`;
-  const calcRow = (l) => `<tr>
-      <td style="border-left:4px solid ${COLOR_HEX[l]}"><b>${l}</b> · ${esc(NOMBRE_ESCALA[l])} (${esc(COLOR_ESCALA[l])})</td>
-      <td>${r.positivos[l]}</td><td>${r.negativos[l]}</td><td><b>${r.neto[l] > 0 ? '+' + r.neto[l] : r.neto[l]}</b></td>
-    </tr>`;
-  const calcTabla = `<table class="calc">
-    <thead><tr><th>Dimensión</th><th>Positivos (+)</th><th>Negativos (−)</th><th>Neto</th></tr></thead>
-    <tbody>${ESCALAS.map(calcRow).join('')}
-      <tr class="tot"><td>TOTAL</td><td>${total(r.positivos)}</td><td>${total(r.negativos)}</td><td>${total(r.neto)}</td></tr>
-    </tbody></table>`;
 
   return `<!doctype html>
 <html lang="es">
@@ -100,19 +90,15 @@ function generarHtml(datos) {
   <h1>DISC© — Estudio de perfil</h1>
   <p class="meta">${esc(candidateLine)}</p>
 
-  <h2>1. Respuestas (Hoja de respuestas — Marian Gamboa)</h2>
-  <p class="sub">Cada ítem en su fila y cada dimensión D/I/S/C en su columna. Se marca la palabra elegida como MÁS (+) o MENOS (−); al pie se suma verticalmente cada columna.</p>
+  <h2>1. Hoja de respuestas y corrección</h2>
+  <p class="sub">Cada ítem en su fila y cada dimensión D/I/S/C en su columna (modelo de la hoja de Marian Gamboa). Se marca la palabra elegida como MÁS (+) o MENOS (−); al pie se suma verticalmente cada columna: positivos, negativos y el neto (positivos − negativos).</p>
   ${hojaGamboa}
-
-  <h2>2. Calificación</h2>
-  <p class="sub">Por cada dimensión se cuentan los + y los −; el neto = (# de +) − (# de −).</p>
-  ${calcTabla}
   <div class="highlight">
-    <p><b>Personalidad predominante</b> (máximo positivo): ${esc(r.maxPositivo.nombres.join(' / ')) || '—'}</p>
-    <p><b>Personalidad que evita/repele</b> (máximo negativo): ${esc(r.maxNegativo.nombres.join(' / ')) || '—'}</p>
+    <p><b>Dimensión con más positivos</b> (personalidad predominante): ${esc(r.maxPositivo.nombres.join(' / ')) || '—'}</p>
+    <p><b>Dimensión con más negativos</b> (personalidad que evita/repele): ${esc(r.maxNegativo.nombres.join(' / ')) || '—'}</p>
   </div>
 
-  <h2>3. Interpretación</h2>
+  <h2>2. Interpretación</h2>
   <h3>Personalidad predominante</h3>
   ${v.interpretacion.predominante.map(fichaHtml).join('')}
   <h3>Personalidad que evita/repele</h3>
