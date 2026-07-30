@@ -3,6 +3,7 @@
 const express = require('express');
 const db = require('../db');
 const { requireAuth } = require('../auth');
+const { scoreCleaver } = require('../cleaver/scoring');
 
 const router = express.Router();
 
@@ -62,6 +63,65 @@ router.delete('/:folio', (req, res) => {
   if (!sesion) return res.status(404).json({ error: 'Resultado no encontrado.' });
   db.prepare('DELETE FROM cleaver_sesiones WHERE folio = ?').run(folio); // cascada
   res.json({ ok: true });
+});
+
+/**
+ * Re-califica UN evaluado ya finalizado con la lógica y baremos vigentes. Usa
+ * las respuestas guardadas en `cleaver_respuestas` (fuente de verdad) y
+ * sobrescribe `cleaver_resultados.datos_json`. Útil tras cambios en los baremos
+ * o en la lógica de calificación.
+ */
+function recalificarFolio(folio) {
+  const sesion = db.prepare('SELECT * FROM cleaver_sesiones WHERE folio = ?').get(folio);
+  if (!sesion) return { ok: false, error: 'Sesión no encontrada.' };
+  if (sesion.estado !== 'completada') {
+    return { ok: false, error: 'La sesión aún no ha sido finalizada.' };
+  }
+  const filas = db
+    .prepare('SELECT grupo, mas, menos FROM cleaver_respuestas WHERE folio = ?')
+    .all(folio);
+  const respuestas = {};
+  filas.forEach((f) => {
+    respuestas[f.grupo] = { mas: f.mas || null, menos: f.menos || null };
+  });
+  let record;
+  try {
+    record = scoreCleaver(respuestas);
+  } catch (err) {
+    return { ok: false, error: err.message, code: err.code };
+  }
+  const previo = cargarResultado(folio) || {};
+  const datosCompletos = {
+    folio,
+    nombre: sesion.nombre || previo.nombre || '',
+    cargo: sesion.cargo || previo.cargo || '',
+    fecha: sesion.fecha || previo.fecha || '',
+    completado_en: previo.completado_en || sesion.completado_en || new Date().toISOString(),
+    ...record,
+    recalificado_en: new Date().toISOString(),
+  };
+  db.prepare(
+    `INSERT INTO cleaver_resultados (folio, datos_json) VALUES (?, ?)
+     ON CONFLICT(folio) DO UPDATE SET datos_json = excluded.datos_json`
+  ).run(folio, JSON.stringify(datosCompletos));
+  return { ok: true };
+}
+
+router.post('/:folio/recalificar', (req, res) => {
+  const r = recalificarFolio(req.params.folio);
+  if (!r.ok) return res.status(400).json(r);
+  res.json(r);
+});
+
+router.post('/recalificar-todo', (req, res) => {
+  const folios = db
+    .prepare(`SELECT folio FROM cleaver_sesiones WHERE estado = 'completada'`)
+    .all()
+    .map((f) => f.folio);
+  const detalle = folios.map((folio) => ({ folio, ...recalificarFolio(folio) }));
+  const ok = detalle.filter((d) => d.ok).length;
+  const fallidos = detalle.filter((d) => !d.ok);
+  res.json({ total: folios.length, recalificados: ok, fallidos });
 });
 
 module.exports = router;

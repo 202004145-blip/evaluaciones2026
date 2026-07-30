@@ -1,5 +1,8 @@
-// Datos del Test de Cleaver — 24 grupos organizados en 6 bloques
-// tal como aparecen en la hoja de respuestas tradicional (4 columnas × 6 filas).
+// Datos del Test de Cleaver — 24 grupos organizados en 6 bloques.
+// Los grupos están numerados en **orden de lectura natural**
+// (izquierda a derecha, arriba a abajo): bloque 1 = grupos 1-4, bloque 2 = 5-8, etc.
+// Esto refleja la reconstrucción hecha a partir del Excel oficial
+// (Test_de_Cleaver_automatizado.xls).
 
 export const FACTORES = ["D", "I", "S", "C"];
 
@@ -10,31 +13,31 @@ export const NOMBRE_FACTOR = {
   C: "Apego / Cumplimiento",
 };
 
-// Organización en la hoja: 6 bloques de 4 grupos cada uno.
-// Cada grupo tiene 4 palabras, una por factor D/I/S/C.
+// 6 bloques de 4 grupos cada uno. Cada grupo tiene 4 palabras (una por
+// factor D/I/S/C). Los sinónimos/definiciones se cargan desde el servidor.
 export const BLOQUES = [
   [
-    { g: 1,  palabras: { D: "Persuasivo", I: "Gentil", S: "Humilde", C: "Original" } },
-    { g: 5,  palabras: { D: "Fuerza de Voluntad", I: "Mente Abierta", S: "Complaciente", C: "Animoso" } },
-    { g: 9,  palabras: { D: "Obediente", I: "Quisquilloso", S: "Inconquistable", C: "Juguetón" } },
-    { g: 13, palabras: { D: "Aventurero", I: "Receptivo", S: "Cordial", C: "Moderado" } },
+    { g: 1, palabras: { D: "Persuasivo", I: "Gentil", S: "Humilde", C: "Original" } },
+    { g: 2, palabras: { D: "Fuerza de Voluntad", I: "Mente Abierta", S: "Complaciente", C: "Animoso" } },
+    { g: 3, palabras: { D: "Obediente", I: "Quisquilloso", S: "Inconquistable", C: "Juguetón" } },
+    { g: 4, palabras: { D: "Aventurero", I: "Receptivo", S: "Cordial", C: "Moderado" } },
   ],
   [
-    { g: 2,  palabras: { D: "Agresivo", I: "Alma de la Fiesta", S: "Comodino", C: "Temeroso" } },
-    { g: 6,  palabras: { D: "Confiado", I: "Simpatizador", S: "Tolerante", C: "Afirmativo" } },
-    { g: 10, palabras: { D: "Respetuoso", I: "Emprendedor", S: "Optimista", C: "Servicial" } },
-    { g: 14, palabras: { D: "Indulgente", I: "Esteta", S: "Vigoroso", C: "Sociable" } },
+    { g: 5, palabras: { D: "Agresivo", I: "Alma de la Fiesta", S: "Comodino", C: "Temeroso" } },
+    { g: 6, palabras: { D: "Confiado", I: "Simpatizador", S: "Tolerante", C: "Afirmativo" } },
+    { g: 7, palabras: { D: "Respetuoso", I: "Emprendedor", S: "Optimista", C: "Servicial" } },
+    { g: 8, palabras: { D: "Indulgente", I: "Esteta", S: "Vigoroso", C: "Sociable" } },
   ],
   [
-    { g: 3,  palabras: { D: "Agradable", I: "Temeroso de Dios", S: "Tenaz", C: "Atractivo" } },
-    { g: 7,  palabras: { D: "Ecuánime", I: "Preciso", S: "Nervioso", C: "Jovial" } },
+    { g: 9,  palabras: { D: "Agradable", I: "Temeroso de Dios", S: "Tenaz", C: "Atractivo" } },
+    { g: 10, palabras: { D: "Ecuánime", I: "Preciso", S: "Nervioso", C: "Jovial" } },
     { g: 11, palabras: { D: "Valiente", I: "Inspirador", S: "Sumiso", C: "Tímido" } },
-    { g: 15, palabras: { D: "Parlanchín", I: "Controlado", S: "Convencional", C: "Decisivo" } },
+    { g: 12, palabras: { D: "Parlanchín", I: "Controlado", S: "Convencional", C: "Decisivo" } },
   ],
   [
-    { g: 4,  palabras: { D: "Cauteloso", I: "Determinado", S: "Convincente", C: "Bonachón" } },
-    { g: 8,  palabras: { D: "Disciplinado", I: "Generoso", S: "Animoso", C: "Persistente" } },
-    { g: 12, palabras: { D: "Adaptable", I: "Disputador", S: "Indiferente", C: "Sangre Liviana" } },
+    { g: 13, palabras: { D: "Cauteloso", I: "Determinado", S: "Convincente", C: "Bonachón" } },
+    { g: 14, palabras: { D: "Disciplinado", I: "Generoso", S: "Animoso", C: "Persistente" } },
+    { g: 15, palabras: { D: "Adaptable", I: "Disputador", S: "Indiferente", C: "Sangre Liviana" } },
     { g: 16, palabras: { D: "Cohibido", I: "Exacto", S: "Franco", C: "Buen Compañero" } },
   ],
   [
@@ -51,5 +54,5 @@ export const BLOQUES = [
   ],
 ];
 
-// Lista plana de los 24 grupos ordenados por número, para la calificación
-export const GRUPOS = BLOQUES.flat().sort((a, b) => a.g - b.g);
+// Lista plana de los 24 grupos ordenados por número, para la calificación.
+export const GRUPOS = BLOQUES.flat().slice().sort((a, b) => a.g - b.g);

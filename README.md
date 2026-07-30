@@ -87,7 +87,7 @@ npm test
 
 - DISC (`server/scoring/scoring.test.js`): suma de conteos MÁS = 28, suma MENOS = 28, cobertura completa de las tablas de conversión, los 13 códigos faltantes de la matriz de patrones y los códigos de verificación 1115→Objetivo, 1511→Promotor, 5555→Superactivo.
 - IPV (`server/ipv/scoring.test.js`): 87 preguntas con clave válida, cada pregunta pertenece a exactamente una escala (11+11+11+8+11+11+8+8+8 = 87), PD por escala igual al nº de ítems con todo correcto, VIII inversa (con todo correcto → PD 0), R y A como suma exacta de sus partes, límites y casillas inalcanzables de las tablas de decatipos, los 5 niveles del manual (Muy Bajo/Bajo/Promedio/Mayor Promedio/Alto), rechazo tipado de respuestas incompletas o inválidas, y una **prueba de oro que reproduce exactamente el ejemplo del Excel oficial** (12 escalas: PDs, decatipos y etiquetas de nivel iguales al Excel).
-- Cleaver (`server/cleaver/scoring.test.js`): 24 grupos con los 4 factores D/I/S/C, suma de M = 24 y suma de L = 24, T = M − L con sus lecturas y claves (D+, I-, D=C+…), motivación/limitaciones solo para factores fuera de la línea media, y el rechazo tipado de respuestas incompletas, con MÁS = MENOS o con factores inválidos.
+- Cleaver (`server/cleaver/scoring.test.js`): 24 grupos con los 4 factores D/I/S/C, numeración natural 1–24 en orden de lectura, definiciones/sinónimos oficiales para las 96 palabras, suma de M = 24 y suma de L = 24, T = M − L con sus lecturas y claves (D+, I-, D=C+…), **percentiles oficiales** para M/L/T con extrapolación fuera de rango, y la **prueba de oro** que reproduce los percentiles del ejemplo del Excel oficial.
 
 ## Lógica de calificación del IPV
 
@@ -104,11 +104,14 @@ Validada contra el Excel oficial del instrumento (`the_IPV_test.xls`): reproduce
 
 ## Lógica de calificación del Cleaver
 
-1. **Conteos**: por cada uno de los 24 grupos el evaluado elige una palabra MÁS (M) y una MENOS (L); cada palabra pertenece a un factor D/I/S/C (`datos/cleaver/grupos_cleaver.json`). Se cuenta cuántas veces cada factor fue elegido como M y como L.
-2. **Puntaje bruto**: `T = M − L` por factor. Lectura: ALTO (T>0), BAJO (T<0), LÍNEA MEDIA (T=0). Suma de M = 24 y suma de L = 24.
-3. **Claves** (según el orden de T): `X+` para el factor con T más alto positivo; `X/Y` (combinación básica) del más alto sobre el segundo; `X-` para el más bajo negativo; y `D=C+`/`D=C-` cuando T(D)=T(C). Cada clave trae su interpretación (corto + texto) desde `datos/cleaver/interpretacion_cleaver.json`.
-4. **Motivación y limitaciones**: para cada factor fuera de la línea media se listan lo que "desea/necesita" y las posibles limitaciones bajo presión, también desde `datos/cleaver/`.
-5. **Sin baremo percentilar**: el manual provisto no incluye la conversión a percentiles, así que se reporta el puntaje bruto T con línea media en 0 (no percentiles). Si se captura la tabla, puede agregarse sin tocar la lógica.
+Validada contra el Excel oficial (`Test_de_Cleaver_automatizado.xls`): reproduce los percentiles exactos del ejemplo del propio Excel.
+
+1. **Conteos**: por cada uno de los 24 grupos el evaluado elige una palabra MÁS (M) y una MENOS (L); cada palabra pertenece a un factor D/I/S/C (`datos/cleaver/grupos_cleaver.json`). Se cuenta cuántas veces cada factor fue elegido como M y como L. Suma de M = 24 y suma de L = 24.
+2. **Puntaje bruto**: `T = M − L` por factor. Lectura: ALTO (T>0), BAJO (T<0), LÍNEA MEDIA (T=0).
+3. **Percentiles oficiales**: para cada factor se calcula el percentil de M, L y T usando 12 tablas del baremo del manual (D_M, I_M, S_M, C_M, D_L, I_L, S_L, C_L, D_T, I_T, S_T, C_T, en `baremos.percentiles`). El percentil 50 en T corresponde a la línea media (T=0).
+4. **Claves aplicadas** (según el orden de T): `X+` para el factor con T más alto positivo; `X/Y` (combinación básica: Creatividad, Empuje, Individualidad, etc.) del más alto sobre el segundo; `X-` para el más bajo negativo; y `D=C+`/`D=C-` (Ambivalencia Alta/Baja) cuando T(D)=T(C). Cada clave trae su interpretación literal del manual (nombre + texto completo) desde `datos/cleaver/interpretacion_cleaver.json`.
+5. **Sinónimos**: cada una de las 96 palabras trae su sinónimo/definición del manual, que se muestra como tooltip al pasar el mouse sobre la palabra.
+6. **Numeración natural**: los 24 grupos están numerados en orden de lectura (izquierda a derecha, arriba a abajo): bloque 1 = grupos 1-4, bloque 2 = 5-8, …, bloque 6 = 21-24.
 
 ## Despliegue en Railway
 

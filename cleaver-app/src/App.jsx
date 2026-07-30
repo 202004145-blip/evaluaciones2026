@@ -27,19 +27,31 @@ function HojaRespuestas({ sesion, onResponder, soloLectura = false }) {
     onResponder(grupoNum, nueva);
   };
 
+  // Si la sesión trae `grupos` del servidor (con definiciones/sinónimos), los
+  // usamos y reorganizamos en 6 bloques de 4. Si no, caemos al layout local.
+  const bloquesActivos = React.useMemo(() => {
+    if (sesion.grupos && sesion.grupos.length === 24) {
+      const b = [];
+      for (let i = 0; i < 6; i++) b.push(sesion.grupos.slice(i * 4, i * 4 + 4));
+      return b;
+    }
+    return BLOQUES;
+  }, [sesion.grupos]);
+
   const filaBloque = (bloque, filaIdx) => (
     <tr key={filaIdx}>
       {bloque.map((grupo, colIdx) => {
         const factor = FACTORES[filaIdx];
         const palabra = grupo.palabras[factor];
+        const definicion = grupo.definiciones && grupo.definiciones[factor];
         const r = sesion.respuestas[grupo.g] || {};
         const esM = r.M === factor;
         const esL = r.L === factor;
         return (
           <React.Fragment key={colIdx}>
-            <td className="border border-slate-400 px-2 py-1.5 text-sm bg-white">
+            <td className="border border-slate-400 px-2 py-1.5 text-sm bg-white" title={definicion || ""}>
               <span className="text-slate-500 text-xs mr-1">{grupo.g}.</span>
-              {palabra}
+              <span className={definicion ? "underline decoration-dotted decoration-slate-300 cursor-help" : ""}>{palabra}</span>
             </td>
             <td className="border border-slate-400 p-0 w-11 text-center bg-white">
               <button
@@ -77,7 +89,7 @@ function HojaRespuestas({ sesion, onResponder, soloLectura = false }) {
 
   return (
     <div className="overflow-x-auto">
-      {BLOQUES.map((bloque, i) => (
+      {bloquesActivos.map((bloque, i) => (
         <table
           key={i}
           className="w-full border-collapse mb-6 min-w-[720px]"
@@ -227,6 +239,7 @@ function VistaEvaluado({ onIrEvaluador }) {
           token: activa.token,
           respuestas: respuestasDesdeServidor(s.respuestas),
           datos: { nombre: s.nombre || "", cargo: s.cargo || "", fecha: s.fecha || HOY() },
+          grupos: s.grupos,
         });
       })
       .catch(() => sesionActiva.clear());
@@ -240,7 +253,8 @@ function VistaEvaluado({ onIrEvaluador }) {
         nombre: datos.nombre.trim(), cargo: datos.cargo.trim(), fecha: datos.fecha,
       });
       sesionActiva.set(r.folio, r.token);
-      setSesion({ folio: r.folio, token: r.token, respuestas: {} });
+      // `r.grupos` viene del servidor con sinónimos/definiciones oficiales.
+      setSesion({ folio: r.folio, token: r.token, respuestas: {}, grupos: r.grupos });
       setFase("test"); setReanudable(null);
     } catch (e) {
       setError(e.message || "No se pudo iniciar la sesión. Revise su conexión e intente de nuevo.");
@@ -251,7 +265,12 @@ function VistaEvaluado({ onIrEvaluador }) {
 
   const reanudar = () => {
     setDatos(reanudable.datos);
-    setSesion({ folio: reanudable.folio, token: reanudable.token, respuestas: reanudable.respuestas });
+    setSesion({
+      folio: reanudable.folio,
+      token: reanudable.token,
+      respuestas: reanudable.respuestas,
+      grupos: reanudable.grupos,
+    });
     setFase("test"); setReanudable(null);
   };
 
@@ -498,7 +517,6 @@ function PanelEvaluador({ onSalir }) {
     const hojaSesion = {
       respuestas: Object.fromEntries((reporte.detalle || []).map((d) => [d.g, { M: d.M, L: d.L }])),
     };
-    const factoresActivos = FACTORES.filter((f) => reporte.estado[f] !== "LÍNEA MEDIA");
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex items-start justify-between mb-6 gap-4 flex-wrap no-print">
@@ -564,14 +582,17 @@ function PanelEvaluador({ onSalir }) {
         {tab === "precalificacion" && (
           <Tarjeta className="p-5">
             <p className="text-sm text-slate-600 mb-4">
-              Conteo de veces que cada factor fue elegido como <strong>MÁS (M)</strong> y como <strong>MENOS (L)</strong>.
+              Conteo de veces que cada factor fue elegido como <strong>MÁS (M)</strong> y como <strong>MENOS (L)</strong>,
+              con su percentil oficial (baremo del manual).
             </p>
-            <table className="w-full text-sm max-w-lg">
+            <table className="w-full text-sm max-w-2xl">
               <thead>
                 <tr className="text-left text-slate-500 border-b border-slate-200">
                   <th className="py-2 pr-4">Factor</th>
                   <th className="py-2 pr-4 text-center">M</th>
-                  <th className="py-2 text-center">L</th>
+                  <th className="py-2 pr-4 text-center">%</th>
+                  <th className="py-2 pr-4 text-center">L</th>
+                  <th className="py-2 pr-4 text-center">%</th>
                 </tr>
               </thead>
               <tbody>
@@ -579,13 +600,17 @@ function PanelEvaluador({ onSalir }) {
                   <tr key={f} className="border-b border-slate-100">
                     <td className="py-2 pr-4 text-slate-800">{f} — {reporte.nombreFactor[f]}</td>
                     <td className="py-2 pr-4 text-center font-semibold">{reporte.M[f]}</td>
-                    <td className="py-2 text-center font-semibold">{reporte.L[f]}</td>
+                    <td className="py-2 pr-4 text-center text-slate-500">{reporte.percentiles?.M?.[f] ?? "—"}</td>
+                    <td className="py-2 pr-4 text-center font-semibold">{reporte.L[f]}</td>
+                    <td className="py-2 pr-4 text-center text-slate-500">{reporte.percentiles?.L?.[f] ?? "—"}</td>
                   </tr>
                 ))}
                 <tr>
                   <td className="py-2 pr-4 text-slate-500">Suma de verificación</td>
                   <td className="py-2 pr-4 text-center text-slate-500">{reporte.sumaM} / 24</td>
-                  <td className="py-2 text-center text-slate-500">{reporte.sumaL} / 24</td>
+                  <td></td>
+                  <td className="py-2 pr-4 text-center text-slate-500">{reporte.sumaL} / 24</td>
+                  <td></td>
                 </tr>
               </tbody>
             </table>
@@ -596,14 +621,16 @@ function PanelEvaluador({ onSalir }) {
           <Tarjeta className="p-5">
             <p className="text-sm text-slate-600 mb-4">
               Puntaje bruto por factor: <strong>T = M − L</strong>. La línea media es T = 0.
+              <span className="text-slate-500"> El percentil oficial se obtiene del baremo del manual (M, L y T tienen su propia tabla).</span>
             </p>
-            <table className="w-full text-sm max-w-2xl mb-6">
+            <table className="w-full text-sm max-w-3xl mb-6">
               <thead>
                 <tr className="text-left text-slate-500 border-b border-slate-200">
                   <th className="py-2 pr-4">Factor</th>
                   <th className="py-2 pr-4 text-center">M</th>
                   <th className="py-2 pr-4 text-center">L</th>
                   <th className="py-2 pr-4 text-center">T</th>
+                  <th className="py-2 pr-4 text-center">Percentil (T)</th>
                   <th className="py-2">Lectura</th>
                 </tr>
               </thead>
@@ -614,6 +641,9 @@ function PanelEvaluador({ onSalir }) {
                     <td className="py-2 pr-4 text-center">{reporte.M[f]}</td>
                     <td className="py-2 pr-4 text-center">{reporte.L[f]}</td>
                     <td className="py-2 pr-4 text-center font-semibold">{fmt(reporte.T[f])}</td>
+                    <td className="py-2 pr-4 text-center font-semibold">
+                      {reporte.percentiles?.T?.[f] != null ? `${reporte.percentiles.T[f]}` : "—"}
+                    </td>
                     <td className="py-2">
                       <Etiqueta tono={reporte.estado[f] === "ALTO" ? "alto" : reporte.estado[f] === "BAJO" ? "bajo" : "gris"}>
                         {reporte.estado[f]}
@@ -652,51 +682,6 @@ function PanelEvaluador({ onSalir }) {
                 <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">{c.texto}</p>
               </Tarjeta>
             ))}
-
-            <Tarjeta className="p-5">
-              <h3 className="font-semibold text-slate-800 mb-3">Claves de motivación</h3>
-              <div className="grid md:grid-cols-2 gap-5">
-                {factoresActivos.map((f) => {
-                  const m = reporte.motivacion[f];
-                  if (!m) return null;
-                  return (
-                    <div key={f} className="border border-slate-200 rounded-md p-4">
-                      <div className="text-sm font-semibold text-slate-800 mb-2">
-                        {f} {reporte.estado[f]} — {reporte.nombreFactor[f]}
-                      </div>
-                      <div className="text-xs font-semibold text-slate-500 uppercase mb-1">Desea</div>
-                      <ul className="text-sm text-slate-600 list-disc pl-5 mb-3">
-                        {m.quiere.map((x) => <li key={x}>{x}</li>)}
-                      </ul>
-                      <div className="text-xs font-semibold text-slate-500 uppercase mb-1">Necesita</div>
-                      <ul className="text-sm text-slate-600 list-disc pl-5">
-                        {m.necesita.map((x) => <li key={x}>{x}</li>)}
-                      </ul>
-                    </div>
-                  );
-                })}
-              </div>
-            </Tarjeta>
-
-            <Tarjeta className="p-5">
-              <h3 className="font-semibold text-slate-800 mb-3">Posibles limitaciones bajo presión</h3>
-              <div className="grid md:grid-cols-2 gap-5">
-                {factoresActivos.map((f) => {
-                  const lim = reporte.limitaciones[f];
-                  if (!lim) return null;
-                  return (
-                    <div key={f} className="border border-slate-200 rounded-md p-4">
-                      <div className="text-sm font-semibold text-slate-800 mb-2">
-                        {f} {reporte.estado[f]} — tiende a:
-                      </div>
-                      <ul className="text-sm text-slate-600 list-disc pl-5">
-                        {lim.lista.map((x) => <li key={x}>{x}</li>)}
-                      </ul>
-                    </div>
-                  );
-                })}
-              </div>
-            </Tarjeta>
           </div>
         )}
       </div>
@@ -713,6 +698,14 @@ function PanelEvaluador({ onSalir }) {
         </div>
         <div className="flex gap-2">
           <Boton variante="secundario" onClick={cargarLista}>Actualizar</Boton>
+          <Boton variante="secundario" onClick={async () => {
+            if (!confirm('Vuelve a calificar TODOS los evaluados Cleaver con la lógica y baremos vigentes. Es idempotente: si nada cambió, no altera resultados. ¿Continuar?')) return;
+            try {
+              const r = await apiEvaluador.recalificarTodo();
+              setAviso(`Recalificados ${r.recalificados} de ${r.total} evaluados.` + (r.fallidos?.length ? ` Con problemas: ${r.fallidos.length}.` : ''));
+              cargarLista();
+            } catch (e) { setAviso('Error al recalificar: ' + (e.message || e)); }
+          }}>Recalificar todo</Boton>
           <Boton variante="secundario" onClick={salir}>Cerrar sesión</Boton>
         </div>
       </div>
@@ -797,15 +790,22 @@ function descargarXLSX(reporte) {
   ws1["!cols"] = [{ wch: 6 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 9 }, { wch: 22 }, { wch: 9 }];
   XLSX.utils.book_append_sheet(wb, ws1, "Respuestas");
 
+  const p = reporte.percentiles || { M: {}, L: {}, T: {} };
   const cal = [
-    ["PRECALIFICACIÓN Y CALIFICACIÓN"], [],
-    ["Factor", "Nombre", "M", "L", "T = M − L", "Lectura"],
+    ["PRECALIFICACIÓN Y CALIFICACIÓN (percentiles del baremo oficial)"], [],
+    ["Factor", "Nombre", "M", "% M", "L", "% L", "T = M − L", "% T", "Lectura"],
   ];
-  FACTORES.forEach((f) => cal.push([f, NF[f], reporte.M[f], reporte.L[f], reporte.T[f], reporte.estado[f]]));
+  FACTORES.forEach((f) => cal.push([
+    f, NF[f],
+    reporte.M[f], p.M?.[f] ?? "",
+    reporte.L[f], p.L?.[f] ?? "",
+    reporte.T[f], p.T?.[f] ?? "",
+    reporte.estado[f],
+  ]));
   cal.push([]);
-  cal.push(["Verificación totales", "", reporte.sumaM, reporte.sumaL, "de 24 esperados"]);
+  cal.push(["Verificación totales", "", reporte.sumaM, "", reporte.sumaL, "", "de 24 esperados"]);
   const ws2 = XLSX.utils.aoa_to_sheet(cal);
-  ws2["!cols"] = [{ wch: 10 }, { wch: 28 }, { wch: 8 }, { wch: 8 }, { wch: 12 }, { wch: 16 }];
+  ws2["!cols"] = [{ wch: 10 }, { wch: 28 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 10 }, { wch: 6 }, { wch: 16 }];
   XLSX.utils.book_append_sheet(wb, ws2, "Calificación");
 
   const inte = [["INTERPRETACIÓN"], []];
@@ -839,8 +839,9 @@ function descargarDOC(reporte) {
     `<table><tr>${Array(4).fill('<th></th><th style="background:#e5e7eb">MÁS</th><th style="background:#e5e7eb">MENOS</th>').join("")}</tr>${filas}</table><br/>`
   ).join("");
 
+  const p = reporte.percentiles || { M: {}, L: {}, T: {} };
   const filasCal = FACTORES.map((f) =>
-    `<tr><td>${f}</td><td>${esc(NF[f])}</td><td style="text-align:center">${reporte.M[f]}</td><td style="text-align:center">${reporte.L[f]}</td><td style="text-align:center"><b>${fmt(reporte.T[f])}</b></td><td>${reporte.estado[f]}</td></tr>`
+    `<tr><td>${f}</td><td>${esc(NF[f])}</td><td style="text-align:center">${reporte.M[f]}</td><td style="text-align:center;color:#666">${p.M?.[f] ?? "—"}</td><td style="text-align:center">${reporte.L[f]}</td><td style="text-align:center;color:#666">${p.L?.[f] ?? "—"}</td><td style="text-align:center"><b>${fmt(reporte.T[f])}</b></td><td style="text-align:center;color:#666"><b>${p.T?.[f] ?? "—"}</b></td><td>${reporte.estado[f]}</td></tr>`
   ).join("");
 
   const bloquesClaves = reporte.claves.map((c) =>
@@ -872,7 +873,7 @@ function descargarDOC(reporte) {
 
     <h2>2. Precalificación y calificación</h2>
     <table>
-      <tr><th>Factor</th><th>Nombre</th><th>M</th><th>L</th><th>T = M − L</th><th>Lectura</th></tr>
+      <tr><th>Factor</th><th>Nombre</th><th>M</th><th>%</th><th>L</th><th>%</th><th>T = M − L</th><th>%</th><th>Lectura</th></tr>
       ${filasCal}
     </table>
 
@@ -905,13 +906,17 @@ function descargarHTML(reporte) {
     return `<table style="border-collapse:collapse;width:100%;margin-bottom:16px;font-size:13px"><tr>${encabezados}</tr>${filas}</table>`;
   }).join("");
 
+  const pH = reporte.percentiles || { M: {}, L: {}, T: {} };
   const filasCal = FACTORES.map((f) => {
     const tono = reporte.estado[f] === "ALTO" ? "background:#ecfdf5;color:#047857" : reporte.estado[f] === "BAJO" ? "background:#fffbeb;color:#b45309" : "background:#f1f5f9;color:#475569";
     return `<tr>
       <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9">${f} — ${esc(NF[f])}</td>
       <td style="padding:8px 12px;text-align:center;border-bottom:1px solid #f1f5f9">${reporte.M[f]}</td>
+      <td style="padding:8px 12px;text-align:center;border-bottom:1px solid #f1f5f9;color:#64748b">${pH.M?.[f] ?? "—"}</td>
       <td style="padding:8px 12px;text-align:center;border-bottom:1px solid #f1f5f9">${reporte.L[f]}</td>
+      <td style="padding:8px 12px;text-align:center;border-bottom:1px solid #f1f5f9;color:#64748b">${pH.L?.[f] ?? "—"}</td>
       <td style="padding:8px 12px;text-align:center;font-weight:600;border-bottom:1px solid #f1f5f9">${fmt(reporte.T[f])}</td>
+      <td style="padding:8px 12px;text-align:center;font-weight:600;border-bottom:1px solid #f1f5f9;color:#64748b">${pH.T?.[f] ?? "—"}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #f1f5f9"><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;${tono}">${reporte.estado[f]}</span></td>
     </tr>`;
   }).join("");
@@ -948,7 +953,16 @@ function descargarHTML(reporte) {
   <h2>2 · Precalificación y calificación</h2>
   <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin-bottom:20px">
     <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <tr><th style="text-align:left;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">Factor</th><th style="text-align:center;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">M</th><th style="text-align:center;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">L</th><th style="text-align:center;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">T = M − L</th><th style="text-align:left;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">Lectura</th></tr>
+      <tr>
+        <th style="text-align:left;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">Factor</th>
+        <th style="text-align:center;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">M</th>
+        <th style="text-align:center;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">% M</th>
+        <th style="text-align:center;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">L</th>
+        <th style="text-align:center;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">% L</th>
+        <th style="text-align:center;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">T = M − L</th>
+        <th style="text-align:center;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">% T</th>
+        <th style="text-align:left;padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#64748b">Lectura</th>
+      </tr>
       ${filasCal}
     </table>
   </div>
