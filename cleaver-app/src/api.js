@@ -70,6 +70,9 @@ export const apiEvaluador = {
   eliminar(folio) {
     return req(`/api/cleaver/resultados/${folio}`, { method: "DELETE", auth: true });
   },
+  recalificarTodo() {
+    return req("/api/cleaver/resultados/recalificar-todo", { method: "POST", auth: true });
+  },
 };
 
 /* ===================== Sesión activa del evaluado ===================== */

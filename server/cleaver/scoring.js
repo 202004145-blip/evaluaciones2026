@@ -3,15 +3,18 @@
 /**
  * Motor de calificación puro del Test de Cleaver. No toca la red, la base de
  * datos ni el DOM: recibe las marcas MÁS/MENOS del postulante y devuelve el
- * reporte completo (conteos M y L, T = M − L, lecturas ALTO/BAJO, claves
- * aplicadas con su interpretación, motivación y limitaciones). Toda la
- * información interpretativa (palabras del test y textos del manual) sale de
+ * reporte completo (conteos M y L por factor, T = M − L, **percentiles**
+ * oficiales, lecturas ALTO/BAJO/LÍNEA MEDIA, claves aplicadas con
+ * interpretación, motivación y limitaciones). Toda la información
+ * interpretativa (palabras del test, sinónimos y textos del manual) sale de
  * los archivos en `datos/cleaver/`, nunca del código.
  *
- * Réplica exacta de la lógica original (`calcularAnalisis`): por cada uno de
- * los 24 grupos el evaluado elige una palabra MÁS (M) y una MENOS (L); cada
- * palabra pertenece a un factor D/I/S/C. Se cuentan las M y las L por factor,
- * T = M − L, y la lectura es ALTO (T>0), BAJO (T<0) o LÍNEA MEDIA (T=0).
+ * Réplica del Excel oficial (`Test_de_Cleaver_automatizado.xls`, hoja "hoja
+ * de captura"): por cada uno de los 24 grupos el evaluado elige una palabra
+ * MÁS (M) y una MENOS (L); cada palabra pertenece a un factor D/I/S/C. Se
+ * cuentan M y L por factor, T = M − L, y se convierten a **percentiles**
+ * usando las 12 tablas de baremos oficiales (D_M, I_M, S_M, C_M, D_L, I_L,
+ * S_L, C_L, D_T, I_T, S_T, C_T).
  */
 
 const path = require('node:path');
@@ -29,25 +32,45 @@ const INTERPRETACION = loadJson('interpretacion_cleaver.json');
 const FACTORES = GRUPOS_DATA.factores; // ["D","I","S","C"]
 const NOMBRE_FACTOR = GRUPOS_DATA.nombreFactor;
 const BLOQUES = GRUPOS_DATA.bloques;
-// Lista plana de los 24 grupos ordenada por número.
 const GRUPOS = BLOQUES.flat().slice().sort((a, b) => a.g - b.g);
 const TOTAL_GRUPOS = GRUPOS.length;
 const GRUPO_POR_NUM = new Map(GRUPOS.map((gr) => [gr.g, gr]));
 const NUMEROS_VALIDOS = new Set(GRUPOS.map((gr) => gr.g));
 
-const { rapida: INTERPRETACION_RAPIDA, motivacion: MOTIVACION, limitaciones: LIMITACIONES } =
-  INTERPRETACION;
+const COMBINACIONES = INTERPRETACION.combinaciones;   // {D/I: {nombre, texto}, ...}
+const ALTO_BAJO = INTERPRETACION.altoBajo;             // {D+: {nombre, texto}, D-, I+, ...}
+const PERCENTILES = INTERPRETACION.percentiles;        // {D_M, I_M, ..., C_T}: [[val,pct], ...]
 
-/** Versión pública de los grupos: las 24 palabras por factor. No hay secreto
- * en las palabras (el evaluado las ve), pero sí en la calificación. */
-const GRUPOS_PUBLICOS = GRUPOS.map((gr) => ({ g: gr.g, palabras: gr.palabras }));
+/** Versión pública de los grupos (para el evaluado): las 24 palabras por
+ * factor con sus sinónimos. La calificación e interpretación no viajan al
+ * cliente. */
+const GRUPOS_PUBLICOS = GRUPOS.map((gr) => ({
+  g: gr.g,
+  palabras: gr.palabras,
+  definiciones: gr.definiciones || {},
+}));
 
-function esFactor(x) {
-  return typeof x === 'string' && FACTORES.includes(x);
-}
+function esFactor(x) { return typeof x === 'string' && FACTORES.includes(x); }
+function fmt(n) { return n > 0 ? `+${n}` : `${n}`; }
 
-function fmt(n) {
-  return n > 0 ? `+${n}` : `${n}`;
+/** Convierte un conteo (M/L/T) al percentil oficial buscando en la tabla. Si
+ * no hay entrada exacta, usa la más cercana por debajo. */
+function percentilDe(clave, valor) {
+  const tabla = PERCENTILES[clave];
+  if (!tabla || !tabla.length) return null;
+  // Búsqueda exacta primero
+  for (const [v, p] of tabla) if (v === valor) return p;
+  // Extrapolación: si está por debajo del mínimo, usa el percentil del mínimo;
+  // si por encima del máximo, usa el del máximo.
+  const vals = tabla.map((x) => x[0]);
+  const minV = Math.min(...vals), maxV = Math.max(...vals);
+  if (valor < minV) return tabla.find((x) => x[0] === minV)[1];
+  if (valor > maxV) return tabla.find((x) => x[0] === maxV)[1];
+  // Rango intermedio sin match exacto (no debería pasar por la granularidad de
+  // las tablas, pero por si acaso: usa la entrada inmediatamente inferior).
+  let best = null;
+  for (const [v, p] of tabla) if (v <= valor && (best === null || v > best[0])) best = [v, p];
+  return best ? best[1] : null;
 }
 
 /**
@@ -71,7 +94,6 @@ function scoreCleaver(respuestas) {
     err.code = 'RESPUESTAS_INCOMPLETAS';
     throw err;
   }
-
   const invalidas = GRUPOS.filter((gr) => {
     const r = respuestas[gr.g];
     return !esFactor(r.mas) || !esFactor(r.menos) || r.mas === r.menos;
@@ -107,6 +129,14 @@ function scoreCleaver(respuestas) {
     estado[f] = T[f] > 0 ? 'ALTO' : T[f] < 0 ? 'BAJO' : 'LÍNEA MEDIA';
   });
 
+  // Percentiles oficiales para M, L y T de cada factor.
+  const percentiles = { M: {}, L: {}, T: {} };
+  FACTORES.forEach((f) => {
+    percentiles.M[f] = percentilDe(`${f}_M`, M[f]);
+    percentiles.L[f] = percentilDe(`${f}_L`, L[f]);
+    percentiles.T[f] = percentilDe(`${f}_T`, T[f]);
+  });
+
   const orden = [...FACTORES].sort((a, b) => T[b] - T[a]);
   const dominante = orden[0];
   const secundario = orden[1];
@@ -122,7 +152,7 @@ function scoreCleaver(respuestas) {
   }
   if (dominante !== secundario && T[dominante] !== T[secundario]) {
     const combo = `${dominante}/${secundario}`;
-    if (INTERPRETACION_RAPIDA[combo]) {
+    if (COMBINACIONES[combo]) {
       clavesBrutas.push({
         clave: combo,
         motivo: `Combinación básica: factor más alto (${dominante} = ${fmt(T[dominante])}) sobre el segundo más alto (${secundario} = ${fmt(T[secundario])}).`,
@@ -150,24 +180,14 @@ function scoreCleaver(respuestas) {
   }
 
   const claves = clavesBrutas.map((c) => {
-    const info = INTERPRETACION_RAPIDA[c.clave] || {};
-    return { clave: c.clave, motivo: c.motivo, corto: info.corto || '', texto: info.texto || '' };
-  });
-
-  // Motivación y limitaciones por factor (solo para factores fuera de la línea
-  // media), resueltas desde el manual.
-  const motivacion = {};
-  const limitaciones = {};
-  FACTORES.forEach((f) => {
-    if (estado[f] === 'LÍNEA MEDIA') {
-      motivacion[f] = null;
-      limitaciones[f] = null;
-      return;
-    }
-    const nivel = estado[f] === 'ALTO' ? 'alto' : 'bajo';
-    const m = (MOTIVACION[f] && MOTIVACION[f][nivel]) || { quiere: [], necesita: [] };
-    motivacion[f] = { estado: estado[f], quiere: m.quiere || [], necesita: m.necesita || [] };
-    limitaciones[f] = { estado: estado[f], lista: (LIMITACIONES[f] && LIMITACIONES[f][nivel]) || [] };
+    // Puede venir de COMBINACIONES (D/I, D/S, ...) o de ALTO_BAJO (D+, D-, I+, ...)
+    const info = COMBINACIONES[c.clave] || ALTO_BAJO[c.clave] || {};
+    return {
+      clave: c.clave,
+      motivo: c.motivo,
+      corto: info.nombre || '',
+      texto: info.texto || '',
+    };
   });
 
   return {
@@ -177,6 +197,7 @@ function scoreCleaver(respuestas) {
     M,
     L,
     T,
+    percentiles,
     estado,
     orden,
     dominante,
@@ -184,8 +205,6 @@ function scoreCleaver(respuestas) {
     inferior,
     detalle,
     claves,
-    motivacion,
-    limitaciones,
     sumaM: FACTORES.reduce((a, f) => a + M[f], 0),
     sumaL: FACTORES.reduce((a, f) => a + L[f], 0),
   };
@@ -200,7 +219,11 @@ module.exports = {
   TOTAL_GRUPOS,
   NUMEROS_VALIDOS,
   GRUPO_POR_NUM,
+  COMBINACIONES,
+  ALTO_BAJO,
+  PERCENTILES,
   esFactor,
   fmt,
+  percentilDe,
   scoreCleaver,
 };

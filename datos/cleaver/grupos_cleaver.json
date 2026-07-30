@@ -20,44 +20,74 @@
           "I": "Gentil",
           "S": "Humilde",
           "C": "Original"
+        },
+        "definiciones": {
+          "D": "el que tiene fuerza para hacer creer a otros una cosa, convencer de algo.",
+          "I": "el que actúa con cortesía y soltura, con urbanidad. El amable, gallardo, con gracia.",
+          "S": "sencillo, que no alardea (no interpretar como vida cristiana)",
+          "C": "el que no es imitación de otro, el singular."
         }
       },
       {
-        "g": 5,
+        "g": 2,
         "palabras": {
           "D": "Fuerza de Voluntad",
           "I": "Mente Abierta",
           "S": "Complaciente",
           "C": "Animoso"
+        },
+        "definiciones": {
+          "D": "determinación inquebrantable para lograr algo, firmeza.",
+          "I": "cualidad para escuchar y recibir otro punto de vista diferente.",
+          "S": "el que procura ser agradable, servicial, solícito, comedido, conciliador o deferente.",
+          "C": "el que demuestra valor, energía voluntad, intención y esfuerzo para la lucha o el trabajo."
         }
       },
       {
-        "g": 9,
+        "g": 3,
         "palabras": {
           "D": "Obediente",
           "I": "Quisquilloso",
           "S": "Inconquistable",
           "C": "Juguetón"
+        },
+        "definiciones": {
+          "D": "el que sabe seguir indicaciones sin poner su creatividad, cumple voluntad de quien manda, dócil, subordinado.",
+          "I": "el que fácilmente se agravia u ofende, demasiado delicado en el trato, meticuloso.",
+          "S": "que no se deja vencer con ruegos, detalles o agasajos, susceptible.",
+          "C": "el que tiene buen sentido del humor, aficionado a bromas."
         }
       },
       {
-        "g": 13,
+        "g": 4,
         "palabras": {
           "D": "Aventurero",
           "I": "Receptivo",
           "S": "Cordial",
           "C": "Moderado"
+        },
+        "definiciones": {
+          "D": "el que busca aventuras",
+          "I": "persona con capacidad de recibir, facilidad para captar algo",
+          "S": "persona amable, afectuosa, cariñosa.",
+          "C": "guarda medio entre dos extremos, que mantiene un equilibrio en sus acciones."
         }
       }
     ],
     [
       {
-        "g": 2,
+        "g": 5,
         "palabras": {
           "D": "Agresivo",
           "I": "Alma de la Fiesta",
           "S": "Comodino",
           "C": "Temeroso"
+        },
+        "definiciones": {
+          "D": "el que demuestra empuje e iniciativa en una forma positiva, no es el propenso a ofender.",
+          "I": "el más popular, el que genera mayor atracción en  el grupo.",
+          "S": "el amante de la comodidad, que busca caminos fáciles.",
+          "C": "el tímido, el cobarde, aprensivo."
         }
       },
       {
@@ -67,44 +97,74 @@
           "I": "Simpatizador",
           "S": "Tolerante",
           "C": "Afirmativo"
-        }
-      },
-      {
-        "g": 10,
-        "palabras": {
-          "D": "Respetuoso",
-          "I": "Emprendedor",
-          "S": "Optimista",
-          "C": "Servicial"
-        }
-      },
-      {
-        "g": 14,
-        "palabras": {
-          "D": "Indulgente",
-          "I": "Esteta",
-          "S": "Vigoroso",
-          "C": "Sociable"
-        }
-      }
-    ],
-    [
-      {
-        "g": 3,
-        "palabras": {
-          "D": "Agradable",
-          "I": "Temeroso de Dios",
-          "S": "Tenaz",
-          "C": "Atractivo"
+        },
+        "definiciones": {
+          "D": "el presumido y vanidoso, crédulo y sencillo. No el que confía en sí mismo.",
+          "I": "el que manifiesta inclinación o afecto natural hacia otras personas.",
+          "S": "el que reconoce y respeta las opiniones, prácticas y comportamiento de otros, aunque sean diferentes a las de él. No el que sufre con paciencia o el que deja pasar cosas que no son lícitas.",
+          "C": "el que responde en la mayoría de las ocasiones de una manera positiva. No el que se sostiene o ratifica lo dicho."
         }
       },
       {
         "g": 7,
         "palabras": {
+          "D": "Respetuoso",
+          "I": "Emprendedor",
+          "S": "Optimista",
+          "C": "Servicial"
+        },
+        "definiciones": {
+          "D": "el que guarda reverencia, consideración y cortesía para los demás.",
+          "I": "que muestra imaginación instintiva y empuje, que se dedica a resolver situaciones difíciles. Atrevido.",
+          "S": "el que suele ver y juzgar las cosas bajo su aspecto más favorable.",
+          "C": "el que sirve con diligencia, siempre dispuesto a complacer a otros, amable y colaborador."
+        }
+      },
+      {
+        "g": 8,
+        "palabras": {
+          "D": "Indulgente",
+          "I": "Esteta",
+          "S": "Vigoroso",
+          "C": "Sociable"
+        },
+        "definiciones": {
+          "D": "el que perdona fácilmente, tolerante, conciliador.",
+          "I": "el que es aficionado, percibe o cultiva la belleza. Busca en todo la elegancia.",
+          "S": "el robusto y fuerte.",
+          "C": "el que busca y necesita del compañerismo de otros, fácil de tratar con él."
+        }
+      }
+    ],
+    [
+      {
+        "g": 9,
+        "palabras": {
+          "D": "Agradable",
+          "I": "Temeroso de Dios",
+          "S": "Tenaz",
+          "C": "Atractivo"
+        },
+        "definiciones": {
+          "D": "el que agrada y complace, gusta a los demás.",
+          "I": "el que reconoce el poder de Dios sobre todas las cosas, religioso",
+          "S": "el obstinado y testarudo, con inquebrantable fuerza de voluntad para realizar algún objetivo.",
+          "C": "cualidad de la persona (encanto) que atrae la voluntad de los demás."
+        }
+      },
+      {
+        "g": 10,
+        "palabras": {
           "D": "Ecuánime",
           "I": "Preciso",
           "S": "Nervioso",
           "C": "Jovial"
+        },
+        "definiciones": {
+          "D": "el calmado, sereno, imparcial, inalterable, paciente, prudente. Que tiene siempre el mismo ánimo.",
+          "I": "el puntual y exacto, con claridad y determinado.",
+          "S": "el ansioso, al que le falta sentido de seguridad",
+          "C": "el apacible, alegre y festivo."
         }
       },
       {
@@ -114,44 +174,74 @@
           "I": "Inspirador",
           "S": "Sumiso",
           "C": "Tímido"
-        }
-      },
-      {
-        "g": 15,
-        "palabras": {
-          "D": "Parlanchín",
-          "I": "Controlado",
-          "S": "Convencional",
-          "C": "Decisivo"
-        }
-      }
-    ],
-    [
-      {
-        "g": 4,
-        "palabras": {
-          "D": "Cauteloso",
-          "I": "Determinado",
-          "S": "Convincente",
-          "C": "Bonachón"
-        }
-      },
-      {
-        "g": 8,
-        "palabras": {
-          "D": "Disciplinado",
-          "I": "Generoso",
-          "S": "Animoso",
-          "C": "Persistente"
+        },
+        "definiciones": {
+          "D": "el que manifiesta coraje y decisión. El fuerte, enérgico y animoso.",
+          "I": "el que anima la mente o las emociones de otros; infunde entusiasmo.",
+          "S": "el que permite por sí mismo estar sujeto a otro. Obediente y dócil.",
+          "C": "callado, no busca sobresalir."
         }
       },
       {
         "g": 12,
         "palabras": {
+          "D": "Parlanchín",
+          "I": "Controlado",
+          "S": "Convencional",
+          "C": "Decisivo"
+        },
+        "definiciones": {
+          "D": "persona locuaz, que tiene inclinación por hablar mucho, platicador.",
+          "I": "ejerce influencia resultante en sí mismo y en otros, con dominio de sí.",
+          "S": "el que se mantiene en una trayectoria de uso general.",
+          "C": "el resuelto, determinado e incuestionable."
+        }
+      }
+    ],
+    [
+      {
+        "g": 13,
+        "palabras": {
+          "D": "Cauteloso",
+          "I": "Determinado",
+          "S": "Convincente",
+          "C": "Bonachón"
+        },
+        "definiciones": {
+          "D": "el reservado que actúa con cuidado, con precaución.",
+          "I": "el atrevido, que toma resoluciones, preciso y decidido, que define.",
+          "S": "el que sabe convencer y obligar a otro con razones a que reconozca una cosa o cambie de opinión.",
+          "C": "el que todo se cree, dócil y bueno."
+        }
+      },
+      {
+        "g": 14,
+        "palabras": {
+          "D": "Disciplinado",
+          "I": "Generoso",
+          "S": "Animoso",
+          "C": "Persistente"
+        },
+        "definiciones": {
+          "D": "el acostumbrado a la obediencia, a seguir las reglas.",
+          "I": "el que obra con magnanimidad y nobleza, liberal dadivoso y franco.",
+          "S": "el que demuestra valor, energía voluntad, intención y esfuerzo para la lucha o el trabajo.",
+          "C": "el que supera obstáculos, el que es constante, y perseverante, el que se mantiene en un propósito."
+        }
+      },
+      {
+        "g": 15,
+        "palabras": {
           "D": "Adaptable",
           "I": "Disputador",
           "S": "Indiferente",
           "C": "Sangre Liviana"
+        },
+        "definiciones": {
+          "D": "el que se ajusta fácilmente a condiciones nuevas o diferentes.",
+          "I": "dado a argüir o debatir razones para, por o contra algo. Discutidor.",
+          "S": "el que parece en forma sistemática no estar involucrado. No presenta motivo de preferencia.",
+          "C": "el que a todo el mundo le cae bien, persona simpática."
         }
       },
       {
@@ -161,6 +251,12 @@
           "I": "Exacto",
           "S": "Franco",
           "C": "Buen Compañero"
+        },
+        "definiciones": {
+          "D": "el que se limita, restringe o controla ante los demás.",
+          "I": "justo, preciso, matemático, calculador.",
+          "S": "espontáneo, leal, sincero.",
+          "C": "persona sociable, que mantiene armonía con otros."
         }
       }
     ],
@@ -172,6 +268,12 @@
           "I": "Atrevido",
           "S": "Leal",
           "C": "Encantador"
+        },
+        "definiciones": {
+          "D": "el fácil de conducir y enseñarle, obediente, dúctil, que se puede labrar con facilidad.",
+          "I": "el emprendedor, osado, decidido, resuelto, determinado, intrépido.",
+          "S": "el sincero y honrado, franco, que guarda fidelidad.",
+          "C": "el que seduce, cautiva o atrae por su gracia o impresión causada, simpático."
         }
       },
       {
@@ -181,6 +283,12 @@
           "I": "Alegre",
           "S": "Considerado",
           "C": "Armonioso"
+        },
+        "definiciones": {
+          "D": "el que contiende o disputa con otros por una causa de superación común por perfección o por la posesión de propiedades.",
+          "I": "el  que está lleno de alegría y la ocasiona en otros. Contento de animo, festivo.",
+          "S": "el que obra con reflexión y que trata con respeto a los demás.",
+          "C": "el que tiene amistad y buena correspondencia, el que no tiene fricciones con otros."
         }
       },
       {
@@ -190,6 +298,12 @@
           "I": "Paciente",
           "S": "Confianza en sí Mismo",
           "C": "Mesurado para Hablar"
+        },
+        "definiciones": {
+          "D": "el que busca y goza la compañía de otros, muy sociable.",
+          "I": "el que es capaz de soportar, sabe esperar con calma el momento oportuno.",
+          "S": "confía en sus propias capacidades y recursos, autosuficiente.",
+          "C": "medido para hablar, habla lo necesario."
         }
       },
       {
@@ -199,6 +313,12 @@
           "I": "Audaz",
           "S": "Refinado",
           "C": "Satisfecho"
+        },
+        "definiciones": {
+          "D": "el que se caracteriza por el buen tacto en su trato con la gente.",
+          "I": "el arrogante e insolente. No el osado ni atrevido.",
+          "S": "el elegante y fino en su manera de ser, se distingue.",
+          "C": "se contenta o conforma con lo que tiene."
         }
       }
     ],
@@ -210,6 +330,12 @@
           "I": "Deseoso",
           "S": "Consecuente",
           "C": "Entusiasta"
+        },
+        "definiciones": {
+          "D": "el hábil, despejado, bien condicionado.",
+          "I": "el que tiene un fuerte impulso o deseo hacia la posesión o disfrute de una cosa.",
+          "S": "el que obra de acuerdo con sus principios, el que mantiene una proporción consigo mismo sobre su conducta y lo que piensa.",
+          "C": "el que experimenta energía positiva de hacer algo."
         }
       },
       {
@@ -219,6 +345,12 @@
           "I": "Bondadoso",
           "S": "Resignado",
           "C": "Carácter Firme"
+        },
+        "definiciones": {
+          "D": "que es digno de admiración. Notable.",
+          "I": "el que es muy bueno, humanitario.",
+          "S": "el que se conforma, se sujeta, el condescendiente. El que acepta estar bajo la voluntad de otro.",
+          "C": "que no cambia fácilmente su punto de vista o su estilo de condición."
         }
       },
       {
@@ -228,6 +360,12 @@
           "I": "Confiable",
           "S": "Pacífico",
           "C": "Positivo"
+        },
+        "definiciones": {
+          "D": "el satisfecho con lo que tiene, de acuerdo con el parecer de otros.",
+          "I": "persona con la cual se tiene confianza.",
+          "S": "el que tiene calma y serenidad, amante de la paz.",
+          "C": "optimista."
         }
       },
       {
@@ -237,6 +375,12 @@
           "I": "Popular",
           "S": "Buen Vecino",
           "C": "Devoto"
+        },
+        "definiciones": {
+          "D": "el que gusta de lo nuevo, versátil y cambiante.",
+          "I": "el que genera atracción en el grupo.",
+          "S": "el que actúa con soltura y cortesía.",
+          "C": "el sumiso y fiel."
         }
       }
     ]
