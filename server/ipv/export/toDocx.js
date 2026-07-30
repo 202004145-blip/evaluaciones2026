@@ -84,7 +84,7 @@ async function generarDocxIPV(datos) {
   );
   children.push(
     parrafo(
-      'PD = puntuación directa · Decatipo = valor tipificado 1–10 (media 5.5). Bajo: 1–3 · Medio: 4–7 · Alto: 8–10.',
+      'PD = puntuación directa · Decatipo = valor tipificado 1–10 (media 5.5). Niveles del manual oficial: Muy Bajo (1–2) · Bajo (3–4) · Promedio (5–6) · Mayor Promedio (7–8) · Alto (9–10).',
       { color: '5B6360' }
     )
   );

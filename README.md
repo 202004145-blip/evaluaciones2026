@@ -1,10 +1,9 @@
-# Evaluaciones PRADEVA — DISC + IPV + BFI-2-XS
+# Evaluaciones PRADEVA — DISC + IPV
 
-Aplicación web para administrar y calificar tests psicométricos en procesos de selección de personal. Incluye instrumentos independientes que comparten el mismo servidor y el mismo login de evaluador:
+Aplicación web para administrar y calificar tests psicométricos en procesos de selección de personal. Incluye dos instrumentos independientes que comparten el mismo servidor y el mismo login de evaluador:
 
 - **DISC** — Sistema de Perfil Personal (28 ítems de selección forzada MÁS/MENOS).
 - **IPV** — Inventario de Personalidad para Vendedores (87 preguntas de elección única A/B/C, corrección contra clave, decatipos y niveles).
-- **BFI-2-XS** — Inventario Big Five 2, versión ultra breve (15 ítems de escala Likert 1–5, 5 dominios: Extraversión, Amabilidad, Responsabilidad, Emocionalidad Negativa y Apertura Mental).
 
 Ver `CLAUDE.md` para el contexto completo del proyecto (calificación oficial, reglas, trabajo pendiente).
 
@@ -14,21 +13,17 @@ Ver `CLAUDE.md` para el contexto completo del proyecto (calificación oficial, r
 datos/            Datos oficiales de los instrumentos
   <raíz>           DISC (ítems, tablas de conversión, patrones, estilos)
   ipv/             IPV (87 preguntas con su clave, baremos/decatipos, mapeo pregunta→escala)
-  bfi/             BFI-2-XS (15 ítems, mapeo ítem→dimensión e ítems inversos, umbrales de nivel, interpretaciones)
 server/           Backend Express + SQLite
   scoring/         Motor de calificación DISC (puro, con tests: node --test)
   export/          Generadores de exportación DISC (docx, xlsx, html)
   ipv/             Motor de calificación IPV (puro + tests) y sus exportadores (ipv/export/)
-  bfi/             Motor de calificación BFI-2-XS (puro + tests) y sus exportadores (bfi/export/)
-  routes/          Endpoints de la API (DISC, IPV y BFI: bfi-sesiones, bfi-resultados, bfi-exportar)
+  routes/          Endpoints de la API (DISC e IPV: ipv-sesiones, ipv-resultados, ipv-exportar)
   scripts/         Utilidades de línea de comandos (crear contraseña de evaluador)
 public/
   evaluado/        Vista del postulante DISC (28 ítems, jamás ve resultados)
   evaluador/        Panel del evaluador DISC (login, lista, detalle, exportación)
   ipv/evaluado/    Vista del postulante IPV (87 preguntas, jamás ve resultados)
   ipv/evaluador/   Panel del evaluador IPV (login compartido, lista, detalle, exportación)
-  bfi/evaluado/    Vista del postulante BFI-2-XS (15 ítems Likert, jamás ve resultados)
-  bfi/evaluador/   Panel del evaluador BFI-2-XS (login compartido, lista, detalle, exportación)
   shared/          Estilos base compartidos
 cleaver-app/       Test de Cleaver — app React/Vite independiente (frontend, localStorage).
                    Su build (cleaver-app/dist) lo sirve el mismo Express en /cleaver
@@ -52,9 +47,8 @@ npm start                    # http://localhost:3000
 - DISC — evaluado: `http://localhost:3000/evaluado/` · evaluador: `http://localhost:3000/evaluador/`
 - IPV — evaluado: `http://localhost:3000/ipv/evaluado/` · evaluador: `http://localhost:3000/ipv/evaluador/`
 - Cleaver — evaluado y evaluador en `http://localhost:3000/cleaver/` (el enlace "Acceso restringido", abajo de la pantalla del evaluado, lleva al login)
-- BFI-2-XS — evaluado: `http://localhost:3000/bfi/evaluado/` · evaluador: `http://localhost:3000/bfi/evaluador/`
 
-El login del evaluador es el **mismo para todos los instrumentos** (misma tabla `evaluadores`, misma cookie de sesión).
+El login del evaluador es el **mismo para los tres instrumentos** (misma tabla `evaluadores`, misma cookie de sesión).
 
 ### Cleaver (frontend React/Vite con backend real)
 
@@ -92,17 +86,21 @@ npm test
 ```
 
 - DISC (`server/scoring/scoring.test.js`): suma de conteos MÁS = 28, suma MENOS = 28, cobertura completa de las tablas de conversión, los 13 códigos faltantes de la matriz de patrones y los códigos de verificación 1115→Objetivo, 1511→Promotor, 5555→Superactivo.
-- IPV (`server/ipv/scoring.test.js`): 87 preguntas con clave válida, PD por escala = número de ítems con todo correcto, las escalas compuestas R y A como suma exacta de sus partes, los límites de la tabla de decatipos y el rechazo tipado de respuestas incompletas o inválidas.
+- IPV (`server/ipv/scoring.test.js`): 87 preguntas con clave válida, cada pregunta pertenece a exactamente una escala (11+11+11+8+11+11+8+8+8 = 87), PD por escala igual al nº de ítems con todo correcto, VIII inversa (con todo correcto → PD 0), R y A como suma exacta de sus partes, límites y casillas inalcanzables de las tablas de decatipos, los 5 niveles del manual (Muy Bajo/Bajo/Promedio/Mayor Promedio/Alto), rechazo tipado de respuestas incompletas o inválidas, y una **prueba de oro que reproduce exactamente el ejemplo del Excel oficial** (12 escalas: PDs, decatipos y etiquetas de nivel iguales al Excel).
 - Cleaver (`server/cleaver/scoring.test.js`): 24 grupos con los 4 factores D/I/S/C, suma de M = 24 y suma de L = 24, T = M − L con sus lecturas y claves (D+, I-, D=C+…), motivación/limitaciones solo para factores fuera de la línea media, y el rechazo tipado de respuestas incompletas, con MÁS = MENOS o con factores inválidos.
-- BFI-2-XS (`server/bfi/scoring.test.js`): 15 ítems mapeados 3 por dimensión sin solapamiento, los ítems inversos exactos (2, 5, 8, 13), la recodificación `6 − respuesta`, los umbrales de nivel (Muy bajo/Bajo/Medio/Alto/Muy alto) y el rechazo tipado de respuestas incompletas o inválidas.
 
 ## Lógica de calificación del IPV
 
-1. **Puntuación directa (PD)**: por cada escala específica (I…IX) se cuenta 1 punto por cada pregunta cuya respuesta coincide con la clave del manual (`datos/ipv/preguntas_ipv.json`). El mapeo pregunta→escala está en `datos/ipv/baremos_ipv.json`.
-2. **Escalas compuestas**: `R = I + II + III + IV` (Receptividad) y `A = V + VI + VII + VIII` (Agresividad).
-3. **DGV** (Disposición General para la Venta): coincidencias con la clave entre los 21 ítems representativos.
-4. **Decatipos**: cada PD se convierte a un valor tipificado 1–10 según la tabla de baremos mexicanos (n = 300) de cada escala.
-5. **Nivel**: Bajo (decatipo 1–3), Medio (4–7), Alto (8–10). Las descripciones por nivel salen de `datos/ipv/baremos_ipv.json`; el código no inventa interpretación.
+Validada contra el Excel oficial del instrumento (`the_IPV_test.xls`): reproduce PDs, decatipos y niveles idénticos al ejemplo del Excel para las 12 escalas (probado en `server/ipv/scoring.test.js`).
+
+1. **Puntuación directa (PD)**: por cada escala específica (I…IX) se cuenta 1 punto por cada pregunta cuya respuesta coincide con la clave del manual (`datos/ipv/preguntas_ipv.json`). El mapeo pregunta→escala está en `datos/ipv/baremos_ipv.json` (11+11+11+8+11+11+8+8+8 = 87 ítems, cada pregunta pertenece a exactamente una escala).
+2. **Escala VIII (Actividad) es inversa**: `PD_VIII = 8 − aciertos` (fórmula del Excel `8-(SUM(...))`). Marcado con `baremos.escala_reversa.VIII = true`.
+3. **Escalas compuestas**: `R = I + II + III + IV` (Receptividad) y `A = V + VI + VII + VIII` (Agresividad).
+4. **DGV** (Disposición General para la Venta): escala global aparte con su propia lista de 19 ítems y sus propias opciones puntuables en `baremos.dgv_items` (formato `{q, opt}`, una pregunta puede aparecer con más de una opción puntuable, y esa opción puede diferir de la de su escala específica).
+5. **Decatipos**: cada PD se convierte a un valor 1–10 usando rangos `{min, max}` por escala (`baremos.decatipos`). Algunas casillas son inalcanzables (min/max null) y se saltan.
+6. **Nivel** (5 categorías del manual oficial, fórmula del Excel `IF(dec<3,1,IF(dec<5,2,IF(dec<7,3,IF(dec<9,4,5))))`):
+   - **Muy Bajo** (decatipo 1–2), **Bajo** (3–4), **Promedio** (5–6), **Mayor Promedio** (7–8), **Alto** (9–10).
+   Las descripciones por nivel están en `baremos.escalas[<escala>].desc_1..desc_5`, tomadas literalmente del manual (`1interpretacionIPV.xls`).
 
 ## Lógica de calificación del Cleaver
 
@@ -111,13 +109,6 @@ npm test
 3. **Claves** (según el orden de T): `X+` para el factor con T más alto positivo; `X/Y` (combinación básica) del más alto sobre el segundo; `X-` para el más bajo negativo; y `D=C+`/`D=C-` cuando T(D)=T(C). Cada clave trae su interpretación (corto + texto) desde `datos/cleaver/interpretacion_cleaver.json`.
 4. **Motivación y limitaciones**: para cada factor fuera de la línea media se listan lo que "desea/necesita" y las posibles limitaciones bajo presión, también desde `datos/cleaver/`.
 5. **Sin baremo percentilar**: el manual provisto no incluye la conversión a percentiles, así que se reporta el puntaje bruto T con línea media en 0 (no percentiles). Si se captura la tabla, puede agregarse sin tocar la lógica.
-
-## Lógica de calificación del BFI-2-XS
-
-1. **Respuesta**: cada uno de los 15 ítems se responde en una escala Likert 1–5 (Muy en desacuerdo → Muy de acuerdo). Los ítems y el mapeo ítem→dimensión están en `datos/bfi/`.
-2. **Ítems inversos**: los ítems 2, 5, 8 y 13 se recodifican con `valor usado = 6 − respuesta` (definidos con `inv: true` en `datos/bfi/preguntas_bfi.json`).
-3. **Promedio por dimensión**: cada dominio (E, A, R, EN, AM) suma los valores usados de sus 3 ítems y divide entre 3 → promedio 1.0–5.0.
-4. **Nivel**: Muy bajo (≤ 1.80), Bajo (≤ 2.60), Medio (≤ 3.40), Alto (≤ 4.20), Muy alto (> 4.20). Los umbrales y las interpretaciones por nivel salen de `datos/bfi/baremos_bfi.json`; el código no inventa interpretación. Son rangos descriptivos, no baremos normativos oficiales.
 
 ## Despliegue en Railway
 
@@ -152,8 +143,8 @@ no hace falta un segundo servicio ni configuración extra en Railway.
    `secure` cuando `NODE_ENV=production`.
 5. **Redeploy** y probar:
    - Salud: `https://TU-DOMINIO/api/estado` → `{"ok":true,"evaluadorConfigurado":true}`
-   - Postulantes DISC: `/evaluado/` · IPV: `/ipv/evaluado/` · BFI-2-XS: `/bfi/evaluado/`
-   - Evaluador: `/evaluador/`, `/ipv/evaluador/` o `/bfi/evaluador/` (login con `ADMIN_USER`/`ADMIN_PASSWORD`)
+   - Postulantes DISC: `/evaluado/` · IPV: `/ipv/evaluado/`
+   - Evaluador: `/evaluador/` o `/ipv/evaluador/` (login con `ADMIN_USER`/`ADMIN_PASSWORD`)
    - Cleaver: `/cleaver/` (postulante); el evaluador entra por "Acceso restringido" con el mismo `ADMIN_USER`/`ADMIN_PASSWORD`
 
 Notas:

@@ -83,9 +83,15 @@ async function confirmarBorrado(folio) {
   cargarListaResultados();
 }
 
-function decaMeterHtml(decatipo, cat) {
+function nivelClase(codigo) {
+  // 1..5 → clase CSS estable: n1..n5.
+  return 'n' + (codigo || 3);
+}
+
+function decaMeterHtml(decatipo, codigo) {
   let segs = '';
-  for (let n = 1; n <= 10; n++) segs += `<div class="deca-seg ${n <= decatipo ? 'on ' + cat : ''}"></div>`;
+  const cls = nivelClase(codigo);
+  for (let n = 1; n <= 10; n++) segs += `<div class="deca-seg ${n <= decatipo ? 'on ' + cls : ''}"></div>`;
   return `<div class="deca-meter" title="Decatipo ${decatipo}/10">${segs}</div>`;
 }
 
@@ -128,9 +134,9 @@ function scoreSectionHtml(filas) {
         <td><span class="scale-name">${f.corta}</span> <span style="color:var(--ink-soft); font-size:11px;">${escapeHtml(sub)}</span></td>
         <td class="num">${f.pd}</td>
         <td class="num" style="color:var(--ink-soft);">${f.max ?? '—'}</td>
-        <td class="num"><span class="deca ${f.nivel.cat === 'bajo' ? '' : ''}">${f.decatipo}</span></td>
-        <td>${decaMeterHtml(f.decatipo, f.nivel.cat)}</td>
-        <td><span class="lvl ${f.nivel.cat}">${f.nivel.label}</span></td>
+        <td class="num"><span class="deca">${f.decatipo}</span></td>
+        <td>${decaMeterHtml(f.decatipo, f.nivel.codigo)}</td>
+        <td><span class="lvl ${nivelClase(f.nivel.codigo)}">${f.nivel.label}</span></td>
       </tr>`;
     })
     .join('');
@@ -142,7 +148,8 @@ function scoreSectionHtml(filas) {
       <tbody>${rows}</tbody>
     </table>
     <p style="font-style:italic; font-size:12px; color:var(--ink-soft); margin-top:12px;">
-      <b>PD</b> = puntuación directa · <b>Decatipo</b> = valor tipificado 1–10 (media 5.5). Bajo: 1–3 · Medio: 4–7 · Alto: 8–10.
+      <b>PD</b> = puntuación directa · <b>Decatipo</b> = valor tipificado 1–10 (media 5.5). Niveles del manual oficial:
+      Muy Bajo (1–2) · Bajo (3–4) · Promedio (5–6) · Mayor Promedio (7–8) · Alto (9–10).
     </p>`;
 }
 
@@ -152,7 +159,7 @@ function interpSectionHtml(filas) {
       (f) => `<div class="interp-card ${f.esGlobal ? 'global' : ''}">
       <div class="head">
         <div class="scale-label">${escapeHtml(f.nombre)}</div>
-        <div class="metrics">PD ${f.pd}${f.max != null ? '/' + f.max : ''} · Decatipo ${f.decatipo}/10 · <span class="lvl ${f.nivel.cat}">${f.nivel.label}</span></div>
+        <div class="metrics">PD ${f.pd}${f.max != null ? '/' + f.max : ''} · Decatipo ${f.decatipo}/10 · <span class="lvl ${nivelClase(f.nivel.codigo)}">${f.nivel.label}</span></div>
       </div>
       <p class="desc">${escapeHtml(f.descripcion)}</p>
     </div>`

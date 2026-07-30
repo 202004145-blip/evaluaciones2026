@@ -23,7 +23,11 @@ function listarResumen() {
     if (f.datos_json) {
       const datos = JSON.parse(f.datos_json);
       dgvDecatipo = datos.decatipos?.DGV ?? null;
-      dgvNivel = datos.niveles?.DGV ?? null;
+      // La etiqueta cualitativa oficial (Muy Bajo/Bajo/Promedio/Mayor Promedio/Alto).
+      // Compatible con resultados guardados con el formato antiguo (string).
+      dgvNivel =
+        datos.nivelesLabels?.DGV ??
+        (typeof datos.niveles?.DGV === 'string' ? datos.niveles.DGV : null);
     }
     return {
       folio: f.folio,
